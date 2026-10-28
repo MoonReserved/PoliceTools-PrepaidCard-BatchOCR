@@ -182,14 +182,14 @@
       return record;
     } catch (error) { await closeRecord(record); throw error; }
   }
-  function pageViewport(page) {
-    const viewport = page.getViewport({scale: 1});
+  function pageViewport(page, rotation = 0) {
+    const viewport = page.getViewport({scale: 1, rotation: (page.rotate + rotation) % 360});
     if (![viewport.width, viewport.height].every(value => Number.isFinite(value) && value > 0 && value <= 10000000)) {
       throw new Error('PDF 頁面尺寸異常，請先重新匯出或縮小頁面。');
     }
     return viewport;
   }
-  async function withPage(source, pageNumber, context, action) {
+  async function withPage(source, pageNumber, context, action, rotation = 0) {
     if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > source.pageCount) throw new Error('PDF 頁碼超出範圍。');
     const record = await documentFor(source, context);
     let page;
@@ -197,7 +197,7 @@
       page = await waitFor(record.document.getPage(pageNumber), context, OPEN_TIMEOUT,
         '讀取 PDF 頁面逾時，請先在本機拆成較小檔案。', () => closeRecord(record), value => value.cleanup());
       check(context);
-      return await action(page, pageViewport(page), record);
+      return await action(page, pageViewport(page, rotation), record);
     } catch (error) {
       // A failed parser or cancelled render is not reused by a subsequent page.
       await closeRecord(record);
@@ -244,7 +244,7 @@
       });
     } catch (error) { await release(source); throw readableError(error); }
   }
-  function renderPage(source, pageNumber, {maxSide = 2560, isCancelled} = {}) {
+  function renderPage(source, pageNumber, {maxSide = 2560, rotation = 0, isCancelled} = {}) {
     return serial(source, isCancelled, context => withPage(source, pageNumber, context, async (page, viewport, record) => {
       const side = Math.min(4096, Math.max(32, Number(maxSide) || 2560));
       const scale = Math.min(side / Math.max(viewport.width, viewport.height), Math.sqrt(MAX_PAGE_PIXELS / (viewport.width * viewport.height)));
@@ -255,9 +255,9 @@
         [width / viewport.width, 0, 0, height / viewport.height, 0, 0]);
       metrics.pageRenders++;
       return {bitmap, width, height};
-    }));
+    }, rotation));
   }
-  function renderCrop(source, pageNumber, {workingWidth, workingHeight, polygon, isCancelled} = {}) {
+  function renderCrop(source, pageNumber, {workingWidth, workingHeight, polygon, rotation = 0, isCancelled} = {}) {
     return serial(source, isCancelled, context => withPage(source, pageNumber, context, async (page, viewport, record) => {
       if (!Number.isFinite(workingWidth) || !Number.isFinite(workingHeight) || workingWidth <= 0 || workingHeight <= 0 ||
           !Array.isArray(polygon) || polygon.length !== 4 || !polygon.every(p => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite))) {
@@ -280,7 +280,7 @@
       const bitmap = await raster(page, viewport, record, context, width, height, [density, 0, 0, density, -left, -top]);
       metrics.cropRenders++;
       return {bitmap, polygon: points.map(([x, y]) => [x * sx - left, y * sy - top])};
-    }));
+    }, rotation));
   }
   function release(source) {
     if (!source) return Promise.resolve();

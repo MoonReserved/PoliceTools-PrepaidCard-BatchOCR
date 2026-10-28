@@ -47,8 +47,11 @@ function updateSummary(){
   const file=currentFile(),index=currentIndex();
   $('previous').disabled=index<=0;$('next').disabled=index<0||index>=state.files.length-1;
   $('image-position').textContent=`${index<0?0:index+1} / ${state.files.length}`;
-  $('remove-image').disabled=!file;$('more-boxes').disabled=!file||file.status==='detecting'||state.detectQueue.some(j=>j.fileId===file.id&&j.mode==='detail');
-  $('manual').disabled=!file||state.displayId!==file.id;
+  $('remove-image').disabled=!file;$('more-boxes').disabled=!file||file.rotating||file.status==='detecting'||state.detectQueue.some(j=>j.fileId===file.id&&j.mode==='detail');
+  $('manual').disabled=!file||file.rotating||state.displayId!==file.id;
+  const rotationBusy=!file||file.rotating||state.displayId!==file.id||state.active?.fileId===file.id;
+  $('rotate-left').disabled=$('rotate-right').disabled=rotationBusy;
+  $('rotation-status').textContent=!file?'尚未選擇頁面':file.rotating?'正在旋轉…':`目前方向：${file.rotation}°${state.active?.fileId===file.id?' · 處理中':''}`;
   $('manual').textContent=state.manual?'取消手動補框':'啟用手動補框';
   const rows=exportRows(),pending=selected.filter(x=>x.box.status!=='done'&&x.box.status!=='error').length;
   $('export-summary').textContent=`可輸出 ${rows.length} 筆${pending?' · '+pending+' 筆尚在處理':''}${failed?' · '+failed+' 筆失敗，請重試':''}`;
@@ -118,6 +121,57 @@ function cropCanvas(bitmap,box,maxW=520,maxH=100,rotate=false){
   const [x,y,w,h]=box,scale=Math.min(maxW/w,maxH/h,2),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);if(rotate){ctx.translate(canvas.width,canvas.height);ctx.rotate(Math.PI);}ctx.drawImage(bitmap,x,y,w,h,0,0,canvas.width,canvas.height);return canvas;
 }
 function canvasBlob(canvas,type='image/png'){return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error('無法建立本機預覽。')),type,.82));}
+// Coordinates describe pixel edges, so a clockwise turn maps (x, y) to (h-y, x).
+// Keep polygon vertex order: existing OCR crops retain their reading direction.
+function rotatePoint([x,y],width,height,rotation){
+  switch((rotation%360+360)%360){case 90:return [height-y,x];case 180:return [width-x,height-y];case 270:return [y,width-x];default:return [x,y];}
+}
+async function rotateBitmap(bitmap,rotation){
+  const angle=(rotation%360+360)%360,swap=angle===90||angle===270,canvas=document.createElement('canvas');
+  canvas.width=swap?bitmap.height:bitmap.width;canvas.height=swap?bitmap.width:bitmap.height;
+  try{
+    const ctx=canvas.getContext('2d');
+    if(angle===90)ctx.setTransform(0,1,-1,0,bitmap.height,0);
+    else if(angle===180)ctx.setTransform(-1,0,0,-1,bitmap.width,bitmap.height);
+    else if(angle===270)ctx.setTransform(0,-1,1,0,0,bitmap.width);
+    ctx.drawImage(bitmap,0,0);return await createImageBitmap(canvas);
+  }finally{canvas.width=canvas.height=0;}
+}
+async function rotateFile(fileId,direction){
+  if(direction!==-1&&direction!==1)throw Error('旋轉方向必須是向左或向右。');
+  const file=findFile(fileId);
+  if(!file||file.rotating||state.active?.fileId===fileId||state.displayId!==fileId)return false;
+  const epoch=state.epoch,width=file.width,height=file.height,rotation=direction*90;
+  file.rotating=true;state.manual=false;state.drag=null;updateSummary();draw();
+  const task=(async()=>{
+    let bitmap;
+    try{
+      bitmap=await rotateBitmap(state.display,rotation);
+      const blob=await canvasBlob(cropCanvas(bitmap,[0,0,bitmap.width,bitmap.height],130,160),'image/jpeg');
+      if(epoch!==state.epoch||!findFile(fileId))return false;
+      // Commit geometry and preview together; queued jobs only resume afterward.
+      for(const box of file.boxes){
+        box.polygon=box.polygon.map(point=>rotatePoint(point,width,height,rotation));
+        const xs=box.polygon.map(p=>p[0]),ys=box.polygon.map(p=>p[1]),x=Math.min(...xs),y=Math.min(...ys);
+        box.box=[x,y,Math.max(...xs)-x,Math.max(...ys)-y];
+      }
+      file.rotation=(file.rotation+rotation+360)%360;
+      file.width=bitmap.width;file.height=bitmap.height;
+      [file.originalWidth,file.originalHeight]=[file.originalHeight,file.originalWidth];
+      if(file.thumbnailURL)URL.revokeObjectURL(file.thumbnailURL);
+      file.thumbnailURL=URL.createObjectURL(blob);file.status='waiting';file.error='';file.warningLog=[];file.lastDetection=null;
+      if(state.currentId===fileId){state.navigationToken++;state.display?.close();state.display=bitmap;state.displayId=fileId;bitmap=null;}
+      state.detectQueue=state.detectQueue.filter(job=>job.fileId!==fileId);
+      state.detectQueue.unshift({type:'detect',fileId,mode:'default',explicit:true});
+      status(`已向${direction===1?'右':'左'}旋轉 90°，正在重新找框；已選序號與輸出順序已保留。`);
+      return true;
+    }finally{
+      bitmap?.close();file.rotating=false;file.rotationTask=null;
+      if(epoch===state.epoch){renderFiles();renderCurrent();pump();}
+    }
+  })();
+  file.rotationTask=task;return task;
+}
 function renderCandidates(){
   const file=currentFile(),list=$('candidate-list'),scroll=list.scrollTop,generation=++candidateRender;
   candidateObserver?.disconnect();candidateObserver=null;list.replaceChildren();
@@ -142,17 +196,19 @@ async function workingBitmap(file){
   return withDecode(async()=>{
     if(epoch!==state.epoch||!findFile(file.id))throw Error('此頁已移除。');
     if(file.kind==='pdf'){
-      const rendered=await OfflinePDF.renderPage(file.pdfSource,file.pdfPage,{maxSide:WORKING_SIDE,isCancelled:()=>epoch!==state.epoch||!findFile(file.id)});
+      const rendered=await OfflinePDF.renderPage(file.pdfSource,file.pdfPage,{maxSide:WORKING_SIDE,rotation:file.rotation,isCancelled:()=>epoch!==state.epoch||!findFile(file.id)});
       if(epoch!==state.epoch||!findFile(file.id)){rendered.bitmap.close();throw Error('此頁已移除。');}
       file.width=file.originalWidth=rendered.bitmap.width;file.height=file.originalHeight=rendered.bitmap.height;
       return rendered.bitmap;
     }
     const bitmap=await createImageBitmap(file.file);
-    file.originalWidth=bitmap.width;file.originalHeight=bitmap.height;
+    const swap=file.rotation===90||file.rotation===270;
+    file.originalWidth=swap?bitmap.height:bitmap.width;file.originalHeight=swap?bitmap.width:bitmap.height;
     if(bitmap.width*bitmap.height>80000000){bitmap.close();throw Error('圖片超過 8,000 萬像素，請先另存較小版本。');}
     const scale=Math.min(1,WORKING_SIDE/Math.max(bitmap.width,bitmap.height));
     let result=bitmap;
     if(scale<1){try{result=await createImageBitmap(bitmap,{resizeWidth:Math.max(1,Math.round(bitmap.width*scale)),resizeHeight:Math.max(1,Math.round(bitmap.height*scale)),resizeQuality:'high'});}finally{bitmap.close();}}
+    if(file.rotation){try{const turned=await rotateBitmap(result,file.rotation);result.close();result=turned;}catch(error){result.close();throw error;}}
     file.width=result.width;file.height=result.height;return result;
   });
 }
@@ -169,6 +225,8 @@ async function navigate(id){
   // Move this image ahead of other background detection jobs; selected OCR still wins.
   const queued=state.detectQueue.findIndex(j=>j.fileId===id);if(queued>0)state.detectQueue.unshift(...state.detectQueue.splice(queued,1));
   renderFiles();renderCurrent();
+  if(file.rotating){try{await file.rotationTask;}catch(error){if(epoch===state.epoch&&token===state.navigationToken)status('無法旋轉此頁：'+error.message,true);}}
+  if(epoch!==state.epoch||token!==state.navigationToken||!findFile(id))return;
   if(!state.display){try{const bitmap=await workingBitmap(file);if(epoch!==state.epoch||token!==state.navigationToken||!findFile(id)){bitmap.close();return;}state.display=bitmap;state.displayId=id;renderCurrent();}catch(error){if(epoch===state.epoch&&token===state.navigationToken)status('無法開啟圖片：'+error.message,true);}}
   pump();
 }
@@ -203,8 +261,9 @@ async function pump(){
   try{
     while(epoch===state.epoch){
       state.ocrQueue=state.ocrQueue.filter(validOCRJob);state.detectQueue=state.detectQueue.filter(j=>findFile(j.fileId));
-      const detectionIndex=state.detectQueue.findIndex(j=>!state.paused||j.explicit);
-      const job=state.ocrQueue.shift()||(detectionIndex>=0?state.detectQueue.splice(detectionIndex,1)[0]:null);if(!job)break;
+      const ocrIndex=state.ocrQueue.findIndex(j=>!findFile(j.fileId)?.rotating);
+      const detectionIndex=state.detectQueue.findIndex(j=>!findFile(j.fileId)?.rotating&&(!state.paused||j.explicit));
+      const job=ocrIndex>=0?state.ocrQueue.splice(ocrIndex,1)[0]:(detectionIndex>=0?state.detectQueue.splice(detectionIndex,1)[0]:null);if(!job)break;
       state.active=job;const entry=recordJob(job);
       try{if(job.type==='detect'){state.metrics.detectStarted++;await detectFile(job,epoch);}else{state.metrics.recognizeStarted++;await recognizeBox(job,epoch);}entry.status='done';}
       catch(error){entry.status='error';entry.error=error.message;if(epoch===state.epoch){const file=findFile(job.fileId);if(job.type==='detect'&&file){file.status='error';file.error=error.message;}else{const box=findBox(job.fileId,job.boxId);if(box&&box.selected&&box.token===job.token){box.status='error';box.error=error.message;}}status('處理失敗：'+error.message,true);}}
@@ -249,15 +308,22 @@ async function originalCrop(file,box){
   const epoch=state.epoch;
   return withDecode(async()=>{
     if(epoch!==state.epoch||!findFile(file.id))throw Error('此頁已移除。');
-    if(file.kind==='pdf')return OfflinePDF.renderCrop(file.pdfSource,file.pdfPage,{workingWidth:file.width,workingHeight:file.height,polygon:box.polygon,isCancelled:()=>epoch!==state.epoch||!findFile(file.id)});
+    if(file.kind==='pdf')return OfflinePDF.renderCrop(file.pdfSource,file.pdfPage,{workingWidth:file.width,workingHeight:file.height,polygon:box.polygon,rotation:file.rotation,isCancelled:()=>epoch!==state.epoch||!findFile(file.id)});
     const sx=file.originalWidth/file.width,sy=file.originalHeight/file.height;
-    const polygon=box.polygon.map(([x,y])=>[x*sx,y*sy]);
+    const polygon=box.polygon.map(([x,y])=>rotatePoint([x*sx,y*sy],file.originalWidth,file.originalHeight,-file.rotation));
     const xs=polygon.map(p=>p[0]),ys=polygon.map(p=>p[1]);
-    const left=Math.max(0,Math.floor(Math.min(...xs))),top=Math.max(0,Math.floor(Math.min(...ys))),right=Math.min(file.originalWidth,Math.ceil(Math.max(...xs))),bottom=Math.min(file.originalHeight,Math.ceil(Math.max(...ys)));
-    // Do not retain another full-resolution ImageBitmap for recognition.
-    // The browser may still decode the complete source internally. EXIF 1–8 were compared in Chromium.
-    const bitmap=await createImageBitmap(file.file,left,top,Math.max(1,right-left),Math.max(1,bottom-top));
-    return {bitmap,polygon:polygon.map(([x,y])=>[x-left,y-top])};
+    const swap=file.rotation===90||file.rotation===270,rawWidth=swap?file.originalHeight:file.originalWidth,rawHeight=swap?file.originalWidth:file.originalHeight;
+    const left=Math.max(0,Math.floor(Math.min(...xs))),top=Math.max(0,Math.floor(Math.min(...ys))),right=Math.min(rawWidth,Math.ceil(Math.max(...xs))),bottom=Math.min(rawHeight,Math.ceil(Math.max(...ys)));
+    // Crop an already oriented bitmap: Blob cropping can apply EXIF after the
+    // crop, interpreting coordinates in a different orientation from the preview.
+    // Release the full-resolution decode as soon as the small crop is ready.
+    const decoded=await createImageBitmap(file.file),canvas=document.createElement('canvas');let bitmap;
+    canvas.width=Math.max(1,right-left);canvas.height=Math.max(1,bottom-top);
+    try{canvas.getContext('2d').drawImage(decoded,-left,-top);bitmap=await createImageBitmap(canvas);}
+    finally{decoded.close();canvas.width=canvas.height=0;}
+    const local=polygon.map(([x,y])=>rotatePoint([x-left,y-top],bitmap.width,bitmap.height,file.rotation));
+    if(file.rotation){try{const turned=await rotateBitmap(bitmap,file.rotation);bitmap.close();bitmap=turned;}catch(error){bitmap.close();throw error;}}
+    return {bitmap,polygon:local};
   });
 }
 async function recognizeBox(job,epoch){
@@ -284,7 +350,7 @@ function enqueueOCR(file,box){
   renderResults();renderFiles();updateSummary();pump();
 }
 function selectBox(fileId,boxId){
-  const file=findFile(fileId),box=findBox(fileId,boxId);if(!file||!box)throw Error('找不到候選框。');
+  const file=findFile(fileId),box=findBox(fileId,boxId);if(!file||!box)throw Error('找不到候選框。');if(file.rotating)return false;
   box.selected=!box.selected;
   if(box.selected){state.selectionOrder.push(box.id);if(box.result){box.status='done';renderResults();}else enqueueOCR(file,box);}
   else{state.selectionOrder=state.selectionOrder.filter(id=>id!==box.id);box.token++;box.status=box.result?'done':'idle';}
@@ -387,7 +453,7 @@ async function importFiles(incoming,epoch){
       for(let page=1;page<=count;page++)accepted.push({file,kind:pdf?'pdf':'image',sourceName:file.name,pdfSource,pdfPage:pdf?page:null,pdfPageCount:pdf?count:null,name:pdf?`${file.name} · 第 ${page}／${count} 頁`:file.name});
     }
     if(isCancelled())return;
-    for(const entry of accepted){const item={...entry,id:`f${++state.nextId}`,status:'waiting',boxes:[],error:'',thumbnailURL:null,width:0,height:0,originalWidth:0,originalHeight:0};state.files.push(item);state.detectQueue.push({type:'detect',fileId:item.id,mode:'default'});}
+    for(const entry of accepted){const item={...entry,id:`f${++state.nextId}`,status:'waiting',boxes:[],error:'',thumbnailURL:null,width:0,height:0,originalWidth:0,originalHeight:0,rotation:0,rotating:false,rotationTask:null};state.files.push(item);state.detectQueue.push({type:'detect',fileId:item.id,mode:'default'});}
     committed=true;
     const warnings=[];if(rejected.length)warnings.push(`以下 ${rejected.length} 個檔案未加入：\n${rejected.join('\n')}`);
     if(state.files.length>recommended)warnings.push(`目前 ${state.files.length} 張／頁，超過這台裝置的保守建議 ${recommended}。系統會逐頁處理；若手機發熱或瀏覽器不穩，請分批並先匯出完成結果。`);
@@ -403,15 +469,16 @@ $('clear').addEventListener('click',()=>clearAll().catch(e=>status('清理 PDF �
 $('previous').addEventListener('click',()=>{const file=state.files[currentIndex()-1];if(file)navigate(file.id);});
 $('next').addEventListener('click',()=>{const file=state.files[currentIndex()+1];if(file)navigate(file.id);});
 $('more-boxes').addEventListener('click',()=>requestDetection(state.currentId));
+for(const [id,direction]of [['rotate-left',-1],['rotate-right',1]])$(id).addEventListener('click',()=>rotateFile(state.currentId,direction).catch(error=>status('無法旋轉此頁：'+error.message,true)));
 $('manual').addEventListener('click',()=>{state.manual=!state.manual;state.drag=null;updateSummary();draw();status(state.manual?'手動補框已開啟：拖出一整行序號。':'已回到點選候選框。');});
 $('verified-only').addEventListener('change',updateSummary);
 function position(event){const file=currentFile(),rect=source.getBoundingClientRect();return [Math.max(0,Math.min(file.width,(event.clientX-rect.left)*file.width/rect.width)),Math.max(0,Math.min(file.height,(event.clientY-rect.top)*file.height/rect.height))];}
 function addManualBox(box){
-  const file=currentFile();if(!file||!file.width)throw Error('請先開啟圖片。');
+  const file=currentFile();if(!file||!file.width||file.rotating)throw Error('請先開啟圖片並等待旋轉完成。');
   const [x0,y0,w0,h0]=box.map(Number);if(![x0,y0,w0,h0].every(Number.isFinite))throw Error('範圍無效。');const x=Math.max(0,Math.min(file.width-1,x0)),y=Math.max(0,Math.min(file.height-1,y0)),w=Math.min(file.width-x,Math.max(1,w0)),h=Math.min(file.height-y,Math.max(1,h0));
   const candidate=normalizeBox({box:[x,y,w,h],source:'manual'},file,file.boxes.length+1);if(!candidate)throw Error('框選範圍太小。');file.boxes.push(candidate);renderCurrent();selectBox(file.id,candidate.id);return candidate.id;
 }
-source.addEventListener('pointerdown',event=>{if(!currentFile()||!state.display)return;const [x,y]=position(event);state.drag={start:[x,y],client:[event.clientX,event.clientY],box:[x,y,0,0]};if(state.manual){source.setPointerCapture(event.pointerId);event.preventDefault();}});
+source.addEventListener('pointerdown',event=>{if(!currentFile()||currentFile().rotating||!state.display)return;const [x,y]=position(event);state.drag={start:[x,y],client:[event.clientX,event.clientY],box:[x,y,0,0]};if(state.manual){source.setPointerCapture(event.pointerId);event.preventDefault();}});
 source.addEventListener('pointermove',event=>{if(!state.drag||!state.manual)return;const [x,y]=position(event),[sx,sy]=state.drag.start;state.drag.box=[Math.min(x,sx),Math.min(y,sy),Math.abs(x-sx),Math.abs(y-sy)];draw();});
 source.addEventListener('pointercancel',()=>{state.drag=null;draw();});
 source.addEventListener('pointerup',event=>{
@@ -444,8 +511,8 @@ const cachePromise=(async()=>{
   throw Error('資源尚未完整，請保持網路連線並確認網站檔案完整，再重新整理。本機試用時請保持啟動程式開啟。');
 })();
 cachePromise.catch(error=>{$('cache-status').classList.add('error');$('cache-status').textContent='離線資源尚未完成：'+error.message;});
-async function whenIdle(){while(state.importPending||state.pumping||state.active||state.ocrQueue.some(validOCRJob)||state.detectQueue.some(j=>!state.paused||j.explicit))await delay(40);return snapshot();}
+async function whenIdle(){while(state.importPending||state.pumping||state.active||state.files.some(f=>f.rotating)||state.ocrQueue.some(validOCRJob)||state.detectQueue.some(j=>!state.paused||j.explicit))await delay(40);return snapshot();}
 async function waitForFile(id){for(;;){const file=findFile(id);if(!file)throw Error('找不到圖片。');if(file.status==='ready'||file.status==='error')return snapshot().files.find(f=>f.id===id);await delay(40);}}
-function snapshot(){return {version:APP_VERSION,cacheName:CACHE_NAME,selectionOrder:selectedRows().map(({box})=>box.id),files:state.files.map(f=>({id:f.id,name:f.name,kind:f.kind,sourceName:f.sourceName,pdfPage:f.pdfPage,pdfPageCount:f.pdfPageCount,status:f.status,width:f.width,height:f.height,originalWidth:f.originalWidth,originalHeight:f.originalHeight,error:f.error,boxes:f.boxes.map(b=>({id:b.id,number:b.number,box:b.box.slice(),polygon:b.polygon.map(p=>p.slice()),score:b.score,source:b.source,selected:b.selected,status:b.status,editedText:b.editedText,verified:b.verified,rotate180:b.rotate180,error:b.error||'',result:b.result}))})),currentId:state.currentId,paused:state.paused,importing:state.importPending>0,pdfStats:OfflinePDF.getStats(),active:state.active?{...state.active}:null,pendingDetection:state.detectQueue.map(j=>({...j})),pendingRecognition:state.ocrQueue.filter(validOCRJob).map(j=>({...j})),busy:state.pumping,cacheReady:state.cacheReady,metrics:{...state.metrics},history:state.history.map(j=>({...j}))};}
-window.offlineOCRTest={waitForCache:()=>cachePromise,getState:snapshot,selectBox,moveSelection,moveFile,navigate,pause:()=>{state.paused=true;updateSummary();renderFiles();},resume:()=>{state.paused=false;updateSummary();pump();},remove:removeFile,clear:clearAll,whenIdle,waitForFile,exportTXT,exportCSV,setROI:addManualBox,requestDetection,addFiles,loadModels:async()=>{await whenIdle();return callWorker({type:'load'});}};
+function snapshot(){return {version:APP_VERSION,cacheName:CACHE_NAME,selectionOrder:selectedRows().map(({box})=>box.id),files:state.files.map(f=>({id:f.id,name:f.name,kind:f.kind,sourceName:f.sourceName,pdfPage:f.pdfPage,pdfPageCount:f.pdfPageCount,rotation:f.rotation,rotating:f.rotating,status:f.status,width:f.width,height:f.height,originalWidth:f.originalWidth,originalHeight:f.originalHeight,error:f.error,boxes:f.boxes.map(b=>({id:b.id,number:b.number,box:b.box.slice(),polygon:b.polygon.map(p=>p.slice()),score:b.score,source:b.source,selected:b.selected,status:b.status,editedText:b.editedText,verified:b.verified,rotate180:b.rotate180,error:b.error||'',result:b.result}))})),currentId:state.currentId,paused:state.paused,importing:state.importPending>0,pdfStats:OfflinePDF.getStats(),active:state.active?{...state.active}:null,pendingDetection:state.detectQueue.map(j=>({...j})),pendingRecognition:state.ocrQueue.filter(validOCRJob).map(j=>({...j})),busy:state.pumping,cacheReady:state.cacheReady,metrics:{...state.metrics},history:state.history.map(j=>({...j}))};}
+window.offlineOCRTest={waitForCache:()=>cachePromise,getState:snapshot,selectBox,moveSelection,moveFile,navigate,rotateFile,pause:()=>{state.paused=true;updateSummary();renderFiles();},resume:()=>{state.paused=false;updateSummary();pump();},remove:removeFile,clear:clearAll,whenIdle,waitForFile,exportTXT,exportCSV,setROI:addManualBox,requestDetection,addFiles,loadModels:async()=>{await whenIdle();return callWorker({type:'load'});}};
 updateSummary();

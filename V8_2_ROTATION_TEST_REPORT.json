@@ -1,0 +1,116 @@
+{
+  "metrics": {
+    "activeWorkerRequests": 0,
+    "maxActiveWorkerRequests": 1,
+    "detectStarted": 6,
+    "recognizeStarted": 2,
+    "completedJobs": 8
+  },
+  "pdf_metrics": {
+    "openedDocuments": 1,
+    "activeDocuments": 1,
+    "maxActiveDocuments": 1,
+    "pageRenders": 4,
+    "cropRenders": 1,
+    "activeRenders": 0,
+    "maxActiveRenders": 1,
+    "maxCanvasPixels": 3276800,
+    "pendingJobs": 0,
+    "pdfjsVersion": "6.4.299",
+    "retainedSources": 1,
+    "closingDocuments": 0,
+    "activeSourceId": "pdf1",
+    "generation": 0
+  },
+  "source_sha256": {
+    "app.js": "5fbfef2c244f45c9f31daa35d30d96062542b27405d29333b739096102131de9",
+    "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+    "index.html": "ed7d9550153255a963fe799af07d7f70582ca036de238e6088203ee1d8e1139e",
+    "styles.css": "6f7d9ffc40ed16bbc8dac20539d93f5b8b10ad2bbed4dc58d34d66e074e9577d",
+    "offline-assets.js": "b24d6a5f80049c744aa1bb906b74a05085bf14355f5c23612b0f840a1f2f891b"
+  },
+  "release": "v8.2",
+  "status": "pass",
+  "finished_utc": "2026-10-28T13:05:00.141Z",
+  "browser": {
+    "name": "Chrome",
+    "version": "156.0.8078.49",
+    "host": "darwin"
+  },
+  "passed": 16,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Empty controls and complete v8.2 project-scoped offline cache",
+      "status": "pass"
+    },
+    {
+      "name": "Mixed image and two-page PDF import with real detection and OCR",
+      "status": "pass"
+    },
+    {
+      "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+      "status": "pass"
+    },
+    {
+      "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+      "status": "pass"
+    },
+    {
+      "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+      "status": "pass"
+    },
+    {
+      "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+      "status": "pass"
+    },
+    {
+      "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+      "status": "pass"
+    },
+    {
+      "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+      "status": "pass"
+    },
+    {
+      "name": "390px controls fit the page and remain usable",
+      "status": "pass"
+    },
+    {
+      "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+      "status": "pass"
+    },
+    {
+      "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+      "status": "pass"
+    },
+    {
+      "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+      "status": "pass"
+    },
+    {
+      "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+      "status": "pass"
+    },
+    {
+      "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+      "status": "pass"
+    },
+    {
+      "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+      "status": "pass"
+    },
+    {
+      "name": "No uncaught errors, external requests or write requests",
+      "status": "pass"
+    }
+  ],
+  "fixtures": "Synthetic PNG, JPEG with EXIF orientations 1-8, large PNG and a two-page PDF with native /Rotate 90; no user files.",
+  "limits": [
+    "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+    "Synthetic serials validate behavior, not accuracy across all card photos."
+  ],
+  "uncaught_errors": [],
+  "external_requests": [],
+  "http_write_requests": []
+}
