@@ -1,0 +1,51 @@
+{
+  "toolchain": {
+    "url": "https://go.dev/dl/go1.27.3.linux-amd64.tar.gz",
+    "version": "go1.27.3",
+    "filename": "go1.27.3.linux-amd64.tar.gz",
+    "size": 70588678,
+    "sha256": "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40"
+  },
+  "built_at_utc": "2026-10-28T04:22:47Z",
+  "flags": [
+    "-trimpath",
+    "-buildvcs=false",
+    "-ldflags=-s -w -buildid="
+  ],
+  "cgo_enabled": false,
+  "source_sha256": "afb8b0a79a94b99cee42c2deb0bdfaffb9ab38936607e60b524b10a4f605f5d9",
+  "binaries": [
+    {
+      "os": "darwin",
+      "arch": "arm64",
+      "path": "bin/police-ocr-server-macos-arm64",
+      "bytes": 5716530,
+      "sha256": "357e5887dc901250b8e6ea5b2bbf1e777692dcd9c6c802c845b61a6c7a2c767d"
+    },
+    {
+      "os": "darwin",
+      "arch": "amd64",
+      "path": "bin/police-ocr-server-macos-amd64",
+      "bytes": 6151840,
+      "sha256": "07e89a06a083a7f4c540898151e6fbda9b1426f9cfb3d3199795c12af3299d4e"
+    },
+    {
+      "os": "windows",
+      "arch": "amd64",
+      "path": "bin/police-ocr-server-windows-amd64.exe",
+      "bytes": 6240768,
+      "sha256": "28d233077c018aa6de41e1308de321e2e8ffb71374eba3898916e2c5abc73545"
+    },
+    {
+      "os": "windows",
+      "arch": "arm64",
+      "path": "bin/police-ocr-server-windows-arm64.exe",
+      "bytes": 5663744,
+      "sha256": "ac3b278ab8f242666c58edb6054d221a73dd702f605abe5c97a7bb11e73aee15"
+    }
+  ],
+  "native_platforms_tested": [
+    "linux/amd64"
+  ],
+  "macos_windows_native_execution_tested": false
+}

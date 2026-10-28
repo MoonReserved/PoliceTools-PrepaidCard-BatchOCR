@@ -1,0 +1,31 @@
+ONNX Runtime Web 1.23.2 (MIT)
+https://github.com/microsoft/onnxruntime/tree/v1.23.2/js/web
+Bundled: ort.wasm.min.js, ort-wasm-simd-threaded.mjs, ort-wasm-simd-threaded.wasm
+
+PaddleOCR detection and recognition models, converted to ONNX by RapidOCR
+https://github.com/PaddlePaddle/PaddleOCR
+https://github.com/RapidAI/RapidOCR
+Official model registry:
+https://github.com/RapidAI/RapidOCR/blob/main/python/rapidocr/default_models.yaml
+
+PP-OCRv6 small:
+https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6/rec/PP-OCRv6_rec_small.onnx
+SHA256 6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884
+
+The character dictionary was extracted from the recognition model metadata.
+Index zero is CTC blank; the final entry is space, following RapidOCR CTCLabelDecode.
+Preprocessing is based on the documented PaddleOCR/RapidOCR resize and normalization.
+The recognition model uses four-candidate Canvas preprocessing in this app.
+
+No user image, receipt crop, PIN image, or image base64 is included in this package.
+
+Offline UI font: Noto Sans CJK TC Regular, SIL Open Font License 1.1.
+Source: https://github.com/notofonts/noto-cjk/blob/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf
+Local WOFF subset contains interface text only; subset created with fontTools.
+The font is cached locally and makes no Google Fonts or CDN requests.
+
+PP-OCRv5 mobile detector (DB):
+https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv5/det/ch_PP-OCRv5_det_mobile.onnx
+SHA256 4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae
+Preprocessing BGR, scale1/255, mean[.485,.456,.406],std[.229,.224,.225].
+Pure JS DB postprocess is an engineering approximation of connected contours and polygon expansion; sources are documented in detection.js.

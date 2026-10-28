@@ -1,0 +1,89 @@
+警政小工具-點數卡批次OCR辨識
+PoliceTools – Prepaid Card Batch OCR
+v8.1 · PoliceTools 整合版
+
+這一包可用來本機啟動，也可上傳 GitHub。
+請先完整解壓縮 PoliceTools-PrepaidCard-BatchOCR.zip。
+不要在 ZIP 裡直接執行，也不要雙擊 docs/index.html。
+
+一、在 macOS 本機使用
+
+1. 進入解壓後的 PoliceTools-PrepaidCard-BatchOCR 資料夾。
+2. 雙擊 START_MAC.command。
+3. 瀏覽器會開啟 http://127.0.0.1:8787/。
+4. 等待「完整離線就緒」，再加入圖片或 PDF。
+
+需 macOS 13 Ventura 或更新版本；啟動器會選擇 Apple Silicon（M 系列）或 Intel 對應程式。
+不需要先安裝 Python、Go 或 Node.js。
+
+二、在 Microsoft Windows 本機使用
+
+1. 對 ZIP 選「全部解壓縮」，進入解壓後的專案資料夾。
+2. 雙擊 START_WINDOWS.bat。
+3. 瀏覽器會開啟 http://127.0.0.1:8787/。
+4. 等待「完整離線就緒」，再加入圖片或 PDF。
+
+供 64 位元 Windows 10／11 使用；啟動器會選擇 x64 或 ARM64 對應程式。
+不需要先安裝 Python、Go 或 Node.js。
+
+兩種電腦都請保持啟動視窗開著。
+完成後先複製或匯出結果，再於啟動視窗按 Ctrl+C 停止。
+如果沒有自動開網頁，可手動輸入啟動視窗顯示的網址。
+如果顯示 8787 埠已被使用，先關閉前一次啟動視窗再重開。
+
+首次開啟與權限：
+隨附啟動程式未以開發者憑證簽署或公證，作業系統可能要求確認來源。
+請依系統提示處理；受組織管理的電腦也可能限制執行。
+詳細說明請看 README.md 的「第一次開啟與權限」。
+原始交付 ZIP 保留 macOS 執行權限；經 GitHub 網頁重新上傳再下載的副本可能不同。
+若 .command 顯示沒有執行權限，可在專案資料夾執行一次：
+chmod u+x START_MAC.command
+再重新雙擊。這不會更動 macOS 的來源驗證設定。
+
+三、上傳 GitHub，讓手機用網址開啟
+
+1. 建立 Public Repo：PoliceTools-PrepaidCard-BatchOCR。
+   可先勾選加入 README，建立 main 分支。
+2. 選 Add file → Upload files。
+3. 打開解壓後的專案資料夾，將「裡面的全部內容」拖入上傳區。
+   要包含 docs、local-server、README、兩個啟動器及其他隨附檔案。
+   不要拖 ZIP 本身，也不要再多包一層外部資料夾。
+4. 確認入口路徑為 docs/index.html，等全部上傳完成後提交變更。
+5. Settings → Pages：
+   Source：Deploy from a branch
+   Branch：main
+   Folder：/docs
+   按 Save。
+6. 等待部署成功，開啟 Pages 設定頁顯示的 Visit site 網址。
+7. 確認頁尾顯示「v8.1 · PoliceTools 整合版」。
+   等待「完整離線就緒」，用一張圖測試自動找框與點選辨識。
+
+本機啟動器可以一併留在 Repo。Pages 選 /docs 後只發布網站內容。
+部署後，手機只需網址，不需要 Python，也不需要電腦持續開機。
+GitHub 網頁上傳每個檔案上限 25 MiB、每次最多 100 個；請上傳解壓後的檔案。
+
+四、辨識與排序
+
+1. 一次加入多張圖片或多頁 PDF；PDF 會自動拆頁。
+2. 等模型找框，點選需要的序號。
+3. 對照原圖核對；候選紅字表示與預設結果不同。
+4. 結果預設按點框順序輸出，可用結果清單的箭頭調整。
+5. 頁面佇列的箭頭只調整頁面順序，不改變序號輸出順序。
+6. 最後整批複製，或下載 TXT／CSV。
+
+手機建議先從每批 10～20 張／頁開始。
+程式上限為每批 200 張／頁、單檔 50 MiB，實際負荷仍依裝置而定。
+
+五、離線與資料
+
+圖片、PDF 與 OCR 都在瀏覽器內處理，本工具不會上傳圖片。
+GitHub 網站首次開啟需連網下載程式與模型；完整快取後可離線使用。
+本機包已含程式與模型，可由自己的電腦直接提供。
+離線重開需使用同一瀏覽器與同一網址；改網址或清除網站資料需重新準備。
+工作進度不會自動保存，重新整理或關閉前請先匯出。
+不要將私人照片、PDF 或輸出的序號放入公開 Repo。
+
+開發者：三元派出所所長黃郁翔
+© 2025 大溪分局三元派出所 所長黃郁翔 All rights reserved
+
+模型與授權、完整操作及驗證範圍請見 README.md。

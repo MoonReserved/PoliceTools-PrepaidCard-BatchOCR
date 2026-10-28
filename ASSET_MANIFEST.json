@@ -1,0 +1,287 @@
+{
+  "project": "PoliceTools-PrepaidCard-BatchOCR",
+  "title": "警政小工具-點數卡批次OCR辨識",
+  "english_title": "PoliceTools – Prepaid Card Batch OCR",
+  "version": "v8.1",
+  "date": "2026-10-28",
+  "publishing_folder": "docs",
+  "native_launcher_platforms": [
+    "macOS arm64",
+    "macOS amd64",
+    "Windows amd64",
+    "Windows arm64"
+  ],
+  "note": "This manifest excludes itself. All listed files are public project assets; no user inputs are included.",
+  "files": {
+    "QUICK_START_zh-TW.txt": {
+      "bytes": 4269,
+      "sha256": "7ada6bb841becedabfc688535f6b3ce63cdbcee43c72b8b8cfdc372f8f701ee2",
+      "mode": "0o644"
+    },
+    "README.md": {
+      "bytes": 19638,
+      "sha256": "6bd158903fe1449c07b959657496f6f260480eab55d125e38e5d26e384d6b91b",
+      "mode": "0o644"
+    },
+    "START_MAC.command": {
+      "bytes": 1953,
+      "sha256": "00185eaedefaa0ce3a66d3f19d60f1684064349ef64f4491eed23b2f13cd151f",
+      "mode": "0o755"
+    },
+    "START_WINDOWS.bat": {
+      "bytes": 1566,
+      "sha256": "eea79a6b9ab894694d7044b453072217175682cab38bde571c95927aaf0fbd64",
+      "mode": "0o644"
+    },
+    "TEST_REPORT.json": {
+      "bytes": 8185,
+      "sha256": "42b9c2322f9e8856dead8c7700a287d1d6b988142e202bb3eb2d8f3129489689",
+      "mode": "0o644"
+    },
+    "V8_BASELINE_TEST_REPORT.json": {
+      "bytes": 4753,
+      "sha256": "c76b517f45387794984ec1721af5051b8157d2841d1c6e5c136cc41741be6a68",
+      "mode": "0o644"
+    },
+    "docs/.nojekyll": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o644"
+    },
+    "docs/app.js": {
+      "bytes": 49163,
+      "sha256": "c321bb8d612576ee1d98b3721c5cfc133c7f69d95cff6bfc81edb03c1b93f29b",
+      "mode": "0o644"
+    },
+    "docs/attribution.css": {
+      "bytes": 2304,
+      "sha256": "2dd69d86554226a5594dd5e15008d5fe76510ec4c73562f57855b6394001828f",
+      "mode": "0o644"
+    },
+    "docs/detection.js": {
+      "bytes": 16405,
+      "sha256": "47f6fd6446e6d53dd44c53dbc1d17332d5d9acbe9bfe092372d810c58c8352bb",
+      "mode": "0o644"
+    },
+    "docs/fonts/ui-tc.woff": {
+      "bytes": 243944,
+      "sha256": "5358eef4e7048a71b9a75615aada03c622e7274e817cf3950f39a2f3dfcea964",
+      "mode": "0o644"
+    },
+    "docs/index.html": {
+      "bytes": 11450,
+      "sha256": "f05d0c221b4ebbd4e95598e10da0e5c8b3c03c5322b2276a366641206a2b2728",
+      "mode": "0o644"
+    },
+    "docs/licenses/ASSET_SOURCES.txt": {
+      "bytes": 1800,
+      "sha256": "a097b8fc9f4ef9a53876275b93665d062d1631d6e434c5648a0c08ead434bab8",
+      "mode": "0o644"
+    },
+    "docs/licenses/NOTO_FONT_OFL.txt": {
+      "bytes": 4301,
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "mode": "0o644"
+    },
+    "docs/licenses/ONNX_RUNTIME_LICENSE.txt": {
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+      "mode": "0o644"
+    },
+    "docs/licenses/ONNX_RUNTIME_THIRD_PARTY_NOTICES.txt": {
+      "bytes": 326866,
+      "sha256": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc",
+      "mode": "0o644"
+    },
+    "docs/licenses/PADDLEOCR_LICENSE.txt": {
+      "bytes": 11376,
+      "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e",
+      "mode": "0o644"
+    },
+    "docs/licenses/PDFJS_ASSET_SOURCES.txt": {
+      "bytes": 2442,
+      "sha256": "955afa8fd01a3470c5dda0899bf5392e7bb806c0abce5a7f5685261f7b6abf52",
+      "mode": "0o644"
+    },
+    "docs/licenses/PDFJS_LICENSE.txt": {
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "mode": "0o644"
+    },
+    "docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt": {
+      "bytes": 53059,
+      "sha256": "d8704528a9cbbcca471a9807a0c41471732e4d11149b4d641a3fee0592a2a8b5",
+      "mode": "0o644"
+    },
+    "docs/licenses/RAPIDOCR_LICENSE.txt": {
+      "bytes": 11422,
+      "sha256": "3e0af25fdd06aa9586ae97adb00ea927ebe5a3805ac77d2d3a81ce5f55693333",
+      "mode": "0o644"
+    },
+    "docs/models/det5.onnx": {
+      "bytes": 4819576,
+      "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "mode": "0o644"
+    },
+    "docs/models/small6.dict.json": {
+      "bytes": 131087,
+      "sha256": "bf37aa18b879fe7d9b7a70112c59bf6e3e994eab8ff7b22882e3d76e485c9df1",
+      "mode": "0o644"
+    },
+    "docs/models/small6.onnx": {
+      "bytes": 21234383,
+      "sha256": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+      "mode": "0o644"
+    },
+    "docs/ocr-worker.js": {
+      "bytes": 6391,
+      "sha256": "68b549d1b7379d1e701864877ac2c78c26fe0b0cf3083732168810e8efcfba7d",
+      "mode": "0o644"
+    },
+    "docs/offline-assets.js": {
+      "bytes": 1036,
+      "sha256": "433e8962285d09e0924994a5cb6ad9fe1e66d27b91499b31ad10b9237124185d",
+      "mode": "0o644"
+    },
+    "docs/pdf-source.js": {
+      "bytes": 16978,
+      "sha256": "e477f89b1fa768fabc60ce3347bd623eed914e86753f5141de1d3d22be42c6df",
+      "mode": "0o644"
+    },
+    "docs/pdfjs/pdf.min.mjs": {
+      "bytes": 523774,
+      "sha256": "bccc24ea711db8e44503629519904a5292d73b9daaa214bbe7cdcc282b0f4259",
+      "mode": "0o644"
+    },
+    "docs/pdfjs/pdf.worker.min.mjs": {
+      "bytes": 1321307,
+      "sha256": "145d2dd3ab0c86151011dba95acfa2d5336e2accd59388ea43dbee0efddaaec6",
+      "mode": "0o644"
+    },
+    "docs/pdfjs/resources.json": {
+      "bytes": 31696,
+      "sha256": "5ae54c650f0fcf9fe0de0377fe7d41ba0b7681e8553b0b8af74868b7e987a6c9",
+      "mode": "0o644"
+    },
+    "docs/pdfjs/resources.pack": {
+      "bytes": 2399861,
+      "sha256": "bcc23b9130644eb4f90d2a7db9d79b311945328106c02e3870b73a34d31bc94a",
+      "mode": "0o644"
+    },
+    "docs/pdfjs/wasm/jbig2_nowasm_fallback.js": {
+      "bytes": 152009,
+      "sha256": "68686ced624a48c42f84cdaa482ec44b72b0de4dc84a0df903af1fb7b45b5d9a",
+      "mode": "0o644"
+    },
+    "docs/pdfjs/wasm/openjpeg_nowasm_fallback.js": {
+      "bytes": 445781,
+      "sha256": "9047b34b6bc142d85e4b0aa1b08b0b9baad4c6f8b7ac87641b9e8f90eb6fd23e",
+      "mode": "0o644"
+    },
+    "docs/runtime/ort-wasm-simd-threaded.mjs": {
+      "bytes": 20321,
+      "sha256": "90a557d15c02bac4504d95b67f431d8594635ed2a0a62a7f2cd83d090ff91d3e",
+      "mode": "0o644"
+    },
+    "docs/runtime/ort-wasm-simd-threaded.wasm": {
+      "bytes": 11905541,
+      "sha256": "45eaee27761ad883742a8d4b8fce1538d60ce43b51adf1726fafccc59b8c1a15",
+      "mode": "0o644"
+    },
+    "docs/runtime/ort.wasm.min.js": {
+      "bytes": 49926,
+      "sha256": "c6bc9f8e1d0ecc3983a57910e6a30b2230a512bcd2e0207cd64306459c3de7b4",
+      "mode": "0o644"
+    },
+    "docs/service-worker.js": {
+      "bytes": 192,
+      "sha256": "76feab34fd412f55fdaf5b1685a23e960918389824a2b859ee1bcfebceaa9b20",
+      "mode": "0o644"
+    },
+    "docs/styles.css": {
+      "bytes": 13649,
+      "sha256": "d5994b6e5cd743e4ce54fa35131c2b70ab81526ac93df73d9f799201baa30ef5",
+      "mode": "0o644"
+    },
+    "docs/sw.js": {
+      "bytes": 1200,
+      "sha256": "84abf55de671d73cba2f09a14327148fc6912f201610d4fa802a81353cceb4fd",
+      "mode": "0o644"
+    },
+    "docs/text-diff.js": {
+      "bytes": 6383,
+      "sha256": "932b928564db1c74970cc81981adb218e929129c119b3f73ebcb5cd91d226846",
+      "mode": "0o644"
+    },
+    "local-server/BUILD_INFO.json": {
+      "bytes": 1506,
+      "sha256": "d8ebe6873f7e59b04212160a2d38d86a5612ca53b435be807152b3ffbe6d2336",
+      "mode": "0o644"
+    },
+    "local-server/LICENSE_GO.txt": {
+      "bytes": 1453,
+      "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+      "mode": "0o644"
+    },
+    "local-server/PATENTS_GO.txt": {
+      "bytes": 1303,
+      "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+      "mode": "0o644"
+    },
+    "local-server/README.md": {
+      "bytes": 5150,
+      "sha256": "095adb7b4d63a74add584e26d2d2972faa20074e8461808e052762ba2969e814",
+      "mode": "0o644"
+    },
+    "local-server/TEST_REPORT.json": {
+      "bytes": 2675,
+      "sha256": "192acdb919d903bce003c088561c477f381af6da386c911a72ebaad8e1f67100",
+      "mode": "0o644"
+    },
+    "local-server/THIRD_PARTY_NOTICES.txt": {
+      "bytes": 17751,
+      "sha256": "7f52b92e4f47e5bd62fdf759bdb8d6b0f25f6371f329ada124c477d61a0882ca",
+      "mode": "0o644"
+    },
+    "local-server/bin/police-ocr-server-macos-amd64": {
+      "bytes": 6151840,
+      "sha256": "07e89a06a083a7f4c540898151e6fbda9b1426f9cfb3d3199795c12af3299d4e",
+      "mode": "0o755"
+    },
+    "local-server/bin/police-ocr-server-macos-arm64": {
+      "bytes": 5716530,
+      "sha256": "357e5887dc901250b8e6ea5b2bbf1e777692dcd9c6c802c845b61a6c7a2c767d",
+      "mode": "0o755"
+    },
+    "local-server/bin/police-ocr-server-windows-amd64.exe": {
+      "bytes": 6240768,
+      "sha256": "28d233077c018aa6de41e1308de321e2e8ffb71374eba3898916e2c5abc73545",
+      "mode": "0o755"
+    },
+    "local-server/bin/police-ocr-server-windows-arm64.exe": {
+      "bytes": 5663744,
+      "sha256": "ac3b278ab8f242666c58edb6054d221a73dd702f605abe5c97a7bb11e73aee15",
+      "mode": "0o755"
+    },
+    "local-server/go.mod": {
+      "bytes": 43,
+      "sha256": "0168c9400683496af272982ebdc7d39333e61f93cd7a92c63cb1d051f8819ae1",
+      "mode": "0o644"
+    },
+    "local-server/main.go": {
+      "bytes": 7208,
+      "sha256": "afb8b0a79a94b99cee42c2deb0bdfaffb9ab38936607e60b524b10a4f605f5d9",
+      "mode": "0o644"
+    },
+    "local-server/main_test.go": {
+      "bytes": 4950,
+      "sha256": "fe888e4894dafd5223bead711377808d0091d651fe43318829d05062474e15f3",
+      "mode": "0o644"
+    },
+    "serve.py": {
+      "bytes": 2474,
+      "sha256": "9f74ea24d0da9d5286b52522a12a431c1702809ab2d11c45b6af3b04971f9355",
+      "mode": "0o644"
+    }
+  }
+}

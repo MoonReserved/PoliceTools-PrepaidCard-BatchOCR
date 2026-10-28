@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>警政小工具-點數卡批次OCR辨識</title>
+  <meta name="description" content="PoliceTools – Prepaid Card Batch OCR。圖片與 PDF 批次自動找框、點選辨識、依點選順序輸出，純前端離線運算。">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="attribution.css">
+  <script src="offline-assets.js" defer></script>
+  <script src="text-diff.js" defer></script>
+  <script src="pdf-source.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+<main>
+  <header class="page-header"><div><p class="eyebrow">PoliceTools – Prepaid Card Batch OCR</p><h1>警政小工具-點數卡批次OCR辨識</h1><p>整批加入圖片或 PDF，自動逐頁找文字位置。你點選需要的行，系統再仔細辨識。</p></div><span class="badge">純前端 · 不上傳</span></header>
+  <section id="local-file-help" class="notice local-file-help" aria-label="本機啟動方式">
+    <strong>本機使用請開啟啟動工具</strong>
+    <p>若你直接點了 index.html，請回到解壓縮後的專案資料夾，雙擊對應的啟動檔：</p>
+    <p>macOS：<code>START_MAC.command</code><br>Windows：<code>START_WINDOWS.bat</code></p>
+    <p>啟動後會自動開啟本機網址；不必安裝 Python，也不會上傳圖片。若從正式網站開啟仍看到此提示，請確認瀏覽器允許這個網站執行 JavaScript。</p>
+  </section>
+  <div id="cache-status" data-testid="cache-status" class="notice" role="status">正在準備完整離線資源…</div>
+  <section class="panel import-panel" aria-labelledby="import-title">
+    <div class="section-title"><h2 id="import-title"><span class="step">1</span>加入圖片或 PDF</h2><button id="clear" class="subtle" type="button" disabled>清空這一批</button></div>
+    <div class="import-row"><label class="file-button">選擇圖片或 PDF<input id="image" data-testid="image-input" type="file" accept="image/*,application/pdf,.pdf" multiple disabled></label><div><p id="batch-hint" class="hint"></p><p class="hint">PDF 會按第 1、2、3…頁自動拆開，也可與圖片混合加入。每次只繪製需要的頁面。</p><p class="hint">單檔上限 50 MiB。需要密碼的 PDF，請先在本機另存為不需密碼的副本。</p></div></div>
+    <p id="import-status" class="hint" role="status" aria-live="polite" hidden></p>
+    <p id="import-warning" class="warning" role="alert" hidden></p>
+    <div class="batch-controls"><div id="batch-summary" class="summary" data-testid="batch-summary">尚未加入圖片或 PDF</div><button id="pause" class="subtle" type="button" disabled>暫停背景掃描</button></div>
+    <progress id="batch-progress" value="0" max="1" aria-label="文字區域掃描進度"></progress>
+    <p id="status" data-testid="status" role="status" aria-live="polite">加入檔案後，會自動逐頁尋找候選文字行。</p>
+  </section>
+  <div class="workspace">
+    <aside class="panel file-panel" aria-labelledby="files-title"><div class="section-title"><h2 id="files-title">頁面佇列</h2><span id="file-count" class="muted">0 張／頁</span></div><p class="queue-order-help">↑ 往前、↓ 往後。調整瀏覽與待掃描順序；序號輸出仍依點框順序。</p><div id="file-list" class="file-list" data-testid="file-list"><p class="empty-note">圖片與 PDF 的每一頁會列在這裡。</p></div></aside>
+    <section class="panel selection-panel" aria-labelledby="selection-title">
+      <div class="section-title"><h2 id="selection-title"><span class="step">2</span>點選需要的序號</h2><div class="navigation"><button id="previous" type="button" class="subtle" aria-label="上一張" disabled>←</button><span id="image-position">0 / 0</span><button id="next" type="button" class="subtle" aria-label="下一張" disabled>→</button></div></div>
+      <div class="image-heading"><strong id="image-name">尚未選擇頁面</strong><button id="remove-image" type="button" class="text-button" disabled>移除此頁</button></div>
+      <p id="image-meta" class="hint">候選框採寬鬆偵測，其他文字也可能被框到。只需點選你要的行。</p>
+      <p id="image-warning" class="warning" role="status" hidden></p>
+      <div class="canvas-shell"><canvas id="source" data-testid="source-canvas" aria-label="點選頁面中的候選序號框"></canvas><p id="empty-image">先加入圖片或 PDF，模型會自動找位置。</p></div>
+      <div class="selection-tools"><button id="more-boxes" type="button" class="subtle" disabled>找更多候選框</button><label class="checkbox"><input id="auto-next" type="checkbox">點選後跳到下一張</label></div>
+      <details class="fallback"><summary>還是漏框？手動補上一框</summary><p class="hint">只有漏框時才需要。按下按鈕後，在圖片上拖出一整行；一般操作直接點選候選即可。</p><button id="manual" class="subtle" type="button" disabled>啟用手動補框</button></details>
+      <div class="section-title candidate-heading"><h3>放大候選行</h3><span id="candidate-count" class="muted">尚未掃描</span></div>
+      <p class="hint">這些是圖片裁切，尚未逐行辨識。點一下加入辨識；再點一次取消。也可直接點上方框線。</p>
+      <div id="candidate-list" class="candidate-list" data-testid="candidate-list"><p class="empty-note">掃描完成後，可在這裡輕鬆點選。</p></div>
+    </section>
+  </div>
+  <section class="panel results-panel" aria-labelledby="results-title">
+    <div class="section-title"><h2 id="results-title"><span class="step">3</span>核對與整批複製</h2><span id="selected-count" class="muted">0 個已選框</span></div>
+    <p class="order-help">依點選先後排列。左上角數字是輸出順序，可用 ↑ ↓ 調整；複製與下載都會同步。取消後重新選取會排到最後。</p>
+    <div class="result-settings"><label class="checkbox"><input id="verified-only" type="checkbox">只複製／匯出已核對的結果</label></div>
+    <p class="hint">每個選框以 4 種方式精讀。特別核對 O／0、I／1、B／8；高分仍可能出錯。</p>
+    <div id="results" data-testid="results"><p id="empty-results" class="empty-note">點選候選框後，結果會自動排隊出現在這裡。</p></div>
+    <div class="export-bar"><span id="export-summary" class="muted">尚無完成結果</span><div class="export-actions"><button id="copy-all" type="button" disabled>複製全部序號</button><button id="export-txt" class="subtle" type="button" disabled>下載 TXT</button><button id="export-csv" class="subtle" type="button" disabled>下載 CSV</button></div></div>
+    <p class="hint">輸出採用上方清單的順序。複製與 TXT 只含序號；CSV 的 order 欄保留介面序位，篩選後可能跳號。CSV 請用「匯入資料」並將文字欄指定為文字，避免前導零消失或以公式解讀。</p>
+  </section>
+  <footer>
+    <p id="app-version">v8.1 · PoliceTools 整合版</p>
+    <p>圖片、PDF 與辨識結果只留在此分頁的記憶體，關閉或清空即移除。請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
+    <p>PDF 只轉成頁面畫面，不執行文件內的指令或開啟連結。顯示「完整離線就緒」後，可在同一瀏覽器、同一網址離線開啟。請保留網站資料；無痕模式、系統清理或清除快取可能移除離線資源。</p>
+    <section class="attribution" aria-labelledby="attribution-title">
+      <h2 id="attribution-title">使用模型與相關授權</h2>
+      <p class="attribution-summary">文字位置偵測使用 <strong>PP-OCRv5 mobile DB</strong>；序號辨識使用 <strong>PP-OCRv6 small</strong>。模型來自 PaddleOCR，使用 RapidOCR 提供的 ONNX 轉換版本。</p>
+      <p class="attribution-summary">瀏覽器運算使用 <strong>ONNX Runtime Web 1.23.2</strong>；PDF 拆頁使用 <strong>PDF.js 6.4.299</strong>；介面字型使用 <strong>Noto Sans CJK TC</strong> 的本機字型子集。</p>
+      <details class="attribution-details">
+        <summary>查看各元件授權與來源</summary>
+        <p class="attribution-note">下列授權與來源說明均附於網站，完整離線就緒後亦可查看；連結會另開分頁。</p>
+        <table class="attribution-table">
+          <caption>第三方元件、用途與完整授權文件</caption>
+          <thead><tr><th scope="col">元件／模型</th><th scope="col">用途</th><th scope="col">完整授權</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">PaddleOCR：PP-OCRv5 mobile DB、PP-OCRv6 small</th><td>文字偵測與序號辨識</td><td><a href="licenses/PADDLEOCR_LICENSE.txt" target="_blank" rel="noopener noreferrer">Apache License 2.0</a></td></tr>
+            <tr><th scope="row">RapidOCR</th><td>ONNX 模型轉換來源與前處理參考</td><td><a href="licenses/RAPIDOCR_LICENSE.txt" target="_blank" rel="noopener noreferrer">Apache License 2.0</a></td></tr>
+            <tr><th scope="row">ONNX Runtime Web 1.23.2</th><td>本機 WebAssembly 模型運算</td><td><a href="licenses/ONNX_RUNTIME_LICENSE.txt" target="_blank" rel="noopener noreferrer">MIT License</a>；<a href="licenses/ONNX_RUNTIME_THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener noreferrer">第三方聲明</a></td></tr>
+            <tr><th scope="row">PDF.js 6.4.299</th><td>PDF 解析與逐頁繪製</td><td><a href="licenses/PDFJS_LICENSE.txt" target="_blank" rel="noopener noreferrer">Apache License 2.0</a></td></tr>
+            <tr><th scope="row">PDF.js 附帶資源</th><td>PDF 字型、CMap 與影像解碼</td><td><a href="licenses/PDFJS_THIRD_PARTY_LICENSES.txt" target="_blank" rel="noopener noreferrer">各資源的第三方授權</a></td></tr>
+            <tr><th scope="row">Noto Sans CJK TC</th><td>離線介面字型子集</td><td><a href="licenses/NOTO_FONT_OFL.txt" target="_blank" rel="noopener noreferrer">SIL Open Font License 1.1</a></td></tr>
+          </tbody>
+        </table>
+        <p class="attribution-sources">資產來源與版本：<a href="licenses/ASSET_SOURCES.txt" target="_blank" rel="noopener noreferrer">OCR 模型、執行環境與介面字型</a> · <a href="licenses/PDFJS_ASSET_SOURCES.txt" target="_blank" rel="noopener noreferrer">PDF.js 與 PDF 支援資源</a></p>
+        <p class="attribution-note">第三方模型、程式與字型各自適用其授權。開發者署名指本工具的開發與整合。</p>
+      </details>
+      <p class="developer-credit"><strong>開發者：</strong><span>三元派出所所長黃郁翔</span></p>
+      <p class="project-link"><a href="https://github.com/MoonReserved/offline_ocr_bbox_webapp" target="_blank" rel="noopener noreferrer">GitHub 原始版本專案</a>（需連網）</p>
+      <p class="original-copyright">© 2025 大溪分局三元派出所 所長黃郁翔 All rights reserved</p>
+    </section>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{
+  "component": "PoliceTools local static server",
+  "finished_utc": "2026-10-28T04:25:38Z",
+  "status": "pass",
+  "go_version": "go1.27.3",
+  "unit_tests": {
+    "status": "pass",
+    "tests": [
+      "TestStaticFilesAndModelTransfers",
+      "TestConfinementAndNoUploads",
+      "TestMissingSiteFails"
+    ],
+    "covers": [
+      "index/model/WASM/MJS responses",
+      "GET HEAD Range behavior",
+      "following localhost links from an external page",
+      "write-method rejection",
+      "Host and cross-origin checks",
+      "directory/traversal/symlink confinement",
+      "missing index fails startup"
+    ]
+  },
+  "process_tests": {
+    "platform": "linux/amd64",
+    "actual_http": true,
+    "full_model_head_size_correct": true,
+    "partial_model_bytes_match_source": true,
+    "post_rejected": true,
+    "occupied_port_fails_without_opening_browser": true,
+    "missing_site_fails_without_opening_browser": true,
+    "sigint_closes_server_cleanly": true,
+    "macos_windows_actual_execution_tested": false
+  },
+  "wrapper_checks": {
+    "macos_wrapper_shell_logic": [
+      {
+        "cpu": "arm64",
+        "simulated_uname": true,
+        "quoted_unicode_space_path": true,
+        "flag_passthrough": true,
+        "repairs_only_selected_binary_executable_bit": true
+      },
+      {
+        "cpu": "x86_64",
+        "simulated_uname": true,
+        "quoted_unicode_space_path": true,
+        "flag_passthrough": true,
+        "repairs_only_selected_binary_executable_bit": true
+      }
+    ],
+    "windows_crlf": true,
+    "windows_native_execution_tested": false,
+    "macos_finder_execution_tested": false
+  },
+  "binary_formats": {
+    "macos_arm64": "Mach-O 64-bit arm64 executable",
+    "macos_amd64": "Mach-O 64-bit x86_64 executable",
+    "windows_amd64": "PE32+ console x86-64 executable",
+    "windows_arm64": "PE32+ console Aarch64 executable"
+  },
+  "browser_integration": {
+    "platform": "linux/amd64",
+    "browser": "Chromium",
+    "source": "Project verification: native_server_smoke.json",
+    "all_34_website_resources_cached": true,
+    "actual_detection_and_recognition_passed": true,
+    "external_requests": 0,
+    "http_write_requests": 0,
+    "resource_failures": 0,
+    "uncaught_javascript_errors": 0
+  },
+  "limits": [
+    "macOS Finder double-click and native Mac executable launch were not tested on a physical Mac.",
+    "Windows batch launcher and native Windows executables were not run on a physical Windows device.",
+    "Browser auto-opening was not exercised on macOS or Windows; the displayed URL remains a manual fallback.",
+    "No Apple Developer ID notarization or Windows publisher signature is included."
+  ]
+}

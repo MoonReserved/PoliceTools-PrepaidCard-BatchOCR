@@ -1,0 +1,280 @@
+# 警政小工具-點數卡批次OCR辨識
+
+**PoliceTools – Prepaid Card Batch OCR**  
+建議 GitHub Repo 名稱：`PoliceTools-PrepaidCard-BatchOCR`
+
+**批次圖片與 PDF｜自動找框｜點選辨識｜依點選順序匯出｜純前端離線運算**
+
+這是一個協助整理點數卡、超商收據、刮刮卡及其他卡面序號的瀏覽器工具。加入多張圖片或多頁 PDF 後，系統會先找出可能的文字行；使用者只需點選需要的序號，再核對辨識結果並整批複製。
+
+工具以減少逐張框選、反覆切換圖片及手動輸入為目標。圖片、PDF 與序號辨識都在使用者的裝置內處理，不需要雲端 OCR、API Key 或使用者帳號。
+
+**目前版本：v8.1 · PoliceTools 整合版**  
+更新日期：2026-10-28
+
+v8.1 整理網站名稱、GitHub 專案檔案及本機雙擊啟動工具；文字位置偵測與序號辨識模型沿用 v8。
+
+## 先選擇開啟方式
+
+| 使用情境 | 開啟方式 | 是否需要安裝 Python |
+| --- | --- | --- |
+| macOS 本機使用 | 完整解壓縮後，雙擊 `START_MAC.command` | 不需要 |
+| Microsoft Windows 本機使用 | 完整解壓縮後，雙擊 `START_WINDOWS.bat` | 不需要 |
+| 手機或電腦使用已部署網站 | 開啟 GitHub Pages 的 HTTPS 網址 | 不需要 |
+
+**請先解壓縮整個專案，不要在 ZIP 裡直接執行，也不要雙擊 `docs/index.html`。** 雙擊啟動器會在電腦本機提供網站檔案，再開啟瀏覽器；OCR 仍在瀏覽器內執行。
+
+需要簡短步驟時，可先閱讀 [快速開始](QUICK_START_zh-TW.txt)。
+
+## 主要功能
+
+- **自動找出候選文字行**：採偏寬鬆的偵測方式，使用者從候選框或放大裁切圖點選需要的行。
+- **點選後再辨識**：先找位置，再針對選中的區域精讀，避免逐張手動拉框。
+- **圖片與 PDF 混合批次**：多頁 PDF 自動拆成逐頁佇列，可與圖片一起處理。
+- **依點選順序輸出**：第一個選中的序號排第一個；結果左上角顯示順序，並可用箭頭調整。
+- **頁面佇列可排序**：可調整瀏覽與待掃描的頁面順序，保留 PDF 原始頁碼。
+- **候選差異紅字**：展開辨識候選時，與當次預設結果不同的字元會標紅，方便對照原圖。
+- **人工核對與修正**：支援直接改字、採用候選、標記已核對、重試及轉 180° 重讀。
+- **整批輸出**：支援複製全部序號、下載 TXT、下載 CSV，也可只輸出已核對的結果。
+- **完整離線資源**：模型、執行環境、PDF 支援檔、字型及授權文件均隨網站提供。
+
+序號辨識統一使用 PP-OCRv6 small，保留同一模型的四種影像處理候選。已移除 English PP-OCRv5 mobile 第二意見及其選項，使用者不必選擇辨識模型。
+
+## 使用方式
+
+1. **開啟工具**：首次使用已部署的網站時保持連網，等待頁面顯示「完整離線就緒」。
+2. **加入圖片或 PDF**：可一次選取多個檔案。PDF 會依頁碼展開；模型會逐頁尋找候選文字行。
+3. **點選需要的序號**：直接點圖片上的框，或點下方放大的候選行。再點一次可取消選取。
+4. **對照原圖核對**：必要時手動修字、採用其他候選或重讀，確認後勾選「已核對圖片」。
+5. **調整順序並輸出**：確認結果清單的編號，再複製全部或下載 TXT／CSV。
+
+漏框時可先按「找更多候選框」；仍找不到才使用「手動補上一框」。模糊、反光、刮除不完整或嚴重變形的圖片，可能仍需要重拍或人工修正。
+
+### 兩種排序的差別
+
+| 操作位置 | 調整的內容 | 對序號輸出的影響 |
+| --- | --- | --- |
+| 頁面佇列的 ↑／↓ | 頁面瀏覽及待掃描順序 | 不會改變已選序號的輸出順序 |
+| 核對結果的 ↑／↓ | 已選序號的排列順序 | 複製、TXT 與 CSV 會跟著調整 |
+
+多檔匯入的初始順序採用瀏覽器收到的檔案清單，不保證等於在檔案選取器中的點擊順序。若順序不符需求，可直接調整頁面佇列。
+
+序號預設依「點框先後」排列；取消選取後再選一次，會排到結果清單最後。輸出只包含已完成辨識的結果；勾選「只複製／匯出已核對的結果」時，會再依核對狀態篩選。
+
+### 如何看辨識候選
+
+每個選框會以原始裁切、修除空白與白邊、橫向 1.5 倍、橫向 2 倍四種方式處理，再由同一個辨識模型產生候選。
+
+- 紅字表示「與當次預設結果不同」，不是已確定的錯字。
+- 缺字會以類似 `〔缺 C〕` 的提示標示；這些提示不會被加入採用或匯出的序號。
+- 採用候選或手動修改後，比較基準仍保留當次預設辨識結果。
+- 模型分數不是正確率。請特別核對 `O／0`、`I／1`、`B／8` 等容易混淆的字元。
+
+## 批次大小與支援範圍
+
+| 項目 | 說明 |
+| --- | --- |
+| 圖片 | 瀏覽器可解碼的圖片，例如 JPG、PNG；其他格式依瀏覽器支援情況而定 |
+| PDF | 本機 PDF，可多頁拆開處理；需要密碼的文件請先在本機解鎖另存 |
+| 手機建議起始量 | 每批約 10～20 張／頁 |
+| 桌機介面建議量 | 一般為 100 張／頁；低記憶體裝置會顯示較低建議 |
+| 單批程式上限 | 200 張／頁，包含目前佇列中的頁面 |
+| 單一檔案上限 | 50 MiB，約 52.4 MB |
+
+一張圖片或一頁 PDF 各算一個處理單位。程式會逐頁處理，PDF 各頁共用原始檔案，並按需要繪製頁面。
+
+上述建議量不是裝置效能保證。圖片解析度、PDF 內容、可用記憶體及瀏覽器都會影響負荷；手機發熱或操作變慢時，請先匯出已完成結果，再分批繼續。
+
+## 離線運作與資料隱私
+
+### 圖片與序號在哪裡處理？
+
+圖片、PDF 解析、文字位置偵測與序號辨識均在瀏覽器內執行。工具沒有圖片上傳介面，也沒有串接雲端 OCR、外部 CDN 或分析追蹤碼。
+
+GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；使用者選取的圖片、PDF 與辨識結果不會由本工具上傳至這些服務。
+
+### 離線使用需要什麼？
+
+首次從網站開啟時，需下載並快取完整資源。顯示「完整離線就緒」後，可使用同一瀏覽器、同一網址離線開啟。
+
+離線快取只包含程式、模型、PDF 支援資源、字型與授權文件，不包含使用者加入的圖片、PDF 或辨識結果。清除網站資料、使用無痕模式或系統回收儲存空間，都可能使離線資源需要重新準備。
+
+**本工具不會自動保存工作進度。重新整理、關閉分頁或清空前，請先複製或匯出結果。**
+
+## 部署到 GitHub Pages
+
+本次提供一個完整專案包 **`PoliceTools-PrepaidCard-BatchOCR.zip`**。同一包同時包含網站及 macOS／Windows 本機啟動工具，不必再挑選「測試包」或「上傳包」。
+
+### 檔案應該放在哪裡？
+
+解壓後，進入 `PoliceTools-PrepaidCard-BatchOCR` 資料夾；將**資料夾裡面的檔案與子資料夾**上傳到 Repo 最外層。
+
+| Repo 根目錄項目 | 用途 |
+| --- | --- |
+| `README.md` | 本說明 |
+| `QUICK_START_zh-TW.txt` | 簡短操作步驟 |
+| `docs/` | GitHub Pages 正式網站；入口為 `docs/index.html` |
+| `START_MAC.command` | macOS 雙擊啟動器 |
+| `START_WINDOWS.bat` | Windows 雙擊啟動器 |
+| `local-server/` | 隨附本機伺服器、原始碼、建置與授權說明 |
+| `serve.py` | 已安裝 Python 3 時可使用的後備啟動方式 |
+| `TEST_REPORT.json` | 本次整合版驗證摘要 |
+| `V8_BASELINE_TEST_REPORT.json` | 先前 v8 的功能驗證紀錄 |
+| `ASSET_MANIFEST.json` | 檔案大小及 SHA-256 清單 |
+
+**上傳的是解壓後的內容，不是 ZIP 檔案，也不是再把外層 `PoliceTools-PrepaidCard-BatchOCR` 資料夾包進 Repo。** 完成後，入口路徑應為 `docs/index.html`，不能多一層變成 `PoliceTools-PrepaidCard-BatchOCR/docs/index.html`。
+
+### 部署步驟
+
+1. 建立 Public 儲存庫，名稱使用 **`PoliceTools-PrepaidCard-BatchOCR`**；可先勾選加入 README，建立 `main` 分支。
+2. 在 Repo 最外層選 **Add file → Upload files**。
+3. 開啟解壓後的專案資料夾，將裡面的全部檔案與子資料夾拖進上傳區，包含 `docs`、`local-server`、兩個啟動器及 README。
+4. 檢查清單中有 `docs/index.html`，等全部檔案上傳完成，再提交變更。已有預設 README 時，以本包的 README 取代。
+5. 進入 **Settings → Pages**，選 **Source：Deploy from a branch**、**Branch：main**、**Folder：/docs**，按 **Save**。
+6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.1 · PoliceTools 整合版**」。
+7. 等待「完整離線就緒」，加入一張圖片，確認能自動出框；點框後再確認能產生序號。
+
+若帳號仍為 `MoonReserved`，且 Repo 使用上述名稱，**預期**網址為 [https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/](https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/)。這只是依命名推算的網址，不代表網站已替你部署；請以 GitHub Pages 設定頁顯示的網址為準。
+
+發布來源設定見 [GitHub Pages 官方文件](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)。如果使用其他發布分支，讓設定與實際放置 `docs/` 的分支一致。
+
+### 上傳大小與路徑
+
+依 [GitHub 官方上傳限制](https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository)，網頁上傳每個檔案上限為 **25 MiB**，每次最多 **100 個檔案**。應以解壓後的單個檔案檢查限制，不能將資料夾總大小當成單檔大小。
+
+本包解壓後共有 **55 個檔案**，最大的 `docs/models/small6.onnx` 約 **20.25 MiB**；各單檔均低於 25 MiB，總檔案數也低於一次 100 個的限制。
+
+完整 ZIP 包超過網頁單檔上傳限制，請先解壓縮。新建 Repo 不會改變上傳限制；若解壓後上傳仍失敗，請保留錯誤訊息並檢查待上傳清單，也可使用 GitHub Desktop 或 Git 提交相同內容。
+
+本機啟動工具可以一併保留在 Repo；GitHub Pages 選擇 `/docs` 後，只發布 `docs/` 內的網站資源。手機使用網站時，不會下載根目錄的桌面啟動器。
+
+私人收據、卡面照片、PDF 及輸出的序號 TXT／CSV 請保留在自己的裝置，不要加入公開 Repo。
+
+### 舊版更新與快取
+
+更新既有網站時，請完整替換 `docs/`，不要只替換單個程式。若曾部署含第二意見的 v7，另行移除舊的 `docs/models/en5.onnx` 及 `docs/models/en5.dict.json`；網頁上傳新資料夾不會自動刪除本次未包含的舊檔。
+
+更新前先匯出目前工作。部署成功後，關閉舊分頁並連網重新開啟，確認版本及完整離線資源都已準備完成。換成新 Repo 網址時，需為新網址重新建立快取。
+
+## 本機雙擊啟動
+
+### macOS
+
+1. 完整解壓縮本包，保留 `docs/` 與 `local-server/` 的位置。
+2. 雙擊根目錄的 **`START_MAC.command`**。
+3. 瀏覽器自動開啟 [http://127.0.0.1:8787/](http://127.0.0.1:8787/)，等待「完整離線就緒」。
+
+隨附原生啟動器需要 **macOS 13 Ventura 或更新版本**，會選擇 Apple Silicon（M 系列）或 Intel 對應程式；此最低版本依 [Go 1.27 官方平台要求](https://go.dev/doc/go1.27#darwin)。
+
+### Microsoft Windows
+
+1. 對 ZIP 選擇「全部解壓縮」，進入解壓後的專案資料夾。
+2. 雙擊根目錄的 **`START_WINDOWS.bat`**。
+3. 瀏覽器自動開啟 [http://127.0.0.1:8787/](http://127.0.0.1:8787/)，等待「完整離線就緒」。
+
+隨附原生啟動器供 **64 位元 Windows 10／11** 使用，會選擇 x64 或 ARM64 對應程式。平台範圍見 [Go 官方 Windows 支援說明](https://go.dev/wiki/Windows)；程式實際執行仍需符合裝置的安全政策。
+
+### 啟動後的操作
+
+本包已附原生本機伺服器，不需要另裝 Python、Go 或 Node.js，也不會在啟動時從網路下載執行環境。它只在 `127.0.0.1` 提供 `docs/` 內的靜態檔案，沒有圖片上傳或 OCR API；辨識運算仍在瀏覽器內。
+
+請保持啟動視窗開著。結束前先匯出結果，再在啟動視窗按 `Ctrl+C` 停止。若未自動開啟瀏覽器，可手動前往啟動視窗顯示的本機網址。
+
+如果顯示 8787 埠已被使用，請先關閉先前的本機啟動視窗，再重開。需要改埠時，可在終端機從專案資料夾執行 `./START_MAC.command --port 8788`；Windows 則執行 `START_WINDOWS.bat --port 8788`。不同埠會使用不同的網站快取。
+
+### 第一次開啟與權限
+
+隨附啟動程式未以開發者憑證簽署或公證。macOS 或 Windows 第一次開啟時，可能要求確認來源；是否允許執行也受裝置與組織政策影響。因此「雙擊啟動」不代表能略過作業系統的首次確認。
+
+若 macOS 顯示無法驗證開發者，在確認檔案來源可信後，依「系統設定 → 隱私權與安全性」中的提示處理；可參閱 [Apple 官方開啟說明](https://support.apple.com/en-us/102445)。Windows 請依系統提示確認來源；受組織管理的電腦若禁止執行，請使用已部署的 HTTPS 網站或洽管理人員。
+
+原始交付 ZIP 已保留 macOS 啟動檔的執行權限。若將檔案經 GitHub 網頁重新上傳，再以 **Code → Download ZIP** 下載，執行權限可能不同。遇到「沒有執行權限」時，可優先使用保留的原始交付 ZIP，或在專案資料夾執行一次：
+
+```bash
+chmod u+x START_MAC.command
+```
+
+之後再雙擊 `START_MAC.command`。啟動器會為所選的隨附本機程式補上必要執行權限；這不會更動 macOS 的來源驗證設定。詳細內容見 [本機伺服器說明](local-server/README.md)。
+
+### 已安裝 Python 3 的後備方式
+
+在包含 `serve.py` 的專案資料夾執行：
+
+```bash
+python3 serve.py
+```
+
+Windows 若使用 Python Launcher，可執行：
+
+```powershell
+py -3 serve.py
+```
+
+這是可選的後備方式，一般雙擊使用不需要 Python。
+
+### 為什麼不能直接雙擊 index.html？
+
+直接雙擊會以 `file://` 開啟，瀏覽器對模型檔案讀取及離線快取有不同限制。請透過本機啟動器的 `http://127.0.0.1` 網址，或正式部署後的 HTTPS 網址使用。參考 [MDN 本機檔案與來源限制說明](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS/Errors/CORSRequestNotHttp)。
+
+「離線運算」指圖片、PDF 與辨識在裝置內處理，不需要雲端 OCR；首次開啟 GitHub Pages 網站仍需下載程式與模型。本機包已含這些資源，可由電腦直接提供。
+
+## 模型、技術與第三方授權
+
+| 元件 | 用途 | 版本／模型 | 隨附授權 |
+| --- | --- | --- | --- |
+| PaddleOCR | 文字位置偵測 | PP-OCRv5 mobile DB | [Apache License 2.0](docs/licenses/PADDLEOCR_LICENSE.txt) |
+| PaddleOCR | 序號辨識 | PP-OCRv6 small | [Apache License 2.0](docs/licenses/PADDLEOCR_LICENSE.txt) |
+| RapidOCR | ONNX 模型轉換來源與前處理參考 | 隨附模型來源見資產說明 | [Apache License 2.0](docs/licenses/RAPIDOCR_LICENSE.txt) |
+| ONNX Runtime Web | 瀏覽器內 WebAssembly 推論 | 1.23.2 | [MIT License](docs/licenses/ONNX_RUNTIME_LICENSE.txt) |
+| PDF.js | PDF 解析與逐頁繪製 | 6.4.299 | [Apache License 2.0](docs/licenses/PDFJS_LICENSE.txt) |
+| Noto Sans CJK TC | 離線介面字型 | 本機 WOFF 字型子集 | [SIL Open Font License 1.1](docs/licenses/NOTO_FONT_OFL.txt) |
+| Go 執行環境與標準函式庫 | 隨附桌面本機伺服器 | 隨程式編譯，建置資訊見本機伺服器說明 | [BSD 授權](local-server/LICENSE_GO.txt) |
+
+其他第三方聲明與來源：
+
+- [ONNX Runtime 第三方聲明](docs/licenses/ONNX_RUNTIME_THIRD_PARTY_NOTICES.txt)
+- [PDF.js 支援資源的第三方授權](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt)
+- [OCR 模型、執行環境與字型來源](docs/licenses/ASSET_SOURCES.txt)
+- [PDF.js 與 PDF 支援資源來源](docs/licenses/PDFJS_ASSET_SOURCES.txt)
+- [本機伺服器第三方聲明](local-server/THIRD_PARTY_NOTICES.txt)
+- [本機伺服器原始碼與建置說明](local-server/README.md)
+
+第三方模型、程式與字型各自適用其授權，請保留隨附授權與聲明。以上表格列的是第三方元件授權，不代表將本工具自有程式碼一併授權為 Apache 或 MIT。
+
+## 驗證範圍與已知限制
+
+### v8 功能基線
+
+先前 v8 已完成 9 項功能整合檢查，包括版本升級與舊模型快取清理、圖片及兩頁 PDF、自動找框後辨識、候選差異與採用、頁面及結果排序、複製與匯出、離線授權連結，以及關閉伺服器後的離線冷啟動；紀錄保留在 [V8_BASELINE_TEST_REPORT.json](V8_BASELINE_TEST_REPORT.json)。
+
+基線驗證環境為 Chromium 140.0.7339.16，並檢查 390px 寬度的版面。真實 OCR 流程使用 3 個可讀合成序號；候選紅字另以受控文字測試。這些結果用來確認功能，不能推算各種卡面的整體辨識率。
+
+### v8.1 整合版
+
+本次針對重新命名後的專案子路徑、完整資源快取、390px 版面、合成圖片找框與點選辨識、停止伺服器後的離線重開，以及直接開啟 HTML 時的引導進行檢查；各項結果以 [TEST_REPORT.json](TEST_REPORT.json) 為準。
+
+本機啟動器另以原始碼檢查、交叉編譯及 Linux 上的伺服器測試驗證，並已將原生伺服器接上完整網站，確認全部資源快取、自動找框及點選辨識能運作。macOS／Windows 執行檔隨包提供，但未在實體 macOS／Windows 環境實際雙擊驗證。
+
+本次未進行實體 iPhone／Android 裝置測試，也未進行 Safari 驗證，且未重新進行大量批次容量測試。字元過密、低解析度、反光、污損與特殊字型仍可能影響結果；請以原圖核對為準。
+
+## 常見問題
+
+| 問題 | 處理方式 |
+| --- | --- |
+| 為什麼其他文字也被框起來？ | 找框策略偏寬鬆，以減少漏掉需要的行；只需點選想辨識的框。 |
+| 頁面順序改了，複製順序卻沒變？ | 頁面排序與序號排序各自獨立；請使用核對結果中的 ↑／↓ 調整輸出。 |
+| 已經離線，為什麼還不能開？ | 確認先前已完成完整快取，且使用相同瀏覽器與網址；清除網站資料後需重新連網準備。 |
+| 更新後還看到舊版？ | 先確認 Pages 部署成功，匯出工作後關閉舊分頁，再連網重新開啟。 |
+| ZIP 上傳被拒絕？ | 先解壓，再上傳專案資料夾裡的全部檔案與子資料夾；不要直接上傳整個 ZIP。 |
+| 雙擊 HTML 後模型載入失敗？ | 請改用 `START_MAC.command` 或 `START_WINDOWS.bat`，透過本機網址開啟。 |
+| 啟動視窗顯示埠被使用？ | 先關閉前一次啟動視窗，再重開；進階使用者可指定其他埠。 |
+| CSV 的前導零不見了？ | 用試算表的匯入功能，將序號欄指定為文字；只需要序號時可直接複製或使用 TXT。 |
+| CSV 的 order 欄為什麼會跳號？ | 它保留結果清單的原始順位；只匯出已核對結果時，篩選後可能不連號。 |
+
+## 開發者
+
+**三元派出所所長黃郁翔**
+
+本工具之開發與整合署名如上；第三方元件的作者與授權聲明請參閱隨附文件。
+
+© 2025 大溪分局三元派出所 所長黃郁翔 All rights reserved

@@ -1,0 +1,24 @@
+/* Local, responsive model/license attribution. No remote fonts or resources. */
+.attribution{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted)}
+.attribution h2{font-size:16px;color:var(--ink);margin:0 0 10px}
+.attribution .attribution-summary{font-size:12px;line-height:1.8;margin:8px 0}
+.attribution-summary strong{font-weight:650;color:#35594c}
+.attribution a{color:#17664f;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.attribution a:hover{color:#0b4837}
+.attribution a:focus-visible{outline:3px solid #77baa4;outline-offset:3px;border-radius:2px}
+.attribution-details{margin:12px 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fafcf9}
+.attribution-details>summary{font-size:12px;font-weight:650;color:#35594c;cursor:pointer}
+.attribution .attribution-note,.attribution .attribution-sources{font-size:11px;line-height:1.75;margin:10px 0}
+.attribution-table{width:100%;table-layout:fixed;margin:12px 0;border-collapse:collapse;font-size:11px;line-height:1.7}
+.attribution-table caption{text-align:left;color:var(--muted);font-size:11px;margin-bottom:7px}
+.attribution-table th,.attribution-table td{text-align:left;padding:9px 7px;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere;word-break:normal;min-width:0}
+.attribution-table thead th{background:#edf4ed;color:#35594c;font-weight:650}
+.attribution-table thead th:first-child{width:39%}
+.attribution-table thead th:nth-child(2){width:26%}
+.attribution-table thead th:nth-child(3){width:35%}
+.attribution-table tbody th{font-weight:500;color:#35594c}
+.attribution-table td:nth-child(2){font-family:inherit;min-width:0;word-break:normal}
+.attribution .developer-credit{font-size:14px;color:var(--ink);margin:16px 0 7px;overflow-wrap:anywhere}
+.attribution .project-link{font-size:11px;margin:5px 0}
+.attribution .original-copyright{font-size:11px;line-height:1.7;margin-top:8px;overflow-wrap:anywhere}
+@media(max-width:520px){.attribution-details{padding:9px}.attribution-table th,.attribution-table td{padding:8px 5px}.attribution .developer-credit{font-size:13px}.attribution-table thead th:first-child{width:36%}.attribution-table thead th:nth-child(2){width:26%}.attribution-table thead th:nth-child(3){width:38%}}

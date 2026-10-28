@@ -1,0 +1,118 @@
+{
+  "release": "v8",
+  "finished_utc": "2026-10-28T03:25:38.394Z",
+  "status": "pass",
+  "passed": 9,
+  "failed": 0,
+  "browser": {
+    "name": "Chromium",
+    "version": "140.0.7339.16"
+  },
+  "checks": [
+    {
+      "name": "Actual v7-to-v8 subpath upgrade deletes old cache and both previously cached en5 assets",
+      "kind": "service-worker-upgrade",
+      "status": "pass"
+    },
+    {
+      "name": "Secondary-model checkbox and comparison UI are absent; ready message names one recognition model",
+      "kind": "ui",
+      "status": "pass"
+    },
+    {
+      "name": "Image plus two-page PDF detect locally; pending/active ordering and navigation use page order",
+      "kind": "real-detection",
+      "status": "pass"
+    },
+    {
+      "name": "Real OCR returns only small6 with four variants; page/result ordering, clipboard and TXT/CSV export work",
+      "kind": "real-ocr",
+      "status": "pass"
+    },
+    {
+      "name": "Controlled primary-only candidates highlight substitutions/insertions/deletions; adoption keeps raw output and baseline",
+      "kind": "controlled-ui-fixture",
+      "status": "pass"
+    },
+    {
+      "name": "390px layout and footer preserve readable differences, attribution and all nine local license links",
+      "kind": "ui-offline-licenses",
+      "status": "pass"
+    },
+    {
+      "name": "Controlled hostile and case-sensitive candidates stay text-only within primary candidate table",
+      "kind": "controlled-ui-fixture",
+      "status": "pass"
+    },
+    {
+      "name": "Cold offline restart with server stopped parses PDF, detects, recognizes only small6 and reorders pages",
+      "kind": "real-ocr-cold-offline",
+      "status": "pass"
+    },
+    {
+      "name": "Final source matches cached code; no v8 en5 requests, uploads, external requests or input cache entries",
+      "kind": "network-and-integrity",
+      "status": "pass"
+    }
+  ],
+  "real_ocr": {
+    "test_data": "Readable synthetic serial images and a two-page synthetic PDF; no user files.",
+    "unique_serial_cases": 3,
+    "exact_match_cases": 3,
+    "recognition_model": "PP-OCRv6 small",
+    "only_primary_model_and_four_preprocessing_candidates": true,
+    "cold_offline_pdf_ocr_passed": true,
+    "population_accuracy_claim": false
+  },
+  "controlled_ui_tests": {
+    "passed": true,
+    "scope": "Primary-only candidate display, red character differences, deletion markers, adoption, fixed baseline and text-only rendering.",
+    "not_model_accuracy_evidence": true
+  },
+  "upgrade": {
+    "from": "v7",
+    "to": "v8",
+    "project_subpath_tested": true,
+    "old_en5_model_and_dictionary_confirmed_cached_before_upgrade": true,
+    "v7_cache_and_retired_model_assets_removed": true,
+    "v8_cached_assets": 34,
+    "v8_en5_requests": 0
+  },
+  "offline_and_privacy": {
+    "server_stopped_before_first_file_input": true,
+    "cold_browser_restart_tested": true,
+    "external_requests": 0,
+    "http_write_requests": 0,
+    "uncaught_javascript_errors": 0,
+    "input_not_added_to_app_cache": true
+  },
+  "ui": {
+    "viewport_width_css_px": 390,
+    "horizontal_page_overflow": false,
+    "offline_local_license_links": 9,
+    "queue_and_result_order_clipboard_txt_csv_passed": true
+  },
+  "integrity": {
+    "source_unchanged_during_test": true,
+    "cached_source_matches_tested_files": true,
+    "sha256": {
+      "index.html": "5c028d18bc1c7e890a6a4d6ed8aa116e13b760f7b08ab9643f2483ec9ff2332c",
+      "styles.css": "de28b1ac8bbef4d38fdc726b93151d3d673c56f979ed820796f6f844f60bfe2a",
+      "app.js": "fe284a4b5589502861b733ca8e37cc8a366ed0562a8e47dd516845cba814a817",
+      "text-diff.js": "932b928564db1c74970cc81981adb218e929129c119b3f73ebcb5cd91d226846",
+      "attribution.css": "2dd69d86554226a5594dd5e15008d5fe76510ec4c73562f57855b6394001828f",
+      "offline-assets.js": "a08ed23a0f2c2d306df4105fd9cb9d456d1c3621e1b3bb3b68286755cc03d1b2",
+      "pdf-source.js": "e477f89b1fa768fabc60ce3347bd623eed914e86753f5141de1d3d22be42c6df",
+      "ocr-worker.js": "68b549d1b7379d1e701864877ac2c78c26fe0b0cf3083732168810e8efcfba7d",
+      "detection.js": "47f6fd6446e6d53dd44c53dbc1d17332d5d9acbe9bfe092372d810c58c8352bb",
+      "sw.js": "84abf55de671d73cba2f09a14327148fc6912f201610d4fa802a81353cceb4fd",
+      "service-worker.js": "76feab34fd412f55fdaf5b1685a23e960918389824a2b859ee1bcfebceaa9b20",
+      "fonts/ui-tc.woff": "8c3406852f8c9cdd55fb3a5ada46a4aaf040ebb1cd89d8f3d982c50460bbfdac"
+    }
+  },
+  "limits": [
+    "Chromium desktop at 390px is not a physical iPhone/Android/Safari test.",
+    "Three readable synthetic serials are not a representative accuracy benchmark.",
+    "Relevant two-page PDF integration exercised; full existing PDF compatibility and large-batch capacity suites not repeated."
+  ]
+}
