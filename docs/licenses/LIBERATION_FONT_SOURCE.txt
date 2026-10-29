@@ -1,0 +1,88 @@
+Liberation Sans 1.07.4 — 完整對應原始碼與核對紀錄
+Updated: 2026-10-29
+
+下載與散布
+----------
+本網站直接提供來源包（相對於網站根目錄）：
+  sources/liberation-fonts-1.07.4-11-source.zip
+正式網站：
+  https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/sources/liberation-fonts-1.07.4-11-source.zip
+
+ZIP 包含完整上游 SFD 原始碼、Makefile、FontForge 腳本、GPLv2、字型例外，
+以及與實際字型對應的 Debian 補丁、建置與安裝資料及來源套件描述檔。
+網站與離線下載包均隨附這個 ZIP；完整離線就緒後也可從頁尾下載。
+重新散布本工具時，請保留 docs/sources/、docs/licenses/ 與頁尾下載連結。
+這是實際隨附來源的安排，並非僅指向外站，也不是日後提供來源的書面承諾。
+本工具自有部分的 All rights reserved 不限制這些第三方來源的授權權利。
+
+為何包含 Debian 補丁
+-------------------
+PDF.js v6.4.299 的上游說明標示這四個字型為 Liberation Sans 1.07.4：
+  https://github.com/mozilla/pdf.js/blob/v6.4.299/external/standard_fonts/README.md
+
+本次從 resources.pack 依 resources.json 的 offset/length 取出四個字型，
+確認它們與 Debian fonts-liberation 1:1.07.4-11 的四個 TTF 逐位元組一致。
+未套補丁的原始 1.07.4 TTF 發布包則不相同。因此本包除了原始來源，
+另附 Debian 的完整來源差異與建置資料，而不只附一份同版號的來源。
+本工具未修改或替換這四個字型，也未改動 PDF.js、字寬或字形縮放資料。
+
+來源檔案（ZIP 內保留 Debian 發布檔名及原始位元組）
+-------------------------------------------------
+來源套件版本：1:1.07.4-11
+公開檔案庫：https://deb.debian.org/debian/pool/main/f/fonts-liberation/
+
+fonts-liberation_1.07.4.orig.tar.gz
+  URL: https://deb.debian.org/debian/pool/main/f/fonts-liberation/fonts-liberation_1.07.4.orig.tar.gz
+  Bytes: 2937949
+  SHA-256: ad98b7498dc2992f7f0868f79b65ce4a720a3acdb63ab3f1f1cb6881117a5406
+fonts-liberation_1.07.4-11.debian.tar.xz
+  URL: https://deb.debian.org/debian/pool/main/f/fonts-liberation/fonts-liberation_1.07.4-11.debian.tar.xz
+  Bytes: 17248
+  SHA-256: 45ea32aab7eed82061493edbf5ef621d6fd7f074cb79ae45206014913ca5f313
+fonts-liberation_1.07.4-11.dsc
+  URL: https://deb.debian.org/debian/pool/main/f/fonts-liberation/fonts-liberation_1.07.4-11.dsc
+  Bytes: 2176
+  SHA-256: c9cb6abc8b8ab1887d78f5fc1aef1fc06a220efbfa3424ca7e8bc379242654ba
+
+兩份來源壓縮檔的大小及 SHA-256 已與 .dsc 的 Checksums-Sha256 核對。
+保留 .dsc 原始簽章，但本次未獨立驗證 OpenPGP 簽章；不可視為簽章驗證報告。
+
+對版證據
+--------
+核對使用的二進位套件（僅供重現比對，不是原始碼）：
+  https://deb.debian.org/debian/pool/main/f/fonts-liberation/fonts-liberation_1.07.4-11_all.deb
+  Bytes: 827812
+  SHA-256: efd381517f958b01969343634ffcbdd60056be7779af84c6f53a005090430204
+其中 usr/share/fonts/truetype/liberation/ 的下列檔案與本網站完全一致：
+  LiberationSans-Bold.ttf (137052 bytes)
+    361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc
+  LiberationSans-BoldItalic.ttf (135124 bytes)
+    a224075ac17495ad0a3af3bc0a419ac0704a8b3fd1095456201fb9b095fc281d
+  LiberationSans-Italic.ttf (162036 bytes)
+    832b4406dbef23628800d3aaad21048534ac84d7e3ad955be83b8172ed8ef512
+  LiberationSans-Regular.ttf (139512 bytes)
+    f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f
+
+來源還原與建置
+--------------
+在具備 dpkg-dev 的 Debian 建置環境，先解開本 ZIP，將三個來源檔留在同一目錄：
+
+  dpkg-source -x fonts-liberation_1.07.4-11.dsc
+  cd fonts-liberation-1.07.4
+  dpkg-buildpackage -us -uc -b
+
+dpkg-source 會解開來源並依 debian/patches/series 套用四個補丁。
+建置前需安裝 debian/control 列出的依賴：debhelper-compat (= 11)、
+fontforge-nox 或 fontforge，以及 fonttools；另需標準建置工具（make 等）。
+離線建置時需事先準備這些通用工具，它們不屬於字型來源包。
+
+若只要產生 TTF，可在完成來源還原與套用補丁後執行 make。
+依此版本 Makefile，TTF 輸出位於 liberation-fonts-ttf-1.07.4/。
+上游 README 的 build/ 描述較舊，請以 Makefile 為準。
+授權在來源內的 COPYING、License.txt 與 debian/copyright；
+網站也保留於 licenses/PDFJS_THIRD_PARTY_LICENSES.txt。
+
+驗證範圍：本次已驗證來源清單、補丁可套用，以及 Debian 成品與網站字型
+逐位元組相同；未在本機重建歷史 FontForge 環境，未宣稱可逐位元組重現建置。
+請勿將重新建置的字型直接覆蓋網站字型；PDF.js 的字形順序與字寬、縮放表
+互相對應，更新字型時需另外驗證。

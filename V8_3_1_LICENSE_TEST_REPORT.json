@@ -1,0 +1,229 @@
+{
+  "offline_run_metrics": {
+    "activeWorkerRequests": 0,
+    "maxActiveWorkerRequests": 1,
+    "detectStarted": 6,
+    "recognizeStarted": 2,
+    "completedJobs": 8
+  },
+  "offline_pdf_metrics": {
+    "openedDocuments": 1,
+    "activeDocuments": 1,
+    "maxActiveDocuments": 1,
+    "pageRenders": 5,
+    "cropRenders": 1,
+    "activeRenders": 0,
+    "maxActiveRenders": 1,
+    "maxCanvasPixels": 3276800,
+    "pendingJobs": 0,
+    "pdfjsVersion": "6.4.299",
+    "retainedSources": 1,
+    "closingDocuments": 0,
+    "activeSourceId": "pdf1",
+    "generation": 0
+  },
+  "user_screen_regression_tested": false,
+  "private_input_published": false,
+  "source_sha256": {
+    "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+    "app.js": "db41d995273fd1bd05633ba1da951b22566112b677dfc282ff4a1bb8c378b914",
+    "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+    "index.html": "68ee73cfdfbfa421be9291403793c40c722768356d144f8f3a40031dd86992d1",
+    "styles.css": "bd284c0bd8a05ed0459cf6d9db14f76639c7c0296c67ae2fdb245144448a5bfd",
+    "offline-assets.js": "c5013dcdebdaf59d8808ecf7fdb0528ba30148775bf533e5aa1c2bcfb3152595"
+  },
+  "release": "v8.3.1",
+  "status": "pass",
+  "finished_utc": "2026-10-29T07:13:36.001Z",
+  "browser": {
+    "name": "Chrome",
+    "version": "156.0.8078.49",
+    "host": "darwin"
+  },
+  "passed": 20,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Empty controls and complete v8.3.1 project-scoped offline cache",
+      "status": "pass"
+    },
+    {
+      "name": "Mixed image and two-page PDF import with real detection and OCR",
+      "status": "pass"
+    },
+    {
+      "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+      "status": "pass"
+    },
+    {
+      "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+      "status": "pass"
+    },
+    {
+      "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+      "status": "pass"
+    },
+    {
+      "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+      "status": "pass"
+    },
+    {
+      "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+      "status": "pass"
+    },
+    {
+      "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+      "status": "pass"
+    },
+    {
+      "name": "390px controls fit the page and remain usable",
+      "status": "pass"
+    },
+    {
+      "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+      "status": "pass"
+    },
+    {
+      "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+      "status": "pass"
+    },
+    {
+      "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+      "status": "pass"
+    },
+    {
+      "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+      "status": "pass"
+    },
+    {
+      "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+      "status": "pass"
+    },
+    {
+      "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+      "status": "pass"
+    },
+    {
+      "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+      "status": "pass"
+    },
+    {
+      "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+      "status": "pass"
+    },
+    {
+      "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+      "status": "pass"
+    },
+    {
+      "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+      "status": "pass"
+    },
+    {
+      "name": "No uncaught errors, external requests or write requests",
+      "status": "pass"
+    }
+  ],
+  "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+  "limits": [
+    "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+    "Synthetic serials validate behavior, not accuracy across all card photos."
+  ],
+  "uncaught_errors": [],
+  "external_requests": [],
+  "http_write_requests": [],
+  "coordinate_tests": {
+    "command": "node --test tests/page-rotation.test.cjs",
+    "passed": 3,
+    "failed": 0
+  },
+  "cache_upgrade": {
+    "status": "pass",
+    "from": "v8.3",
+    "to": "v8.3.1",
+    "browser": "156.0.8078.49",
+    "old_scoped_cache_removed": true,
+    "other_project_and_legacy_shared_caches_preserved": true,
+    "offline_reload_and_download_hashes_verified": [
+      "index.html",
+      "licenses/PDFJS_THIRD_PARTY_LICENSES.txt",
+      "licenses/LIBERATION_FONT_SOURCE.txt",
+      "sources/liberation-fonts-1.07.4-11-source.zip"
+    ],
+    "note": "Waited for controllerchange before reloading, so the new service worker had taken control."
+  },
+  "license_verification": {
+    "core_js": {
+      "version": "3.50.0",
+      "source": "https://github.com/zloirock/core-js/blob/v3.50.0/LICENSE",
+      "full_license_and_both_copyright_lines_retained": true
+    },
+    "brotli": {
+      "source": "https://github.com/mozilla/pdf.js/blob/v6.4.299/external/brotli/LICENSE_BROTLI",
+      "full_license_retained": true,
+      "decoder_copyright": "Copyright 2017 Google Inc. All Rights Reserved."
+    },
+    "liberation": {
+      "version": "1.07.4",
+      "matching_debian_version": "1:1.07.4-11",
+      "all_four_ttf_files_byte_identical_to_debian_binary_package": true,
+      "source_archive_checksums_match_dsc": true,
+      "all_four_debian_patches_apply": true,
+      "patched_sans_sfd_glyph_count_each": 681,
+      "historical_fontforge_rebuild_performed": false,
+      "openpgp_signature_independently_verified": false,
+      "provenance": "docs/licenses/LIBERATION_FONT_SOURCE.txt"
+    }
+  },
+  "license_artifacts": {
+    "docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt": {
+      "bytes": 56157,
+      "sha256": "eed56f37d9d1cc3340a1403ef10630fb82bbf27486caf1be62378aad45abc1d3"
+    },
+    "docs/licenses/PDFJS_ASSET_SOURCES.txt": {
+      "bytes": 3668,
+      "sha256": "25546dd930ca1a6cfbca5a9759c7cf2c0060c02a8b3ff8b6477674b2c16da3f2"
+    },
+    "docs/licenses/LIBERATION_FONT_SOURCE.txt": {
+      "bytes": 4820,
+      "sha256": "9c53e61d3f30ae0af09d05e3600e05c7d8447e089ef9bca50d56de19e995f7b6"
+    },
+    "docs/sources/liberation-fonts-1.07.4-11-source.zip": {
+      "bytes": 2959917,
+      "sha256": "599163233a71e95298a3e0d31a3a48a967989e7eeb10839c476ca665b0e4ac73"
+    }
+  },
+  "unchanged_from_commit_7ad1a2f": [
+    "docs/app.js",
+    "docs/detection.js",
+    "docs/models/det5.onnx",
+    "docs/models/small6.dict.json",
+    "docs/models/small6.onnx",
+    "docs/ocr-worker.js",
+    "docs/page-rotation.js",
+    "docs/pdf-source.js",
+    "docs/pdfjs/pdf.min.mjs",
+    "docs/pdfjs/pdf.worker.min.mjs",
+    "docs/pdfjs/resources.json",
+    "docs/pdfjs/resources.pack",
+    "docs/pdfjs/wasm/jbig2_nowasm_fallback.js",
+    "docs/pdfjs/wasm/openjpeg_nowasm_fallback.js",
+    "docs/runtime/ort-wasm-simd-threaded.mjs",
+    "docs/runtime/ort-wasm-simd-threaded.wasm",
+    "docs/runtime/ort.wasm.min.js",
+    "local-server/BUILD_INFO.json",
+    "local-server/LICENSE_GO.txt",
+    "local-server/PATENTS_GO.txt",
+    "local-server/README.md",
+    "local-server/TEST_REPORT.json",
+    "local-server/THIRD_PARTY_NOTICES.txt",
+    "local-server/bin/police-ocr-server-macos-amd64",
+    "local-server/bin/police-ocr-server-macos-arm64",
+    "local-server/bin/police-ocr-server-windows-amd64.exe",
+    "local-server/bin/police-ocr-server-windows-arm64.exe",
+    "local-server/go.mod",
+    "local-server/main.go",
+    "local-server/main_test.go"
+  ],
+  "pdf_pack_entries_with_verified_hashes": 186
+}

@@ -9,9 +9,11 @@
 
 工具以減少逐張框選、反覆切換圖片及手動輸入為目標。圖片、PDF 與序號辨識都在使用者的裝置內處理，不需要雲端 OCR、API Key 或使用者帳號。
 
-**目前版本：v8.3 · 自訂角度與旋轉重掃**
+**目前版本：v8.3.1 · 自訂角度與旋轉重掃**
 
 更新日期：2026-10-29
+
+v8.3.1 補齊 PDF.js 內含的 core-js 3.50.0 與 Brotli 完整 MIT 授權及著作權聲明，並隨附已核對的 Liberation Sans 1.07.4 完整對應原始碼（含 Debian 補丁與建置資料）。頁尾提供下載，原始碼也納入離線快取；OCR、PDF 引擎及實際使用的字型檔案保持原樣。
 
 v8.3 新增自訂旋轉角度與歪斜警語。每次旋轉會清除目前頁面的所有舊候選框後重掃，避免反覆旋轉時框線累積；已選序號與人工修改保留在下方結果清單。文字位置偵測與序號辨識模型沿用 v8。
 
@@ -135,6 +137,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 | `TEST_REPORT.json` | v8.1 整合版驗證摘要 |
 | `V8_2_ROTATION_TEST_REPORT.json` | v8.2 旋轉功能與 EXIF 方向驗證摘要 |
 | `V8_3_ROTATION_TEST_REPORT.json` | v8.3 清框重掃與自訂角度驗證摘要 |
+| `V8_3_1_LICENSE_TEST_REPORT.json` | v8.3.1 授權、字型來源、快取升級與功能回歸驗證摘要 |
 | `tests/rotation.browser.cjs` | 旋轉功能的瀏覽器回歸測試 |
 | `V8_BASELINE_TEST_REPORT.json` | 先前 v8 的功能驗證紀錄 |
 | `ASSET_MANIFEST.json` | 檔案大小及 SHA-256 清單 |
@@ -148,7 +151,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 3. 開啟解壓後的專案資料夾，將裡面的全部檔案與子資料夾拖進上傳區，包含 `docs`、`local-server`、兩個啟動器及 README。
 4. 檢查清單中有 `docs/index.html`，等全部檔案上傳完成，再提交變更。已有預設 README 時，以本包的 README 取代。
 5. 進入 **Settings → Pages**，選 **Source：Deploy from a branch**、**Branch：main**、**Folder：/docs**，按 **Save**。
-6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.3 · 自訂角度與旋轉重掃**」。
+6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.3.1 · 自訂角度與旋轉重掃**」。
 7. 等待「完整離線就緒」，加入一張圖片，確認能自動出框；點框後再確認能產生序號。
 
 若帳號仍為 `MoonReserved`，且 Repo 使用上述名稱，**預期**網址為 [https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/](https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/)。這只是依命名推算的網址，不代表網站已替你部署；請以 GitHub Pages 設定頁顯示的網址為準。
@@ -244,6 +247,8 @@ py -3 serve.py
 | RapidOCR | ONNX 模型轉換來源與前處理參考 | 隨附模型來源見資產說明 | [Apache License 2.0](docs/licenses/RAPIDOCR_LICENSE.txt) |
 | ONNX Runtime Web | 瀏覽器內 WebAssembly 推論 | 1.23.2 | [MIT License](docs/licenses/ONNX_RUNTIME_LICENSE.txt) |
 | PDF.js | PDF 解析與逐頁繪製 | 6.4.299 | [Apache License 2.0](docs/licenses/PDFJS_LICENSE.txt) |
+| core-js、Brotli | PDF.js 內含的相容性與解碼元件 | core-js 3.50.0；Brotli 隨 PDF.js 6.4.299 | [完整 MIT 授權與著作權聲明](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt) |
+| Liberation Sans | PDF 支援字型 | 1.07.4；成品與 Debian 1:1.07.4-11 一致 | [GPLv2 與字型例外](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt)；[完整對應原始碼](docs/sources/liberation-fonts-1.07.4-11-source.zip) |
 | Noto Sans CJK TC | 離線介面字型 | 本機 WOFF 字型子集 | [SIL Open Font License 1.1](docs/licenses/NOTO_FONT_OFL.txt) |
 | Go 執行環境與標準函式庫 | 隨附桌面本機伺服器 | 隨程式編譯，建置資訊見本機伺服器說明 | [BSD 授權](local-server/LICENSE_GO.txt) |
 
@@ -253,12 +258,19 @@ py -3 serve.py
 - [PDF.js 支援資源的第三方授權](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt)
 - [OCR 模型、執行環境與字型來源](docs/licenses/ASSET_SOURCES.txt)
 - [PDF.js 與 PDF 支援資源來源](docs/licenses/PDFJS_ASSET_SOURCES.txt)
+- [Liberation Sans 對版核實、來源與建置說明](docs/licenses/LIBERATION_FONT_SOURCE.txt)
 - [本機伺服器第三方聲明](local-server/THIRD_PARTY_NOTICES.txt)
 - [本機伺服器原始碼與建置說明](local-server/README.md)
 
 第三方模型、程式與字型各自適用其授權，請保留隨附授權與聲明。以上表格列的是第三方元件授權，不代表將本工具自有程式碼一併授權為 Apache 或 MIT。
 
+Liberation 字型原始碼直接隨附於 `docs/sources/liberation-fonts-1.07.4-11-source.zip`，內含上游 SFD、Makefile、FontForge 腳本、授權及 Debian 補丁與建置資料；四個字型已與 Debian 對應成品逐位元組核對。重新部署網站或製作離線 ZIP 時，請完整保留 `docs/sources/` 與 `docs/licenses/`。GitHub 的 **Code → Download ZIP** 亦會包含這些檔案；請重新下載本次提交後的版本，先前已下載的舊包不會自動補入。
+
 ## 驗證範圍與已知限制
+
+### v8.3.1 授權補齊
+
+[本次驗證報告](V8_3_1_LICENSE_TEST_REPORT.json)記錄 20 項瀏覽器檢查、3 項座標測試及 v8.3 升級至 v8.3.1 的快取驗證，均通過。涵蓋實際圖片／PDF OCR、旋轉與匯出、離線重新開啟，以及斷網點擊下載原始碼 ZIP 後的逐位元組核對。另已核對 186 個 PDF 資源雜湊、四個字型與 Debian 成品的一致性、來源清單與四個補丁可套用性。未在本機重建歷史字型建置環境；未測試 Safari 或實體手機。
 
 ### v8 功能基線
 

@@ -2,7 +2,7 @@
   "project": "PoliceTools-PrepaidCard-BatchOCR",
   "title": "警政小工具-點數卡批次OCR辨識",
   "english_title": "PoliceTools – Prepaid Card Batch OCR",
-  "version": "v8.3",
+  "version": "v8.3.1",
   "date": "2026-10-29",
   "publishing_folder": "docs",
   "native_launcher_platforms": [
@@ -14,13 +14,13 @@
   "note": "This manifest excludes itself. All listed files are public project assets; no user inputs are included.",
   "files": {
     "QUICK_START_zh-TW.txt": {
-      "bytes": 4862,
-      "sha256": "772dcb8299650daff35dd2b5a1abb15ef08c15e2fda5141a1c153e744abca610",
+      "bytes": 4866,
+      "sha256": "4a33b7fb81120bb0e1bcbc8b9bdda8cda8fd03f2a6d5aec2d1126f13ae91cac3",
       "mode": "0o644"
     },
     "README.md": {
-      "bytes": 23320,
-      "sha256": "3759ebb227c8bd96cdde74286d60b49dc2f763c6cf33d7ab5d1cc19296df2eb7",
+      "bytes": 25307,
+      "sha256": "ebdab80cc6bd8543426535940a0ae20a179be392aca96e334a66351577033f5b",
       "mode": "0o644"
     },
     "START_MAC.command": {
@@ -41,6 +41,11 @@
     "V8_2_ROTATION_TEST_REPORT.json": {
       "bytes": 3711,
       "sha256": "fc21b92e26a99ce5ec73409ecc2649cc7f1702edddf34834c12a6292d77cd3b6",
+      "mode": "0o644"
+    },
+    "V8_3_1_LICENSE_TEST_REPORT.json": {
+      "bytes": 8104,
+      "sha256": "2343f56b584a9916c4824cf898527255261cafa1a853f8ab375cc9ad0c27678d",
       "mode": "0o644"
     },
     "V8_3_ROTATION_TEST_REPORT.json": {
@@ -79,13 +84,18 @@
       "mode": "0o644"
     },
     "docs/index.html": {
-      "bytes": 12684,
-      "sha256": "cf8683ccb08aacfc0941f99cbb12f4e912e98a2ea7a67a68d28d9850b459e170",
+      "bytes": 13145,
+      "sha256": "68ee73cfdfbfa421be9291403793c40c722768356d144f8f3a40031dd86992d1",
       "mode": "0o644"
     },
     "docs/licenses/ASSET_SOURCES.txt": {
       "bytes": 1800,
       "sha256": "a097b8fc9f4ef9a53876275b93665d062d1631d6e434c5648a0c08ead434bab8",
+      "mode": "0o644"
+    },
+    "docs/licenses/LIBERATION_FONT_SOURCE.txt": {
+      "bytes": 4820,
+      "sha256": "9c53e61d3f30ae0af09d05e3600e05c7d8447e089ef9bca50d56de19e995f7b6",
       "mode": "0o644"
     },
     "docs/licenses/NOTO_FONT_OFL.txt": {
@@ -109,8 +119,8 @@
       "mode": "0o644"
     },
     "docs/licenses/PDFJS_ASSET_SOURCES.txt": {
-      "bytes": 2442,
-      "sha256": "955afa8fd01a3470c5dda0899bf5392e7bb806c0abce5a7f5685261f7b6abf52",
+      "bytes": 3668,
+      "sha256": "25546dd930ca1a6cfbca5a9759c7cf2c0060c02a8b3ff8b6477674b2c16da3f2",
       "mode": "0o644"
     },
     "docs/licenses/PDFJS_LICENSE.txt": {
@@ -119,8 +129,8 @@
       "mode": "0o644"
     },
     "docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt": {
-      "bytes": 53059,
-      "sha256": "d8704528a9cbbcca471a9807a0c41471732e4d11149b4d641a3fee0592a2a8b5",
+      "bytes": 56157,
+      "sha256": "eed56f37d9d1cc3340a1403ef10630fb82bbf27486caf1be62378aad45abc1d3",
       "mode": "0o644"
     },
     "docs/licenses/RAPIDOCR_LICENSE.txt": {
@@ -149,8 +159,8 @@
       "mode": "0o644"
     },
     "docs/offline-assets.js": {
-      "bytes": 1055,
-      "sha256": "8db9561a842c8c759a847900b9f066325d6c4d97e9429edc7daabdee27ab5f1b",
+      "bytes": 1146,
+      "sha256": "c5013dcdebdaf59d8808ecf7fdb0528ba30148775bf533e5aa1c2bcfb3152595",
       "mode": "0o644"
     },
     "docs/page-rotation.js": {
@@ -213,14 +223,19 @@
       "sha256": "76feab34fd412f55fdaf5b1685a23e960918389824a2b859ee1bcfebceaa9b20",
       "mode": "0o644"
     },
+    "docs/sources/liberation-fonts-1.07.4-11-source.zip": {
+      "bytes": 2959917,
+      "sha256": "599163233a71e95298a3e0d31a3a48a967989e7eeb10839c476ca665b0e4ac73",
+      "mode": "0o644"
+    },
     "docs/styles.css": {
       "bytes": 14241,
       "sha256": "bd284c0bd8a05ed0459cf6d9db14f76639c7c0296c67ae2fdb245144448a5bfd",
       "mode": "0o644"
     },
     "docs/sw.js": {
-      "bytes": 1271,
-      "sha256": "febfb73f6863db850c4aedee6ccf1bb3d1c8cc30c75db5a54857deb892b4206f",
+      "bytes": 1280,
+      "sha256": "486a6606b24ec9ab00591513f1171987b69f9211d108a47fa8d08e447c9a582e",
       "mode": "0o644"
     },
     "docs/text-diff.js": {
@@ -304,8 +319,8 @@
       "mode": "0o644"
     },
     "tests/rotation.browser.cjs": {
-      "bytes": 28255,
-      "sha256": "ab6d5b049bf755a0a68bc5f7aeb77df18f60a40ad95d29be084b8127d6136285",
+      "bytes": 29677,
+      "sha256": "ae6ca0d57eda60363077d3e278e2faf435aa5f57c891b7c2b108c26c961d0b02",
       "mode": "0o644"
     }
   }

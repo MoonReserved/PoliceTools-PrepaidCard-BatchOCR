@@ -19,6 +19,25 @@ Bundling notes:
 - The legacy build broadens syntax/API compatibility but does not guarantee all older browsers or mobile devices.
 - Browser rendering uses local bytes, bundled resources, canvas-only output, disableFontFace:true, useSystemFonts:false, and enableXfa:false.
 
+License/source supplement (2026-10-29, v8.3.1):
+- PDFJS_THIRD_PARTY_LICENSES.txt now also retains the full core-js 3.50.0 MIT
+  license and both copyright lines from:
+  https://github.com/zloirock/core-js/blob/v3.50.0/LICENSE
+- The same file retains the full Brotli MIT license from PDF.js v6.4.299:
+  https://github.com/mozilla/pdf.js/blob/v6.4.299/external/brotli/LICENSE_BROTLI
+  and the Google 2017 copyright notice from external/brotli/decode.js.
+- Liberation Sans is 1.07.4 under GPLv2 with the Liberation font exception.
+  All four packed TTFs match Debian fonts-liberation 1:1.07.4-11 byte-for-byte.
+  Corresponding sources include the upstream source archive AND Debian patches
+  and build files; the unpatched upstream 1.07.4 binary archive differs.
+  See LIBERATION_FONT_SOURCE.txt for download URLs, checksums and build steps.
+- The complete source ZIP is served by this website and included in its offline
+  cache and repository downloads, without relying on an external source link:
+  Path: sources/liberation-fonts-1.07.4-11-source.zip
+  Bytes: 2959917
+  SHA-256: 599163233a71e95298a3e0d31a3a48a967989e7eeb10839c476ca665b0e4ac73
+- No runtime code, models, decoder bytes, packed fonts or PDF resources changed.
+
 Public assets:
 [
   {
