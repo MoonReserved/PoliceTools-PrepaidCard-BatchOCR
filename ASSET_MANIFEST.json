@@ -79,8 +79,8 @@
       "mode": "0o644"
     },
     "docs/index.html": {
-      "bytes": 12678,
-      "sha256": "0c2c4fe20267aa3468dd60326ad446b5c52cdc6fb391cd12b068be90c639b14d",
+      "bytes": 12684,
+      "sha256": "cf8683ccb08aacfc0941f99cbb12f4e912e98a2ea7a67a68d28d9850b459e170",
       "mode": "0o644"
     },
     "docs/licenses/ASSET_SOURCES.txt": {
@@ -219,8 +219,8 @@
       "mode": "0o644"
     },
     "docs/sw.js": {
-      "bytes": 1200,
-      "sha256": "84abf55de671d73cba2f09a14327148fc6912f201610d4fa802a81353cceb4fd",
+      "bytes": 1271,
+      "sha256": "febfb73f6863db850c4aedee6ccf1bb3d1c8cc30c75db5a54857deb892b4206f",
       "mode": "0o644"
     },
     "docs/text-diff.js": {

@@ -1,4 +1,5 @@
 'use strict';
+// Refresh the cached homepage with the current project's GitHub link.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.
