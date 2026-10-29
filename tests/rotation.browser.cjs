@@ -1,6 +1,7 @@
 'use strict';
 // Run with Playwright installed; CHROME_BIN and PLAYWRIGHT_MODULE are optional.
-// All fixtures are synthetic and generated in memory. No user files are read.
+// Fixtures are synthetic and generated in memory. REGRESSION_IMAGE optionally
+// supplies a user-approved local screen photograph for a non-publishing check.
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const http = require('node:http');
@@ -27,15 +28,18 @@ const api = (method, ...args) => page.evaluate(({method, args}) => offlineOCRTes
 const idle = () => api('whenIdle');
 const state = () => api('getState');
 const fileIn = (s, id) => s.files.find(f => f.id === id);
-const boxIn = (s, id) => s.files.flatMap(f => f.boxes).find(b => b.id === id);
+const boxIn = (s, id) => s.files.flatMap(f => [...f.boxes,...f.savedResults]).find(b => b.id === id);
 const bestText = box => box.result?.results[0].best.text;
 async function check(name, action) {
-  await action();
+  let timer;
+  try{await Promise.race([action(),new Promise((_,reject)=>timer=setTimeout(()=>reject(Error('Timed out: '+name)),90000))]);}
+  finally{clearTimeout(timer);}
   checks.push({name, status:'pass'});
   console.log('PASS', name);
 }
 async function upload(fixtures) { await page.locator('#image').setInputFiles(fixtures); return idle(); }
 async function turn(direction) {
+  const before = await state(), oldIds = fileIn(before,before.currentId).boxes.map(b => b.id);
   await page.locator(direction === 1 ? '#rotate-right' : '#rotate-left').click();
   const running = await state();
   if (running.active?.fileId === running.currentId) {
@@ -44,6 +48,22 @@ async function turn(direction) {
   }
   const s = await idle();
   assert(s.files.every(f => f.status !== 'error'), JSON.stringify(s.files.map(f => f.error)));
+  const f = fileIn(s,s.currentId);
+  assert(f.boxes.every(b => !oldIds.includes(b.id)), 'Old overlays must be discarded on every turn');
+  assert.deepEqual(f.boxes.map(b => b.number),f.boxes.map((_,i) => i+1));
+  return s;
+}
+async function customAngle(angle, enter=false) {
+  const before=await state(),f0=fileIn(before,before.currentId),old=f0.boxes.map(b=>b.id);
+  await page.locator('#rotation-angle').fill(String(angle));
+  if(enter)await page.locator('#rotation-angle').press('Enter');else await page.locator('#apply-rotation').click();
+  const s=await idle(),f=fileIn(s,s.currentId),normalized=((angle%360)+360)%360;
+  assert(Math.abs(f.rotation-normalized)<1e-6);assert.equal(f.status,'ready');
+  assert(f.width<=2560&&f.height<=2560);
+  if(normalized!==f0.rotation){
+    assert(f.boxes.every(b=>!old.includes(b.id)),'Custom angles must discard old overlays');
+    assert.deepEqual(f.boxes.map(b=>b.number),f.boxes.map((_,i)=>i+1));
+  }
   return s;
 }
 async function retry(boxId) {
@@ -52,8 +72,8 @@ async function retry(boxId) {
   assert.equal(boxIn(s, boxId).status, 'done', boxIn(s, boxId).error);
   return s;
 }
-async function syntheticImage({width = 1200, height = 600, sideways = false, jpeg = false, orientation = 1} = {}) {
-  const data = await page.evaluate(({width, height, sideways, jpeg, orientation}) => {
+async function syntheticImage({width = 1200, height = 600, sideways = false, jpeg = false, orientation = 1, skew = 0} = {}) {
+  const data = await page.evaluate(({width, height, sideways, jpeg, orientation, skew}) => {
     const c = document.createElement('canvas'); c.width = width; c.height = height;
     const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,width,height);
     const k = width / 1200; ctx.scale(k,k);
@@ -66,6 +86,12 @@ async function syntheticImage({width = 1200, height = 600, sideways = false, jpe
       output = document.createElement('canvas'); output.width = height; output.height = width;
       const o = output.getContext('2d'); o.setTransform(0,1,-1,0,height,0); o.drawImage(c,0,0);
     }
+    if (skew) {
+      const r=skew*Math.PI/180, c0=Math.cos(r), s0=Math.sin(r), raw=document.createElement('canvas');
+      raw.width=Math.ceil(Math.abs(width*c0)+Math.abs(height*s0));raw.height=Math.ceil(Math.abs(width*s0)+Math.abs(height*c0));
+      const ctx=raw.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,raw.width,raw.height);
+      ctx.translate(raw.width/2,raw.height/2);ctx.rotate(r);ctx.drawImage(c,-width/2,-height/2);output=raw;
+    }
     if (orientation > 1) {
       const raw = document.createElement('canvas'), swap = orientation >= 5;
       raw.width = swap ? height : width; raw.height = swap ? width : height;
@@ -74,11 +100,12 @@ async function syntheticImage({width = 1200, height = 600, sideways = false, jpe
       const ctx = raw.getContext('2d'); ctx.setTransform(...transforms[orientation]); ctx.drawImage(c,0,0); output = raw;
     }
     return output.toDataURL(jpeg ? 'image/jpeg' : 'image/png', .95).split(',')[1];
-  }, {width, height, sideways, jpeg, orientation});
+  }, {width, height, sideways, jpeg, orientation, skew});
   return {name:jpeg?'exif.jpg':sideways?'sideways.png':'serial.png', mimeType:jpeg?'image/jpeg':'image/png', buffer:Buffer.from(data,'base64')};
 }
-function pdfFixture() {
-  const content = '1 0 0 rg 10 270 20 20 re f\n0 1 0 rg 570 270 20 20 re f\n0 0 1 rg 10 10 20 20 re f\n0 0 0 rg BT /F1 30 Tf 70 160 Td (12345678901234) Tj ET\n';
+function pdfFixture({skew=0}={}) {
+  let content = '1 0 0 rg 10 270 20 20 re f\n0 1 0 rg 570 270 20 20 re f\n0 0 1 rg 10 10 20 20 re f\n0 0 0 rg BT /F1 30 Tf 70 160 Td (12345678901234) Tj ET\n';
+  if(skew){const r=skew*Math.PI/180,c=Math.cos(r),s=Math.sin(r);content=`q ${c} ${s} ${-s} ${c} ${300-c*300+s*150} ${150-s*300-c*150} cm\n${content}Q\n`;}
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>',
@@ -162,10 +189,10 @@ async function releaseRotation() {
   await page.goto(origin+scope); await api('waitForCache');
   const image = await syntheticImage(), pdf = pdfFixture();
   let imageId, pdfId, otherPdfId, imageBox, pdfBox, baseline;
-  await check('Empty controls and complete v8.2 project-scoped offline cache', async () => {
+  await check('Empty controls and complete v8.3 project-scoped offline cache', async () => {
     assert(await page.locator('#rotate-left').isDisabled());
     assert(await page.locator('#rotate-right').isDisabled());
-    assert.equal((await state()).version,'v8.2');
+    assert.equal((await state()).version,'v8.3');
     assert((await state()).cacheReady);
   });
   await check('Mixed image and two-page PDF import with real detection and OCR', async () => {
@@ -234,7 +261,7 @@ async function releaseRotation() {
     await api('pause'); await api('navigate',imageId); await gateRotation(imageId);
     assert(await page.locator('#rotate-right').isDisabled());
     assert.equal(await api('rotateFile',imageId,1),false);
-    await api('navigate',otherPdfId);
+    await page.evaluate(id => { window.__away = offlineOCRTest.navigate(id); },otherPdfId);
     await page.evaluate(id => { window.__nav = offlineOCRTest.navigate(id); },imageId);
     await releaseRotation(); await page.evaluate(() => window.__nav); const s = await idle();
     assert.equal(s.currentId,imageId); assert.equal(fileIn(s,imageId).rotation,90); assert(s.paused);
@@ -255,7 +282,7 @@ async function releaseRotation() {
     await page.waitForFunction(() => document.getElementById('status').textContent.includes('synthetic rotation failure'));
     await page.evaluate(() => window.__restoreBitmap());
     assert.deepEqual(fileIn(await state(),imageId),fileIn(before,imageId));
-    await gateRotation(imageId); await api('navigate',otherPdfId);
+    await gateRotation(imageId); await page.evaluate(id => { window.__away = offlineOCRTest.navigate(id); },otherPdfId);
     await page.evaluate(id => { window.__failRotation = true; window.__nav = offlineOCRTest.navigate(id); },imageId);
     await assert.rejects(releaseRotation(),/synthetic gated failure/); await page.evaluate(() => window.__nav);
     assert.equal((await state()).currentId,imageId); assert.deepEqual(await digest(),baseline);
@@ -267,14 +294,16 @@ async function releaseRotation() {
     assert(await page.locator('#rotate-right').isVisible());
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await turn(-1); await turn(1);
+    await page.locator('#skew-warning').scrollIntoViewIfNeeded();
     if (process.env.SCREENSHOT_PATH) await page.screenshot({path:process.env.SCREENSHOT_PATH,fullPage:false});
     await page.setViewportSize({width:1280,height:900});
   });
   await check('Removal and clearing during a pending rotation do not restore deleted pages', async () => {
-    await gateRotation(imageId); await api('remove',imageId); assert.equal(await releaseRotation(),false);
+    await gateRotation(imageId); await page.evaluate(id=>{window.__removing=offlineOCRTest.remove(id);},imageId);
+    assert.equal(await releaseRotation(),false);await page.evaluate(()=>window.__removing);
     await idle(); assert(!fileIn(await state(),imageId));
-    await api('navigate',pdfId); await gateRotation(pdfId); await api('clear');
-    assert.equal(await releaseRotation(),false); assert.equal((await state()).files.length,0);
+    await api('navigate',pdfId); await gateRotation(pdfId);await page.evaluate(()=>{window.__clearing=offlineOCRTest.clear();});
+    assert.equal(await releaseRotation(),false);await page.evaluate(()=>window.__clearing); assert.equal((await state()).files.length,0);
     assert(await page.locator('#rotate-right').isDisabled());
   });
   await check('Sideways photo can be corrected and freshly recognized before selecting any text', async () => {
@@ -306,13 +335,78 @@ async function releaseRotation() {
       assert.equal(bestText(boxIn(await retry(imageBox),imageBox)),'12345678901234');
     }
   });
+  await check('Old image and PDF overlays disappear before replacement scans finish, including selected frames',async()=>{
+    await api('clear');await upload([image,pdf]);const files=(await state()).files;
+    for(const f of files.slice(0,2)){
+      await api('navigate',f.id);if(f.kind==='image')await selectSerial(f.id);
+      const before=fileIn(await state(),f.id),old=before.boxes.map(b=>b.id);assert(old.length>0);
+      await page.evaluate(()=>{
+        const original=window.callWorker;let release;const gate=new Promise(resolve=>release=resolve);
+        window.__releaseDetection=()=>{window.callWorker=original;release();};
+        window.callWorker=(message,...args)=>message.type==='detect'?gate.then(()=>original(message,...args)):original(message,...args);
+      });
+      assert.equal(await api('rotateFile',f.id,1),true);
+      const scanning=fileIn(await state(),f.id);assert.equal(scanning.status,'detecting');assert.equal(scanning.boxes.length,0);
+      assert.equal(await page.locator('#candidate-list .candidate-button').count(),0);
+      assert(scanning.savedResults.every(b=>b.retired));
+      await page.evaluate(()=>window.__releaseDetection());const done=fileIn(await idle(),f.id);
+      assert(done.boxes.every(b=>!old.includes(b.id)));assert.deepEqual(done.boxes.map(b=>b.number),done.boxes.map((_,i)=>i+1));
+    }
+  });
+  await check('Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays', async () => {
+    await api('clear');await upload([image,pdf]);imageId=(await state()).files[0].id;
+    imageBox=await selectSerial(imageId);const first=await state(),n=first.files[0].boxes.length;
+    assert((await page.locator('#skew-warning').textContent()).includes('如果畫面歪斜，無法正常辨識'));
+    for(const angle of [3.25,-4.5,45,135,180,270,0]){
+      const s=await customAngle(angle,angle===-4.5);
+      assert.deepEqual(s.selectionOrder,first.selectionOrder);
+      assert.equal(s.files[0].savedResults.length,1);
+      assert(s.files[0].savedResults[0].retired);
+      assert.equal(await page.locator(`[data-box-id="${imageBox}"]`).count(),0);
+      assert.equal(bestText(boxIn(await retry(imageBox),imageBox)),'12345678901234');
+    }
+    assert.equal((await state()).files[0].boxes.length,n);
+    await customAngle(3.25);assert.equal(fileIn(await turn(1),imageId).rotation,93.25);
+    assert.equal(fileIn(await turn(-1),imageId).rotation,3.25);await customAngle(0);
+    for(const value of ['', '361','-361','2.005']){
+      const before=await state();await page.locator('#rotation-angle').fill(value);
+      await page.locator('#apply-rotation').click();
+      assert.equal(await page.locator('#rotation-angle').evaluate(input=>input.checkValidity()),false);
+      assert.deepEqual((await state()).files,before.files);
+    }
+    for(const angle of [361,-361,'3',null])await assert.rejects(api('rotateTo',imageId,angle));
+    await page.locator('#rotation-angle').fill('0');
+    const before=await state();await customAngle(0);assert.deepEqual((await state()).files,before.files);
+    await page.locator(`[data-result-id="${imageBox}"]`).getByRole('button',{name:'取消選取',exact:true}).click();
+    assert.equal((await state()).files[0].savedResults.length,0);assert.equal(await api('exportTXT'),'');
+  });
+  await check('Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops', async () => {
+    await api('clear');await upload([await syntheticImage({skew:6.5}),pdfFixture({skew:6.25})]);
+    let s=await state();imageId=s.files[0].id;pdfId=s.files[1].id;otherPdfId=s.files[2].id;
+    await customAngle(-6.5);imageBox=await selectSerial(imageId);const pixels=await digest();
+    await api('navigate',pdfId);const otherBefore=fileIn(await state(),otherPdfId);
+    await customAngle(276.25);pdfBox=await selectSerial(pdfId);
+    assert.deepEqual(fileIn(await state(),otherPdfId),otherBefore);
+    await customAngle(278.5);assert.equal(bestText(boxIn(await retry(pdfBox),pdfBox)),'12345678901234');
+    await api('navigate',imageId);assert.deepEqual(await digest(),pixels);
+    assert.equal(bestText(boxIn(await retry(imageBox),imageBox)),'12345678901234');
+    const preview=page.locator(`[data-result-id="${imageBox}"] .result-preview`);
+    await preview.evaluate(img=>img.decode());assert(await preview.evaluate(img=>img.naturalWidth>img.naturalHeight*3));
+  });
+  if(process.env.REGRESSION_IMAGE)await check('User-supplied screen photograph rescans with fresh overlays after quarter turns and custom angles',async()=>{
+    await api('clear');await upload([{name:'screen-regression.jpg',mimeType:'image/jpeg',buffer:await fs.readFile(process.env.REGRESSION_IMAGE)}]);
+    const before=await state();imageId=before.files[0].id;
+    await turn(1);await customAngle(-3.25);await customAngle(0);
+    const f=(await state()).files[0];assert.equal(f.boxes.length,before.files[0].boxes.length);
+    assert(f.boxes.length<=400);assert.equal(f.savedResults.length,0);
+  });
   await check('Offline reload supports new image/PDF rotation and actual OCR without the server', async () => {
     await api('clear'); await page.reload(); await api('waitForCache');
     await new Promise(resolve => server.close(resolve)); await context.setOffline(true);
     await page.reload(); await api('waitForCache');
     const s = await upload([image,pdf]); imageId=s.files[0].id; pdfId=s.files[1].id;
-    await turn(1); await turn(-1); await selectSerial(imageId);
-    await api('navigate',pdfId); await turn(-1); await selectSerial(pdfId);
+    await customAngle(3.25); await customAngle(0); await selectSerial(imageId);
+    await api('navigate',pdfId); await customAngle(-90); await selectSerial(pdfId);
     const last=await state(); assert.equal(last.metrics.maxActiveWorkerRequests,1);
     assert.equal(last.pdfStats.maxActiveRenders,1);
     assert.equal(last.pdfStats.maxActiveDocuments,1);
@@ -321,10 +415,10 @@ async function releaseRotation() {
     assert.deepEqual(errors,[]); assert.deepEqual(external,[]); assert.deepEqual(writes,[]);
   });
   const final = await state(), hashes = {};
-  for (const name of ['app.js','pdf-source.js','index.html','styles.css','offline-assets.js']) {
+  for (const name of ['page-rotation.js','app.js','pdf-source.js','index.html','styles.css','offline-assets.js']) {
     hashes[name] = createHash('sha256').update(await fs.readFile(path.join(root,name))).digest('hex');
   }
-  const report = {metrics:final.metrics,pdf_metrics:final.pdfStats,source_sha256:hashes,release:'v8.2',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic PNG, JPEG with EXIF orientations 1-8, large PNG and a two-page PDF with native /Rotate 90; no user files.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
+  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.3',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
   if (process.env.REPORT_PATH) await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({passed:checks.length,failed:0,browser:browser.version()}));
 })().catch(error => { console.error(error); process.exitCode=1; }).finally(async () => { await browser?.close(); server.close(); });
