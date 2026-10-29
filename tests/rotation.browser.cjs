@@ -189,10 +189,10 @@ async function releaseRotation() {
   await page.goto(origin+scope); await api('waitForCache');
   const image = await syntheticImage(), pdf = pdfFixture();
   let imageId, pdfId, otherPdfId, imageBox, pdfBox, baseline;
-  await check('Empty controls and complete v8.3.1 project-scoped offline cache', async () => {
+  await check('Empty controls and complete v8.4 project-scoped offline cache', async () => {
     assert(await page.locator('#rotate-left').isDisabled());
     assert(await page.locator('#rotate-right').isDisabled());
-    assert.equal((await state()).version,'v8.3.1');
+    assert.equal((await state()).version,'v8.4');
     assert((await state()).cacheReady);
   });
   await check('Mixed image and two-page PDF import with real detection and OCR', async () => {
@@ -200,6 +200,67 @@ async function releaseRotation() {
     [imageId,pdfId,otherPdfId] = s.files.map(f => f.id);
     assert(s.files.every(f => f.status === 'ready'));
     baseline = await digest(); imageBox = await selectSerial(imageId);
+  });
+  await check('Single-character warning, per-candidate scores and mobile layout', async () => {
+    const card=page.locator(`[data-result-id="${imageBox}"]`);
+    assert(await card.locator('.review-notice').isHidden());
+    await page.evaluate(({fileId,boxId})=>{
+      const box=findBox(fileId,boxId);window.__originalReviewResult=box.result;
+      const best={text:'AB1D',confidence:.98,charConfidence:[.999,.999,.55,.999],variant:'original',variantName:'原始裁切'};
+      box.result={results:[{model:'small6',best,candidates:Array.from({length:4},(_,i)=>({...best,variant:String(i),variantName:`候選 ${i+1}`}))}]};
+      box.editedText=best.text;renderResults();
+    },{fileId:imageId,boxId:imageBox});
+    assert(await card.locator('.review-notice').isVisible());
+    assert.match(await card.locator('.review-reason').textContent(),/第 3 碼「1」0.5500/);
+    assert.doesNotMatch(await card.locator('.review-reason').textContent(),/不同意見/);
+    await card.getByRole('button',{name:'查看疑點與逐字分數'}).click();
+    assert.equal(await card.locator(':scope > details > .character-scores > .low-score').count(),1);
+    assert.equal(await card.locator(':scope > details > .character-scores > .low-score').getAttribute('data-position'),'3');
+    await page.setViewportSize({width:390,height:844});
+    await card.locator('.candidate-scores').first().locator('summary').click();
+    assert.equal(await card.locator('.candidate-scores').first().locator('.character-score').count(),4);
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    assert(await card.locator('.review-notice').evaluate(el=>el.getBoundingClientRect().right<=innerWidth));
+    if(process.env.REVIEW_SCREENSHOT)await card.screenshot({path:process.env.REVIEW_SCREENSHOT});
+    await page.setViewportSize({width:1280,height:900});
+    assert.equal(await api('exportTXT'),'AB1D');
+  });
+  await check('Editing, verification and adoption preserve original warning positions and clean exports', async () => {
+    const card=page.locator(`[data-result-id="${imageBox}"]`);
+    await card.locator('textarea').fill('ABID');await card.locator('.verified-input').check();
+    assert.match(await card.locator('.review-heading').textContent(),/已核對圖片/);
+    assert.match(await card.locator('.review-reason').textContent(),/本次預設結果/);
+    assert.equal(await api('exportTXT'),'ABID');
+    await card.locator('tbody button').first().click();
+    assert.equal(await card.locator('textarea').inputValue(),'AB1D');
+    assert(!await card.locator('.verified-input').isChecked());
+    assert.match(await card.locator('.review-heading').textContent(),/建議加強核對/);
+    assert.equal(await card.locator('.candidate-baseline').textContent(),'AB1D');
+    assert.doesNotMatch(await api('exportCSV'),/⚠|低於門檻|建議加強核對/);
+  });
+  await check('Candidate-only disagreement, missing characters and empty candidates trigger warning', async () => {
+    const card=page.locator(`[data-result-id="${imageBox}"]`);
+    for(const alternate of ['ABID','ABD','']){
+      await page.evaluate(({fileId,boxId,alternate})=>{
+        const box=findBox(fileId,boxId),result=structuredClone(box.result),p=result.results[0];
+        p.best.charConfidence=[.99,.99,.99,.99];p.candidates[2].text=alternate;
+        box.result=result;renderResults();
+      },{fileId:imageId,boxId:imageBox,alternate});
+      assert(await card.locator('.review-notice').isVisible());
+      assert.match(await card.locator('.review-reason').textContent(),/4 個候選文字有不同意見/);
+      assert.doesNotMatch(await card.locator('.review-reason').textContent(),/單字低分/);
+    }
+  });
+  await check('Retry replaces warning data and does not carry old warning into clean OCR', async () => {
+    await page.evaluate(({fileId,boxId})=>{
+      const box=findBox(fileId,boxId);box.result=window.__originalReviewResult;box.hasEdited=false;box.editedText=box.result.results[0].best.text;renderResults();delete window.__originalReviewResult;
+    },{fileId:imageId,boxId:imageBox});
+    await retry(imageBox);
+    const card=page.locator(`[data-result-id="${imageBox}"]`);
+    assert(await card.locator('.review-notice').isHidden());
+    assert.equal(await card.locator('textarea').inputValue(),'12345678901234');
+    assert.equal(await card.locator(':scope > details > .character-scores > .character-score').count(),14);
+    await card.locator(':scope > details').evaluate(el=>el.open=false);
   });
   await check('Four clockwise turns preserve image pixels, selected results, edits, verification and export order', async () => {
     const card = page.locator(`[data-result-id="${imageBox}"]`);
@@ -438,10 +499,10 @@ async function releaseRotation() {
     assert.deepEqual(errors,[]); assert.deepEqual(external,[]); assert.deepEqual(writes,[]);
   });
   const final = await state(), hashes = {};
-  for (const name of ['page-rotation.js','app.js','pdf-source.js','index.html','styles.css','offline-assets.js']) {
+  for (const name of ['ocr-review.js','page-rotation.js','app.js','pdf-source.js','index.html','styles.css','offline-assets.js']) {
     hashes[name] = createHash('sha256').update(await fs.readFile(path.join(root,name))).digest('hex');
   }
-  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.3.1',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
+  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.4',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
   if (process.env.REPORT_PATH) await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({passed:checks.length,failed:0,browser:browser.version()}));
 })().catch(error => { console.error(error); process.exitCode=1; }).finally(async () => { await browser?.close(); server.close(); });

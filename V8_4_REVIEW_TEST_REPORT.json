@@ -1,0 +1,374 @@
+{
+  "release": "v8.4",
+  "status": "pass",
+  "finished_utc": "2026-10-29T16:19:12.481Z",
+  "unit_tests": {
+    "command": "node --test tests/*.test.cjs",
+    "passed": 11,
+    "failed": 0
+  },
+  "browser_regression": {
+    "offline_run_metrics": {
+      "activeWorkerRequests": 0,
+      "maxActiveWorkerRequests": 1,
+      "detectStarted": 6,
+      "recognizeStarted": 2,
+      "completedJobs": 8
+    },
+    "offline_pdf_metrics": {
+      "openedDocuments": 1,
+      "activeDocuments": 1,
+      "maxActiveDocuments": 1,
+      "pageRenders": 5,
+      "cropRenders": 1,
+      "activeRenders": 0,
+      "maxActiveRenders": 1,
+      "maxCanvasPixels": 3276800,
+      "pendingJobs": 0,
+      "pdfjsVersion": "6.4.299",
+      "retainedSources": 1,
+      "closingDocuments": 0,
+      "activeSourceId": "pdf1",
+      "generation": 0
+    },
+    "user_screen_regression_tested": false,
+    "private_input_published": false,
+    "source_sha256": {
+      "ocr-review.js": "950c60b043fda76041de5cb976a4114b7c27efe4d623f7c86155c8fcd333546e",
+      "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+      "app.js": "f4e584448bc73cc13c005ccbbb843dc0ee1c0c6dfb8182e4765de6c2a0a0775e",
+      "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+      "index.html": "58ae133499f83cb248b5ed26270cbd3aa6e0aad6abd329fb01aead16de733b9a",
+      "styles.css": "7f136825e33a3edc6e5318fa65848b3b8aca518e5995cc5981551976f58a8124",
+      "offline-assets.js": "12fa156f542dd2345c8e633d2786128dfab3ec725c24be831c93265831a91f16"
+    },
+    "release": "v8.4",
+    "status": "pass",
+    "finished_utc": "2026-10-29T16:19:12.481Z",
+    "browser": {
+      "name": "Chrome",
+      "version": "156.0.8078.49",
+      "host": "darwin"
+    },
+    "passed": 24,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "Empty controls and complete v8.4 project-scoped offline cache",
+        "status": "pass"
+      },
+      {
+        "name": "Mixed image and two-page PDF import with real detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Single-character warning, per-candidate scores and mobile layout",
+        "status": "pass"
+      },
+      {
+        "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+        "status": "pass"
+      },
+      {
+        "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+        "status": "pass"
+      },
+      {
+        "name": "Retry replaces warning data and does not carry old warning into clean OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+        "status": "pass"
+      },
+      {
+        "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+        "status": "pass"
+      },
+      {
+        "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+        "status": "pass"
+      },
+      {
+        "name": "390px controls fit the page and remain usable",
+        "status": "pass"
+      },
+      {
+        "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+        "status": "pass"
+      },
+      {
+        "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+        "status": "pass"
+      },
+      {
+        "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+        "status": "pass"
+      },
+      {
+        "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+        "status": "pass"
+      },
+      {
+        "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+        "status": "pass"
+      },
+      {
+        "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+        "status": "pass"
+      },
+      {
+        "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+        "status": "pass"
+      },
+      {
+        "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught errors, external requests or write requests",
+        "status": "pass"
+      }
+    ],
+    "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+    "limits": [
+      "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+      "Synthetic serials validate behavior, not accuracy across all card photos."
+    ],
+    "uncaught_errors": [],
+    "external_requests": [],
+    "http_write_requests": []
+  },
+  "cache_upgrade": {
+    "status": "pass",
+    "from": "v8.3.1",
+    "to": "v8.4",
+    "checks": [
+      "Old release loads from project-scoped cache",
+      "New service worker activates and removes old cache",
+      "New review module is included in full offline cache",
+      "Offline reload loads v8.4 and runs both warning rules"
+    ],
+    "browser": "156.0.8078.49",
+    "uncaught_errors": []
+  },
+  "calibration": {
+    "method": "Real local browser OCR using unchanged PP-OCRv6 small model and automatic PIN-line boxes. Five supplied synthetic example JPGs were tested at both body and detail regions; one supplied screen JPG was also tested at its displayed image crop.",
+    "passed": 11,
+    "failed": 0,
+    "default_character_threshold": 0.8,
+    "comparison": "strictly less than",
+    "warning_rule": "Any low character score in the immutable default candidate OR any candidate text disagreement (including insertions, deletions and empty strings).",
+    "body_reproduction": {
+      "position": 7,
+      "default_character": "1",
+      "default_character_score": 0.5494078993797302,
+      "default_mean_score": 0.9645810164511204,
+      "alternative_character": "I",
+      "alternative_variant": "trim4_x1.5",
+      "alternative_character_score": 0.5937765836715698
+    },
+    "screenshot_caveat": "The original screenshot shows mean 0.9674. The attached JPG replay produces mean 0.964581; exact historical per-character scores cannot be recovered from the screenshot. Re-running OCR on the screenshot itself is a separate input.",
+    "regions": [
+      {
+        "image": 1,
+        "region": "body",
+        "mean": 0.9645810164511204,
+        "minCharacter": 0.5494078993797302,
+        "seventhCharacterScore": 0.5494078993797302,
+        "bestVariant": "trim4_x2",
+        "warning": true,
+        "disagreement": true,
+        "differingCandidates": 3
+      },
+      {
+        "image": 1,
+        "region": "detail",
+        "mean": 0.9748711250722408,
+        "minCharacter": 0.6692780256271362,
+        "seventhCharacterScore": 0.9437063932418823,
+        "bestVariant": "trim4_x2",
+        "warning": true,
+        "disagreement": true,
+        "differingCandidates": 3
+      },
+      {
+        "image": 3,
+        "region": "body",
+        "mean": 0.9988538883626461,
+        "minCharacter": 0.9860174059867859,
+        "seventhCharacterScore": 0.9860174059867859,
+        "bestVariant": "trim4_x1.5",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 3,
+        "region": "detail",
+        "mean": 0.999032698571682,
+        "minCharacter": 0.9934600591659546,
+        "seventhCharacterScore": 0.9934600591659546,
+        "bestVariant": "trim4_x1.5",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 4,
+        "region": "body",
+        "mean": 0.9928977489471436,
+        "minCharacter": 0.9162048697471619,
+        "seventhCharacterScore": 0.9162048697471619,
+        "bestVariant": "trim4_x1.5",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 4,
+        "region": "detail",
+        "mean": 0.9929715692996979,
+        "minCharacter": 0.9100648164749146,
+        "seventhCharacterScore": 0.9100648164749146,
+        "bestVariant": "trim4",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 5,
+        "region": "body",
+        "mean": 0.9938626512885094,
+        "minCharacter": 0.9626433253288269,
+        "seventhCharacterScore": 0.9934684038162231,
+        "bestVariant": "trim4",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 5,
+        "region": "detail",
+        "mean": 0.9941476583480835,
+        "minCharacter": 0.952376663684845,
+        "seventhCharacterScore": 0.985636830329895,
+        "bestVariant": "trim4_x1.5",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 6,
+        "region": "body",
+        "mean": 0.9978601485490799,
+        "minCharacter": 0.9747421145439148,
+        "seventhCharacterScore": 0.9934291243553162,
+        "bestVariant": "trim4_x1.5",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 6,
+        "region": "detail",
+        "mean": 0.9968177974224091,
+        "minCharacter": 0.9683106541633606,
+        "seventhCharacterScore": 0.984900712966919,
+        "bestVariant": "trim4_x1.5",
+        "warning": false,
+        "disagreement": false,
+        "differingCandidates": 0
+      },
+      {
+        "image": 2,
+        "region": "body",
+        "mean": 0.9792126901447773,
+        "minCharacter": 0.7782806158065796,
+        "seventhCharacterScore": 0.7782806158065796,
+        "bestVariant": "trim4_x1.5",
+        "warning": true,
+        "disagreement": true,
+        "differingCandidates": 2
+      }
+    ],
+    "threshold_sweep": [
+      {
+        "threshold": 0.6,
+        "condensed_score_only_warnings": 1,
+        "condensed_regions": 2,
+        "control_score_only_warnings": 0,
+        "control_regions": 8
+      },
+      {
+        "threshold": 0.7,
+        "condensed_score_only_warnings": 2,
+        "condensed_regions": 2,
+        "control_score_only_warnings": 0,
+        "control_regions": 8
+      },
+      {
+        "threshold": 0.8,
+        "condensed_score_only_warnings": 2,
+        "condensed_regions": 2,
+        "control_score_only_warnings": 0,
+        "control_regions": 8
+      },
+      {
+        "threshold": 0.9,
+        "condensed_score_only_warnings": 2,
+        "condensed_regions": 2,
+        "control_score_only_warnings": 0,
+        "control_regions": 8
+      },
+      {
+        "threshold": 0.92,
+        "condensed_score_only_warnings": 2,
+        "condensed_regions": 2,
+        "control_score_only_warnings": 2,
+        "control_regions": 8
+      },
+      {
+        "threshold": 0.95,
+        "condensed_score_only_warnings": 2,
+        "condensed_regions": 2,
+        "control_score_only_warnings": 2,
+        "control_regions": 8
+      }
+    ],
+    "decision": "0.80 catches both condensed regions and the screenshot crop by score, with zero score or disagreement warnings on all eight control regions. It retains a 0.110065 margin below the lowest control score. This is a small-sample conservative setting, not a calibrated accuracy estimate.",
+    "images_uploaded": false,
+    "input_files_published": false
+  },
+  "unchanged_ocr_assets_sha256": {
+    "docs/ocr-worker.js": "68b549d1b7379d1e701864877ac2c78c26fe0b0cf3083732168810e8efcfba7d",
+    "docs/models/small6.onnx": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+    "docs/models/small6.dict.json": "bf37aa18b879fe7d9b7a70112c59bf6e3e994eab8ff7b22882e3d76e485c9df1"
+  },
+  "limits": [
+    "Desktop Chrome with a 390px viewport; no Safari or physical mobile-device test.",
+    "The examples are synthetic; thresholds are not statistical error-rate guarantees.",
+    "All four candidates use one model and may agree on an incorrect character.",
+    "Manual edits and adopted candidates retain original default review positions, clearly labeled in the UI."
+  ]
+}

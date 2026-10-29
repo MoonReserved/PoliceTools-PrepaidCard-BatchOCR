@@ -378,19 +378,43 @@ function moveSelection(boxId,direction){
 }
 function textValue(box){return box.editedText??box.result?.results?.find(r=>r.model==='small6')?.best?.text??'';}
 async function copyText(value){try{await navigator.clipboard.writeText(value);status('已複製。');return true;}catch(error){status('瀏覽器未允許自動複製。請選取結果文字，再按 Ctrl+C／⌘C 或長按複製。',true);return false;}}
+function renderCharacterScores(container,review){
+  container.replaceChildren();
+  for(const letter of review.letters){
+    const item=node('span','character-score'+(letter.low?' low-score':''));
+    item.dataset.position=String(letter.position);
+    item.append(node('span','character-position',`第 ${letter.position} 碼`),node('b','',letter.character===' '?'␠':letter.character),node('span','',letter.score===null?'無分數':letter.score.toFixed(4)));
+    item.title=`第 ${letter.position} 碼「${letter.character}」${letter.score===null?'沒有可對應的單字分數':`模型分數 ${letter.score.toFixed(4)}；提醒門檻 ${letter.threshold.toFixed(2)}`}`;
+    if(letter.low)item.append(node('span','character-low-label','低於門檻'));
+    container.append(item);
+  }
+}
+function updateReviewNotice(card,box){
+  const p=card._parts,review=p.review;
+  p.reviewNotice.hidden=box.status!=='done'||!review?.needsReview;
+  if(p.reviewNotice.hidden)return;
+  p.reviewTitle.textContent=box.verified?'已核對圖片；原始辨識提醒如下':'建議加強核對';
+  const reasons=[];
+  if(review.lowCharacters.length)reasons.push('單字低分：'+review.lowCharacters.map(letter=>`第 ${letter.position} 碼「${letter.character}」${letter.score.toFixed(4)}（門檻 ${letter.threshold.toFixed(2)}）`).join('、'));
+  if(review.hasDisagreement)reasons.push(`${review.candidateCount} 個候選文字有不同意見，請展開查看紅字差異。`);
+  if(box.hasEdited)reasons.push('提醒及字元位置依本次預設結果；請一併核對修改後的內容。');
+  p.reviewReason.textContent=reasons.join('\n');
+}
 function createResultCard(file,box){
   const card=node('article','result-card');card.dataset.resultId=box.id;
   const top=node('div','result-top'),heading=node('div','result-title-group'),ordering=node('div','result-order-controls'),orderNumber=node('span','order-number'),moveUp=node('button','subtle move-up','↑'),moveDown=node('button','subtle move-down','↓');
   orderNumber.dataset.testid='order-number';moveUp.type=moveDown.type='button';moveUp.title='上移一筆';moveDown.title='下移一筆';moveUp.setAttribute('aria-label','上移一筆');moveDown.setAttribute('aria-label','下移一筆');moveUp.addEventListener('click',()=>moveSelection(box.id,-1));moveDown.addEventListener('click',()=>moveSelection(box.id,1));ordering.append(orderNumber,moveUp,moveDown);
   const title=node('strong','result-file-title',`${file.name} · 框 ${box.number}`),actions=node('div','result-actions'),locate=node('button','subtle','回到圖片'),remove=node('button','text-button','取消選取');locate.type=remove.type='button';locate.addEventListener('click',()=>navigate(file.id));remove.addEventListener('click',()=>selectBox(file.id,box.id));actions.append(locate,remove);heading.append(ordering,title);top.append(heading,actions);card.append(top);
   const img=node('img','result-preview');img.alt=`${file.name} 框 ${box.number} 原圖裁切`;img.loading='lazy';img.decoding='async';img.hidden=true;card.append(img);
-  const textarea=node('textarea','result-value');textarea.rows=1;textarea.spellcheck=false;textarea.autocapitalize='off';textarea.autocomplete='off';textarea.setAttribute('aria-label',`${file.name} 框 ${box.number} 辨識結果`);textarea.dataset.testid='result-text';textarea.addEventListener('input',()=>{box.editedText=textarea.value;box.hasEdited=true;box.verified=false;card.querySelector('.verified-input').checked=false;updateSummary();});card.append(textarea);
+  const reviewNotice=node('div','review-notice'),reviewHeading=node('div','review-heading'),reviewIcon=node('span','review-icon','⚠\uFE0E'),reviewTitle=node('strong'),reviewReason=node('p','review-reason'),reviewButton=node('button','subtle review-open','查看疑點與逐字分數');reviewNotice.hidden=true;reviewNotice.setAttribute('role','status');reviewIcon.setAttribute('aria-hidden','true');reviewHeading.append(reviewIcon,reviewTitle);reviewButton.type='button';reviewButton.addEventListener('click',()=>{card._parts.details.open=true;card._parts.details.querySelector('summary').focus();});reviewNotice.append(reviewHeading,reviewReason,reviewButton);card.append(reviewNotice);
+  const textarea=node('textarea','result-value');textarea.rows=1;textarea.spellcheck=false;textarea.autocapitalize='off';textarea.autocomplete='off';textarea.setAttribute('aria-label',`${file.name} 框 ${box.number} 辨識結果`);textarea.dataset.testid='result-text';textarea.addEventListener('input',()=>{box.editedText=textarea.value;box.hasEdited=true;box.verified=false;card.querySelector('.verified-input').checked=false;updateReviewNotice(card,box);updateSummary();});card.append(textarea);
   card.append(node('p','result-meta'));
-  const bottom=node('div','result-bottom'),verified=node('label','checkbox'),check=node('input','verified-input');check.type='checkbox';check.addEventListener('change',()=>{box.verified=check.checked;updateSummary();});verified.append(check,document.createTextNode('已核對圖片'));
+  const bottom=node('div','result-bottom'),verified=node('label','checkbox'),check=node('input','verified-input');check.type='checkbox';check.addEventListener('change',()=>{box.verified=check.checked;updateReviewNotice(card,box);updateSummary();});verified.append(check,document.createTextNode('已核對圖片'));
   const controls=node('div','result-actions'),retry=node('button','subtle','重試'),rotate=node('button','subtle','轉 180° 重讀'),copy=node('button','','複製');for(const b of [retry,rotate,copy])b.type='button';retry.addEventListener('click',()=>enqueueOCR(file,box));rotate.addEventListener('click',()=>{box.rotate180=!box.rotate180;enqueueOCR(file,box);});copy.addEventListener('click',()=>copyText(textValue(box)));controls.append(retry,rotate,copy);bottom.append(verified,controls);card.append(bottom);
   const details=node('details'),summary=node('summary','','檢視辨識候選'),help=node('p','candidate-diff-help','紅字表示與本次預設辨識不同的字元；〔缺字〕只供核對，不會加入輸出。採用或手動修改後，比較基準仍保留本次預設結果。'),baselineLine=node('p','candidate-diff-help'),baseline=node('code','candidate-baseline');baselineLine.append(document.createTextNode('比較基準：'),baseline);
-  const scroll=node('div','table-scroll'),table=node('table'),thead=node('thead'),head=node('tr');for(const text of ['處理方式','辨識結果','分數',''])head.append(node('th','',text));thead.append(head);const tbody=node('tbody');table.append(thead,tbody);scroll.append(table);details.append(summary,help,baselineLine,scroll);card.append(details);
-  card._parts={img,textarea,meta:card.querySelector('.result-meta'),check,retry,rotate,copy,details,tbody,baseline,orderNumber,moveUp,moveDown,payload:null};return card;
+  const scoreHelp=node('p','candidate-diff-help',`本次預設結果的逐字分數（非正確率）；單字低於 ${OfflineOCRReview.defaultThreshold.toFixed(2)} 時提醒。`),characterScores=node('div','character-scores');
+  const scroll=node('div','table-scroll'),table=node('table','recognition-table'),thead=node('thead'),head=node('tr');for(const text of ['處理方式','辨識結果','平均分數',''])head.append(node('th','',text));thead.append(head);const tbody=node('tbody');table.append(thead,tbody);scroll.append(table);details.append(summary,help,baselineLine,scoreHelp,characterScores,scroll);card.append(details);
+  card._parts={img,textarea,meta:card.querySelector('.result-meta'),check,retry,rotate,copy,details,tbody,baseline,characterScores,reviewNotice,reviewTitle,reviewReason,orderNumber,moveUp,moveDown,payload:null,review:null};return card;
 }
 function updateResultCard(card,file,box){
   const p=card._parts,done=box.status==='done',working=box.status==='queued'||box.status==='recognizing';
@@ -401,10 +425,22 @@ function updateResultCard(card,file,box){
   p.copy.disabled=!done;p.check.disabled=!done;p.check.checked=box.verified;p.retry.disabled=working;p.rotate.disabled=working;
   p.meta.classList.toggle('error',box.status==='error');
   const primary=box.result?.results.find(r=>r.model==='small6');
-  p.meta.textContent=box.status==='error'?`辨識失敗：${box.error}`:working?(box.status==='queued'?'等待前一項完成；已選框優先於後續背景掃描。':'正在以 4 種方式精讀此框…'):primary?`${primary.best.variantName} · 模型分數 ${primary.best.confidence.toFixed(4)}（非正確率）${box.rotate180?' · 已轉 180°':''}${box.hasEdited?' · 保留人工修改':''}`:'';
+  p.meta.textContent=box.status==='error'?`辨識失敗：${box.error}`:working?(box.status==='queued'?'等待前一項完成；已選框優先於後續背景掃描。':'正在以 4 種方式精讀此框…'):primary?`${primary.best.variantName} · 平均模型分數 ${primary.best.confidence.toFixed(4)}（非正確率）${box.rotate180?' · 已轉 180°':''}${box.hasEdited?' · 保留人工修改':''}`:'';
   if(box.retired)p.meta.textContent+=' · 旋轉前已選結果（舊框已清除）';
   p.details.hidden=!box.result;
-  if(box.result&&p.payload!==box.result){const reference=primary?.best?.text||'';p.baseline.textContent=reference;p.tbody.replaceChildren();for(const candidate of primary?.candidates||[]){const tr=node('tr'),candidateText=node('td','candidate-text ocr-diff-text');OfflineTextDiff.render(candidateText,reference,candidate.text);tr.append(node('td','',candidate.variantName),candidateText,node('td','',candidate.confidence.toFixed(4)));const td=node('td'),adopt=node('button','subtle','採用');adopt.type='button';adopt.addEventListener('click',()=>{box.editedText=candidate.text;box.hasEdited=true;box.verified=false;updateResultCard(card,file,box);updateSummary();});td.append(adopt);tr.append(td);p.tbody.append(tr);}p.payload=box.result;}
+  if(box.result&&p.payload!==box.result){
+    const reference=primary?.best?.text||'';p.baseline.textContent=reference;p.tbody.replaceChildren();
+    p.review=OfflineOCRReview.analyze(primary);renderCharacterScores(p.characterScores,p.review);
+    for(const candidate of primary?.candidates||[]){
+      const tr=node('tr'),candidateText=node('td','candidate-text ocr-diff-text');OfflineTextDiff.render(candidateText,reference,candidate.text);
+      const scoresDetails=node('details','candidate-scores'),scores=node('div','character-scores');
+      scoresDetails.append(node('summary','','逐字分數'),scores);renderCharacterScores(scores,OfflineOCRReview.analyze({best:candidate}));candidateText.append(scoresDetails);
+      tr.append(node('td','',candidate.variantName),candidateText,node('td','',candidate.confidence.toFixed(4)));
+      const td=node('td'),adopt=node('button','subtle','採用');adopt.type='button';adopt.addEventListener('click',()=>{box.editedText=candidate.text;box.hasEdited=true;box.verified=false;updateResultCard(card,file,box);updateSummary();});td.append(adopt);tr.append(td);p.tbody.append(tr);
+    }
+    p.payload=box.result;
+  }
+  updateReviewNotice(card,box);
 }
 function renderResults(){
   const rows=selectedRows(),keep=new Set(rows.map(r=>r.box.id));
