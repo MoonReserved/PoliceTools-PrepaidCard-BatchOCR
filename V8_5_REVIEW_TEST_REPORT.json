@@ -1,0 +1,293 @@
+{
+  "release": "v8.5",
+  "status": "pass",
+  "finished_utc": "2026-10-30T13:11:13.840493+00:00",
+  "unit_tests": {
+    "command": "node --test tests/*.test.cjs",
+    "passed": 13,
+    "failed": 0
+  },
+  "browser_regression": {
+    "offline_run_metrics": {
+      "activeWorkerRequests": 0,
+      "maxActiveWorkerRequests": 1,
+      "detectStarted": 6,
+      "recognizeStarted": 2,
+      "completedJobs": 8
+    },
+    "offline_pdf_metrics": {
+      "openedDocuments": 1,
+      "activeDocuments": 1,
+      "maxActiveDocuments": 1,
+      "pageRenders": 5,
+      "cropRenders": 1,
+      "activeRenders": 0,
+      "maxActiveRenders": 1,
+      "maxCanvasPixels": 3276800,
+      "pendingJobs": 0,
+      "pdfjsVersion": "6.4.299",
+      "retainedSources": 1,
+      "closingDocuments": 0,
+      "activeSourceId": "pdf1",
+      "generation": 0
+    },
+    "user_screen_regression_tested": false,
+    "private_input_published": false,
+    "source_sha256": {
+      "ocr-review.js": "7ccc1b85167a06433e2f49468dd3f6f48a2423e18c13c1bcb0a8cfdc2969a217",
+      "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+      "app.js": "505f70f89141b2d0dfe1ca7738b22acc1bd69cf9c306c606426c0e9db849a685",
+      "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+      "index.html": "8af9f8f82ecbf012df469d378f4faebbd0c293d6f91940fded0b453bbf3d558d",
+      "styles.css": "652d7596712d0014bd448f12a744bf50ac649728d8a79f2c23dc718e22d2ffdb",
+      "offline-assets.js": "a2f97c1cd7661900b20f22d23d18a3bb5db3b5733bb6f8f13b640915ce924f32",
+      "review-guide.html": "07a96e76ab78a7463f0678678d38022d12ac3ea388b33a53a05b1ba1c5ee62e7",
+      "review-guide.css": "92c1acbaa4db4c484ad3455b5d312e90920ed81defc28ec2891cc46c03dd894d"
+    },
+    "release": "v8.5",
+    "status": "pass",
+    "finished_utc": "2026-10-30T13:07:28.167Z",
+    "browser": {
+      "name": "Chrome",
+      "version": "156.0.8078.74",
+      "host": "darwin"
+    },
+    "passed": 26,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "Empty controls and complete v8.5 project-scoped offline cache",
+        "status": "pass"
+      },
+      {
+        "name": "Mixed image and two-page PDF import with real detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Single-character warning, per-candidate scores and mobile layout",
+        "status": "pass"
+      },
+      {
+        "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+        "status": "pass"
+      },
+      {
+        "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+        "status": "pass"
+      },
+      {
+        "name": "Perfect-score O/0/I/1, live edits and adoption keep warnings accurate without changing output",
+        "status": "pass"
+      },
+      {
+        "name": "Retry replaces low-score and disagreement data while preserving the 0/1 reminder",
+        "status": "pass"
+      },
+      {
+        "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+        "status": "pass"
+      },
+      {
+        "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+        "status": "pass"
+      },
+      {
+        "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+        "status": "pass"
+      },
+      {
+        "name": "390px controls fit the page and remain usable",
+        "status": "pass"
+      },
+      {
+        "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+        "status": "pass"
+      },
+      {
+        "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+        "status": "pass"
+      },
+      {
+        "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+        "status": "pass"
+      },
+      {
+        "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+        "status": "pass"
+      },
+      {
+        "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+        "status": "pass"
+      },
+      {
+        "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+        "status": "pass"
+      },
+      {
+        "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+        "status": "pass"
+      },
+      {
+        "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+        "status": "pass"
+      },
+      {
+        "name": "Fact-check guide opens offline in a separate tab without losing work and fits mobile",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught errors, external requests or write requests",
+        "status": "pass"
+      }
+    ],
+    "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+    "limits": [
+      "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+      "Synthetic serials validate behavior, not accuracy across all card photos."
+    ],
+    "uncaught_errors": [],
+    "external_requests": [],
+    "http_write_requests": []
+  },
+  "cache_upgrade": {
+    "status": "pass",
+    "from": "v8.4",
+    "to": "v8.5",
+    "browser": "156.0.8078.74",
+    "finished_utc": "2026-10-30T13:08:18.574Z",
+    "checks": [
+      "Previous release loads from its offline cache",
+      "New service worker activates and removes only the old project cache",
+      "Other project and legacy caches are preserved",
+      "Offline reload uses the new ambiguity rules",
+      "Guide HTML and CSS are cached and open offline"
+    ],
+    "uncaught_errors": []
+  },
+  "final_guide_validation": {
+    "status": "pass",
+    "sha256": "9472443bd994bc2f471b35459c8f73e0e5da6c0d1e3b2f62e3a29e4850e25301",
+    "checks": [
+      "Unique HTML IDs and valid local anchors",
+      "Local stylesheet and navigation targets exist",
+      "Seven brand findings and ten HTTPS source links",
+      "External source links use noopener noreferrer",
+      "Explicit Taiwan fact-check timestamp and Sanyuan contact notice"
+    ],
+    "post_browser_copy_edit": "Only the Steam card heading was simplified after the browser regression; the final heading and HTML were checked here."
+  },
+  "source_links": [
+    {
+      "url": "https://www.gamesofa.com/app/bill_explanation/mycard.php",
+      "status": 200,
+      "bytes": 2536,
+      "final_url": "https://www.gamesofa.com/app/bill_explanation/mycard.php",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://www.mycard520.com.tw/ns_active/web/fb_app/step/step_qa_redeem.htm",
+      "python_tls_error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Missing Subject Key Identifier (_ssl.c:1018)>",
+      "status": 200,
+      "client": "system curl with standard TLS verification",
+      "bytes": 25191,
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://tw.gashpoint.com/service/faq",
+      "python_tls_error": "<urlopen error [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE] sslv3 alert handshake failure (_ssl.c:1018)>",
+      "status": 200,
+      "client": "system curl with standard TLS verification",
+      "bytes": 570776,
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://help.steampowered.com/en/faqs/view/78E3-7431-1E88-AD59",
+      "status": 200,
+      "bytes": 35046,
+      "final_url": "https://help.steampowered.com/en/faqs/view/78E3-7431-1E88-AD59",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://www.playstation.com/zh-hant-tw/support/store/ps-store-voucher-code-problems/",
+      "status": 200,
+      "bytes": 161807,
+      "final_url": "https://www.playstation.com/zh-hant-tw/support/store/ps-store-voucher-code-problems/",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://support.nintendo.com/jp/switch/eshop/purchase.html",
+      "status": 200,
+      "bytes": 56447,
+      "final_url": "https://support.nintendo.com/jp/switch/eshop/purchase.html",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://support.apple.com/en-ie/118242",
+      "status": 200,
+      "bytes": 167934,
+      "final_url": "https://support.apple.com/en-ie/118242",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://support.apple.com/en-us/108285",
+      "status": 200,
+      "bytes": 165900,
+      "final_url": "https://support.apple.com/en-us/108285",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://support.google.com/googleplay/answer/3422659?hl=zh-Hant",
+      "status": 200,
+      "bytes": 1632647,
+      "final_url": "https://support.google.com/googleplay/answer/3422659?hl=zh-Hant",
+      "contains_relevant_text": true
+    },
+    {
+      "url": "https://support.google.com/googleplay/answer/11564359?hl=zh-Hant",
+      "status": 200,
+      "bytes": 1634059,
+      "final_url": "https://support.google.com/googleplay/answer/11564359?hl=zh-Hant",
+      "contains_relevant_text": true
+    }
+  ],
+  "unchanged_ocr_assets_sha256": {
+    "docs/models/det5.onnx": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+    "docs/models/small6.dict.json": "bf37aa18b879fe7d9b7a70112c59bf6e3e994eab8ff7b22882e3d76e485c9df1",
+    "docs/models/small6.onnx": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+    "docs/ocr-worker.js": "68b549d1b7379d1e701864877ac2c78c26fe0b0cf3083732168810e8efcfba7d",
+    "docs/pdfjs/pdf.min.mjs": "bccc24ea711db8e44503629519904a5292d73b9daaa214bbe7cdcc282b0f4259",
+    "docs/pdfjs/pdf.worker.min.mjs": "145d2dd3ab0c86151011dba95acfa2d5336e2accd59388ea43dbee0efddaaec6",
+    "docs/pdfjs/resources.json": "5ae54c650f0fcf9fe0de0377fe7d41ba0b7681e8553b0b8af74868b7e987a6c9",
+    "docs/pdfjs/resources.pack": "bcc23b9130644eb4f90d2a7db9d79b311945328106c02e3870b73a34d31bc94a",
+    "docs/pdfjs/wasm/jbig2_nowasm_fallback.js": "68686ced624a48c42f84cdaa482ec44b72b0de4dc84a0df903af1fb7b45b5d9a",
+    "docs/pdfjs/wasm/openjpeg_nowasm_fallback.js": "9047b34b6bc142d85e4b0aa1b08b0b9baad4c6f8b7ac87641b9e8f90eb6fd23e",
+    "docs/runtime/ort-wasm-simd-threaded.mjs": "90a557d15c02bac4504d95b67f431d8594635ed2a0a62a7f2cd83d090ff91d3e",
+    "docs/runtime/ort-wasm-simd-threaded.wasm": "45eaee27761ad883742a8d4b8fce1538d60ce43b51adf1726fafccc59b8c1a15",
+    "docs/runtime/ort.wasm.min.js": "c6bc9f8e1d0ecc3983a57910e6a30b2230a512bcd2e0207cd64306459c3de7b4"
+  },
+  "limits": [
+    "Desktop Chrome 156 with 1280px, 390px and 320px guide layouts; Safari and physical phones were not tested.",
+    "Synthetic images and PDFs validate software behavior, not universal OCR accuracy.",
+    "Brand findings reflect the cited sources and their stated product/field scope; no automatic character replacement."
+  ]
+}

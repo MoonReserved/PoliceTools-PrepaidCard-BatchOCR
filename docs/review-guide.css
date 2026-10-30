@@ -1,0 +1,13 @@
+.guide{max-width:920px;padding-bottom:32px}
+.guide header{margin-bottom:24px}.guide p{margin:12px 0}.guide h2{font-size:20px}.guide h3{font-size:17px}
+.guide-lead{font-size:18px;max-width:42em}.guide-meta{color:var(--muted);font-size:13px}
+.guide a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}
+.guide a:focus-visible{outline:3px solid #77baa4;outline-offset:3px;border-radius:2px}
+.guide-rules{padding-left:24px}.guide-rules li{padding:4px 0 8px 5px}
+.guide-nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.guide-nav a{padding:7px 12px;border:1px solid #cce1d4;border-radius:7px;background:var(--soft)}
+.brand-finding{scroll-margin-top:16px}.finding-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.finding-status{display:inline-block;border-radius:6px;background:#fff4d8;color:#755318;padding:4px 9px;font-size:12px;font-weight:650}
+.finding-status.supported{background:#e7f2eb;color:#2c614c}.finding-status.contradicted{background:#fbece5;color:#8a3e24}
+.guide-sources{border-top:1px solid var(--line);padding-top:12px;font-size:13px;line-height:1.9}
+.guide-footer{font-size:13px}.guide-footer h2{font-size:17px}
+@media(max-width:520px){.guide-lead{font-size:16px}.guide h2{font-size:18px}.guide .panel{padding:16px}.guide-meta{line-height:1.8}}

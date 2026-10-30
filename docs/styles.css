@@ -41,6 +41,9 @@ main,.workspace,.workspace>.panel,.file-list,.candidate-list,.selection-panel,.r
 .custom-rotation{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}.angle-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.angle-controls input{font:inherit;color:var(--ink);width:100px;max-width:100%;min-height:44px;padding:8px;border:1px solid #a7c0ad;border-radius:7px}.angle-controls button{min-height:44px}.angle-controls input:disabled{background:#f0f2ee;opacity:.5}
 
 /* Per-character review stays beside the result; no modal interrupts the batch. */
+.review-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px}
+.review-guide-link{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}
+.review-guide-link:focus-visible{outline:3px solid #77baa4;outline-offset:3px}
 .review-notice{margin:10px 0;padding:9px 11px;border:1px solid #e6ca72;border-radius:7px;background:#fffbea;color:#654d13;font-size:12px;overflow-wrap:anywhere}
 .review-heading{display:flex;align-items:center;gap:7px}.review-icon{color:#bd8700;font-family:Arial,sans-serif;font-size:20px;line-height:1}.review-reason{margin:5px 0;white-space:pre-line}.review-open{background:#f4e8bc;color:#654d13;font-size:12px;min-height:36px;padding:6px 10px}
 .character-scores{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:normal}

@@ -391,14 +391,23 @@ function renderCharacterScores(container,review){
 }
 function updateReviewNotice(card,box){
   const p=card._parts,review=p.review;
-  p.reviewNotice.hidden=box.status!=='done'||!review?.needsReview;
+  const currentAmbiguous=OfflineOCRReview.findAmbiguousCharacters(textValue(box));
+  p.reviewNotice.hidden=box.status!=='done'||(!review?.needsReview&&!currentAmbiguous.length);
   if(p.reviewNotice.hidden)return;
-  p.reviewTitle.textContent=box.verified?'已核對圖片；原始辨識提醒如下':'建議加強核對';
+  p.reviewTitle.textContent=box.verified?'已核對圖片；仍保留核對提醒':'建議加強核對';
   const reasons=[];
-  if(review.lowCharacters.length)reasons.push('單字低分：'+review.lowCharacters.map(letter=>`第 ${letter.position} 碼「${letter.character}」${letter.score.toFixed(4)}（門檻 ${letter.threshold.toFixed(2)}）`).join('、'));
-  if(review.hasDisagreement)reasons.push(`${review.candidateCount} 個候選文字有不同意見，請展開查看紅字差異。`);
-  if(box.hasEdited)reasons.push('提醒及字元位置依本次預設結果；請一併核對修改後的內容。');
+  if(review?.ambiguousCharacters.length||currentAmbiguous.length){
+    const origin=review?.ambiguousCharacters.length?(box.hasEdited&&currentAmbiguous.length?'本次預設結果與目前內容':'本次預設結果'):'目前內容';
+    reasons.push(`${origin}含 O／0 或 I／1 易混淆字元，請對照原圖核對。`);
+  }
+  if(review?.lowCharacters.length)reasons.push('單字低分：'+review.lowCharacters.map(letter=>`第 ${letter.position} 碼「${letter.character}」${letter.score.toFixed(4)}（門檻 ${letter.threshold.toFixed(2)}）`).join('、'));
+  if(review?.hasDisagreement)reasons.push(`${review.candidateCount} 個候選文字有不同意見，請展開查看紅字差異。`);
+  if(box.hasEdited)reasons.push('分數及候選差異依本次預設結果；易混淆字元也會檢查目前內容。');
   p.reviewReason.textContent=reasons.join('\n');
+}
+function createReviewGuideLink(){
+  const link=node('a','review-guide-link','核對規則與品牌查證（另開分頁）');
+  link.href='review-guide.html';link.target='_blank';link.rel='noopener noreferrer';return link;
 }
 function createResultCard(file,box){
   const card=node('article','result-card');card.dataset.resultId=box.id;
@@ -406,7 +415,7 @@ function createResultCard(file,box){
   orderNumber.dataset.testid='order-number';moveUp.type=moveDown.type='button';moveUp.title='上移一筆';moveDown.title='下移一筆';moveUp.setAttribute('aria-label','上移一筆');moveDown.setAttribute('aria-label','下移一筆');moveUp.addEventListener('click',()=>moveSelection(box.id,-1));moveDown.addEventListener('click',()=>moveSelection(box.id,1));ordering.append(orderNumber,moveUp,moveDown);
   const title=node('strong','result-file-title',`${file.name} · 框 ${box.number}`),actions=node('div','result-actions'),locate=node('button','subtle','回到圖片'),remove=node('button','text-button','取消選取');locate.type=remove.type='button';locate.addEventListener('click',()=>navigate(file.id));remove.addEventListener('click',()=>selectBox(file.id,box.id));actions.append(locate,remove);heading.append(ordering,title);top.append(heading,actions);card.append(top);
   const img=node('img','result-preview');img.alt=`${file.name} 框 ${box.number} 原圖裁切`;img.loading='lazy';img.decoding='async';img.hidden=true;card.append(img);
-  const reviewNotice=node('div','review-notice'),reviewHeading=node('div','review-heading'),reviewIcon=node('span','review-icon','⚠\uFE0E'),reviewTitle=node('strong'),reviewReason=node('p','review-reason'),reviewButton=node('button','subtle review-open','查看疑點與逐字分數');reviewNotice.hidden=true;reviewNotice.setAttribute('role','status');reviewIcon.setAttribute('aria-hidden','true');reviewHeading.append(reviewIcon,reviewTitle);reviewButton.type='button';reviewButton.addEventListener('click',()=>{card._parts.details.open=true;card._parts.details.querySelector('summary').focus();});reviewNotice.append(reviewHeading,reviewReason,reviewButton);card.append(reviewNotice);
+  const reviewNotice=node('div','review-notice'),reviewHeading=node('div','review-heading'),reviewIcon=node('span','review-icon','⚠\uFE0E'),reviewTitle=node('strong'),reviewReason=node('p','review-reason'),reviewButton=node('button','subtle review-open','查看疑點與逐字分數'),reviewActions=node('div','review-actions');reviewNotice.hidden=true;reviewNotice.setAttribute('role','status');reviewIcon.setAttribute('aria-hidden','true');reviewHeading.append(reviewIcon,reviewTitle);reviewButton.type='button';reviewButton.addEventListener('click',()=>{card._parts.details.open=true;card._parts.details.querySelector('summary').focus();});reviewActions.append(reviewButton,createReviewGuideLink());reviewNotice.append(reviewHeading,reviewReason,reviewActions);card.append(reviewNotice);
   const textarea=node('textarea','result-value');textarea.rows=1;textarea.spellcheck=false;textarea.autocapitalize='off';textarea.autocomplete='off';textarea.setAttribute('aria-label',`${file.name} 框 ${box.number} 辨識結果`);textarea.dataset.testid='result-text';textarea.addEventListener('input',()=>{box.editedText=textarea.value;box.hasEdited=true;box.verified=false;card.querySelector('.verified-input').checked=false;updateReviewNotice(card,box);updateSummary();});card.append(textarea);
   card.append(node('p','result-meta'));
   const bottom=node('div','result-bottom'),verified=node('label','checkbox'),check=node('input','verified-input');check.type='checkbox';check.addEventListener('change',()=>{box.verified=check.checked;updateReviewNotice(card,box);updateSummary();});verified.append(check,document.createTextNode('已核對圖片'));

@@ -58,13 +58,13 @@
     <div class="section-title"><h2 id="results-title"><span class="step">3</span>核對與整批複製</h2><span id="selected-count" class="muted">0 個已選框</span></div>
     <p class="order-help">依點選先後排列。左上角數字是輸出順序，可用 ↑ ↓ 調整；複製與下載都會同步。取消後重新選取會排到最後。</p>
     <div class="result-settings"><label class="checkbox"><input id="verified-only" type="checkbox">只複製／匯出已核對的結果</label></div>
-    <p class="hint">每個選框以 4 種方式精讀。特別核對 O／0、I／1、B／8；高分仍可能出錯。</p>
+    <p class="hint">含 O／0、I／1 時一律顯示黃色提醒；高分仍須核對。<a class="review-guide-link" href="review-guide.html" target="_blank" rel="noopener noreferrer">核對規則與品牌查證（另開分頁）</a></p>
     <div id="results" data-testid="results"><p id="empty-results" class="empty-note">點選候選框後，結果會自動排隊出現在這裡。</p></div>
     <div class="export-bar"><span id="export-summary" class="muted">尚無完成結果</span><div class="export-actions"><button id="copy-all" type="button" disabled>複製全部序號</button><button id="export-txt" class="subtle" type="button" disabled>下載 TXT</button><button id="export-csv" class="subtle" type="button" disabled>下載 CSV</button></div></div>
     <p class="hint">輸出採用上方清單的順序。複製與 TXT 只含序號；CSV 的 order 欄保留介面序位，篩選後可能跳號。CSV 請用「匯入資料」並將文字欄指定為文字，避免前導零消失或以公式解讀。</p>
   </section>
   <footer>
-    <p id="app-version">v8.4 · 逐字分數與核對提醒</p>
+    <p id="app-version">v8.5 · 易混淆字元提醒與品牌查證</p>
     <p>圖片、PDF 與辨識結果只留在此分頁的記憶體，關閉或清空即移除。請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
     <p>PDF 只轉成頁面畫面，不執行文件內的指令或開啟連結。顯示「完整離線就緒」後，可在同一瀏覽器、同一網址離線開啟。請保留網站資料；無痕模式、系統清理或清除快取可能移除離線資源。</p>
     <section class="attribution" aria-labelledby="attribution-title">

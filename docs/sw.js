@@ -1,5 +1,5 @@
 'use strict';
-// v8.4 caches per-character review logic with the matching UI.
+// v8.5 caches ambiguity warnings and the dedicated fact-check guide together.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.
