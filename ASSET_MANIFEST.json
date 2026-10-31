@@ -2,7 +2,7 @@
   "project": "PoliceTools-PrepaidCard-BatchOCR",
   "title": "警政小工具-點數卡批次OCR辨識",
   "english_title": "PoliceTools – Prepaid Card Batch OCR",
-  "version": "v8.5.1",
+  "version": "v8.5.2",
   "date": "2026-10-31",
   "publishing_folder": "docs",
   "native_launcher_platforms": [
@@ -14,13 +14,13 @@
   "note": "This manifest excludes itself. All listed files are public project assets; no user inputs are included.",
   "files": {
     "QUICK_START_zh-TW.txt": {
-      "bytes": 5475,
-      "sha256": "4e001e2299bbd404bf7910a8e853df4722cef5d7e90b6bfdc17f212ced54a87b",
+      "bytes": 5554,
+      "sha256": "6e92ff112391a166d1e52294ea2bb611bb8c56119e725efb71c38e8f58807069",
       "mode": "0o644"
     },
     "README.md": {
-      "bytes": 31414,
-      "sha256": "a12f0ebd91625cbbd833dd73e2c72223ee3c0f4e141ccf5dfeae321d94801b83",
+      "bytes": 32012,
+      "sha256": "4134fa4e8d70a7d36b51fec31c974d99aafd7e2dc07c72c12f062696da020498",
       "mode": "0o644"
     },
     "START_MAC.command": {
@@ -63,6 +63,11 @@
       "sha256": "0dd399d4133241f2c2893e3d431e2110355ede3b3371950de46b4094fcc9863a",
       "mode": "0o644"
     },
+    "V8_5_2_CANDIDATE_TEST_REPORT.json": {
+      "bytes": 7560,
+      "sha256": "c708514f5b931e2671bdba18410266909dd34ecde3143596c44d3f1ed388f446",
+      "mode": "0o644"
+    },
     "V8_5_REVIEW_TEST_REPORT.json": {
       "bytes": 11835,
       "sha256": "d3afa6a2c8dd94cbdee031bd6260d02e149f14b4b799de01bdb473d744df69d2",
@@ -99,8 +104,8 @@
       "mode": "0o644"
     },
     "docs/index.html": {
-      "bytes": 13317,
-      "sha256": "5980a4baeed0b5de865f84efff813e1e0d66227c445524eea4a10ad222319955",
+      "bytes": 13362,
+      "sha256": "1b532a69e5a978eadc0588287549fe64ae9335b67cde6eb5591b1c901b24dc6e",
       "mode": "0o644"
     },
     "docs/licenses/ASSET_SOURCES.txt": {
@@ -180,7 +185,7 @@
     },
     "docs/offline-assets.js": {
       "bytes": 1201,
-      "sha256": "b832037d9eb9972f627f609dcabce3f452673bda40b834840a9ed16799b1031d",
+      "sha256": "32896087c33f5ea5bb0cd95aa70cab491e7b537b23955456b01574790ed08457",
       "mode": "0o644"
     },
     "docs/page-rotation.js": {
@@ -259,13 +264,13 @@
       "mode": "0o644"
     },
     "docs/styles.css": {
-      "bytes": 16001,
-      "sha256": "652d7596712d0014bd448f12a744bf50ac649728d8a79f2c23dc718e22d2ffdb",
+      "bytes": 16110,
+      "sha256": "76a801aa7baaacb4aa4ffb75fef5d4d409f6ab6de242555427181f0e89ab9b65",
       "mode": "0o644"
     },
     "docs/sw.js": {
-      "bytes": 1284,
-      "sha256": "26a165ce1b33c31ae558e1c03d38d529141e01d47423a64f6f080d5995ac45e1",
+      "bytes": 1281,
+      "sha256": "e58e5d9fa596f9a0850b8290130ea60ddbd72063eb7379841b57a4b7dc241922",
       "mode": "0o644"
     },
     "docs/text-diff.js": {
@@ -359,8 +364,8 @@
       "mode": "0o644"
     },
     "tests/rotation.browser.cjs": {
-      "bytes": 39496,
-      "sha256": "b8dd174ab950527edff90bec5f95fd86d59597a9b4b42ec7b0a3e571dd554ce6",
+      "bytes": 39558,
+      "sha256": "ecc7726cde897616c7034ddf19c358f2a86fc7fe13197838ef1d70cef8765321",
       "mode": "0o644"
     }
   }

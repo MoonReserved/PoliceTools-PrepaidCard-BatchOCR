@@ -1,5 +1,5 @@
 'use strict';
-// v8.5.1 caches case-sensitive ambiguity warnings and the matching guide together.
+// v8.5.2 caches the collapsed candidate panel and its matching styles together.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.

@@ -49,9 +49,11 @@
       <div class="canvas-shell"><canvas id="source" data-testid="source-canvas" aria-label="點選頁面中的候選序號框"></canvas><p id="empty-image">先加入圖片或 PDF，模型會自動找位置。</p></div>
       <div class="selection-tools"><button id="more-boxes" type="button" class="subtle" disabled>找更多候選框</button><label class="checkbox"><input id="auto-next" type="checkbox">點選後跳到下一張</label></div>
       <details class="fallback"><summary>還是漏框？手動補上一框</summary><p class="hint">只有漏框時才需要。按下按鈕後，在圖片上拖出一整行；一般操作直接點選候選即可。</p><button id="manual" class="subtle" type="button" disabled>啟用手動補框</button></details>
-      <div class="section-title candidate-heading"><h3>放大候選行</h3><span id="candidate-count" class="muted">尚未掃描</span></div>
-      <p class="hint">這些是圖片裁切，尚未逐行辨識。點一下加入辨識；再點一次取消。也可直接點上方框線。</p>
-      <div id="candidate-list" class="candidate-list" data-testid="candidate-list"><p class="empty-note">掃描完成後，可在這裡輕鬆點選。</p></div>
+      <details id="candidate-panel">
+        <summary class="candidate-heading"><h3>放大候選行</h3><span id="candidate-count" class="muted">尚未掃描</span></summary>
+        <p class="hint">這些是圖片裁切，尚未逐行辨識。點一下加入辨識；再點一次取消。也可直接點上方框線。</p>
+        <div id="candidate-list" class="candidate-list" data-testid="candidate-list"><p class="empty-note">掃描完成後，可在這裡輕鬆點選。</p></div>
+      </details>
     </section>
   </div>
   <section class="panel results-panel" aria-labelledby="results-title">
@@ -64,7 +66,7 @@
     <p class="hint">輸出採用上方清單的順序。複製與 TXT 只含序號；CSV 的 order 欄保留介面序位，篩選後可能跳號。CSV 請用「匯入資料」並將文字欄指定為文字，避免前導零消失或以公式解讀。</p>
   </section>
   <footer>
-    <p id="app-version">v8.5.1 · 易混淆字元提醒與品牌查證</p>
+    <p id="app-version">v8.5.2 · 放大候選行預設收合</p>
     <p>圖片、PDF 與辨識結果只留在此分頁的記憶體，關閉或清空即移除。請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
     <p>PDF 只轉成頁面畫面，不執行文件內的指令或開啟連結。顯示「完整離線就緒」後，可在同一瀏覽器、同一網址離線開啟。請保留網站資料；無痕模式、系統清理或清除快取可能移除離線資源。</p>
     <section class="attribution" aria-labelledby="attribution-title">

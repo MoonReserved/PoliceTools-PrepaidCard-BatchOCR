@@ -1,0 +1,201 @@
+{
+  "release": "v8.5.2",
+  "status": "pass",
+  "finished_utc": "2026-10-31T10:19:57.465423+00:00",
+  "change": "Collapse the enlarged candidate rows by default; users expand or collapse the native details control while the candidate count remains visible.",
+  "unit_tests": {
+    "command": "node --test tests/*.test.cjs",
+    "passed": 14,
+    "failed": 0
+  },
+  "browser_regression": {
+    "offline_run_metrics": {
+      "activeWorkerRequests": 0,
+      "maxActiveWorkerRequests": 1,
+      "detectStarted": 6,
+      "recognizeStarted": 2,
+      "completedJobs": 8
+    },
+    "offline_pdf_metrics": {
+      "openedDocuments": 1,
+      "activeDocuments": 1,
+      "maxActiveDocuments": 1,
+      "pageRenders": 5,
+      "cropRenders": 1,
+      "activeRenders": 0,
+      "maxActiveRenders": 1,
+      "maxCanvasPixels": 3276800,
+      "pendingJobs": 0,
+      "pdfjsVersion": "6.4.299",
+      "retainedSources": 1,
+      "closingDocuments": 0,
+      "activeSourceId": "pdf1",
+      "generation": 0
+    },
+    "user_screen_regression_tested": false,
+    "private_input_published": false,
+    "source_sha256": {
+      "ocr-review.js": "7edcb6438cf63bab2a2ff3bc1ad72f9e7f62743f594aa63b3f5d717288fb0eef",
+      "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+      "app.js": "91c1c98af793b34790eba43086581c9ab8d10b289436788c8313307260cd1a88",
+      "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+      "index.html": "1b532a69e5a978eadc0588287549fe64ae9335b67cde6eb5591b1c901b24dc6e",
+      "styles.css": "76a801aa7baaacb4aa4ffb75fef5d4d409f6ab6de242555427181f0e89ab9b65",
+      "offline-assets.js": "32896087c33f5ea5bb0cd95aa70cab491e7b537b23955456b01574790ed08457",
+      "review-guide.html": "83890c5f2525411fc72de7e3f5d9c58eaaf09ebc02db8fc8929f4bc84707729d",
+      "review-guide.css": "92c1acbaa4db4c484ad3455b5d312e90920ed81defc28ec2891cc46c03dd894d"
+    },
+    "release": "v8.5.2",
+    "status": "pass",
+    "finished_utc": "2026-10-31T10:11:42.697Z",
+    "browser": {
+      "name": "Chrome",
+      "version": "156.0.8078.74",
+      "host": "darwin"
+    },
+    "passed": 26,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "Empty controls and complete v8.5.2 project-scoped offline cache",
+        "status": "pass"
+      },
+      {
+        "name": "Mixed image and two-page PDF import with real detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Single-character warning, per-candidate scores and mobile layout",
+        "status": "pass"
+      },
+      {
+        "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+        "status": "pass"
+      },
+      {
+        "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+        "status": "pass"
+      },
+      {
+        "name": "Case-sensitive ambiguity, live edits and adoption keep warnings accurate without changing output",
+        "status": "pass"
+      },
+      {
+        "name": "Retry replaces low-score and disagreement data while preserving the 0/1 reminder",
+        "status": "pass"
+      },
+      {
+        "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+        "status": "pass"
+      },
+      {
+        "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+        "status": "pass"
+      },
+      {
+        "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+        "status": "pass"
+      },
+      {
+        "name": "390px controls fit the page and remain usable",
+        "status": "pass"
+      },
+      {
+        "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+        "status": "pass"
+      },
+      {
+        "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+        "status": "pass"
+      },
+      {
+        "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+        "status": "pass"
+      },
+      {
+        "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+        "status": "pass"
+      },
+      {
+        "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+        "status": "pass"
+      },
+      {
+        "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+        "status": "pass"
+      },
+      {
+        "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+        "status": "pass"
+      },
+      {
+        "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+        "status": "pass"
+      },
+      {
+        "name": "Fact-check guide opens offline in a separate tab without losing work and fits mobile",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught errors, external requests or write requests",
+        "status": "pass"
+      }
+    ],
+    "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+    "limits": [
+      "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+      "Synthetic serials validate behavior, not accuracy across all card photos."
+    ],
+    "uncaught_errors": [],
+    "external_requests": [],
+    "http_write_requests": []
+  },
+  "cache_upgrade": {
+    "status": "pass",
+    "from": "v8.5.1",
+    "to": "v8.5.2",
+    "browser": "156.0.8078.74",
+    "finished_utc": "2026-10-31T10:10:38.557Z",
+    "checks": [
+      "Previous release loads from its offline cache",
+      "New service worker activates and removes only the old project cache",
+      "Other project and legacy caches are preserved",
+      "Offline reload uses the new ambiguity rules",
+      "Guide HTML and CSS are cached and open offline"
+    ],
+    "uncaught_errors": []
+  },
+  "interactive_ui_checks": {
+    "status": "pass",
+    "fixtures": "Locally generated synthetic PNG containing 12345678901234; no private input.",
+    "checks": [
+      "Candidate panel is collapsed on initial load and after image detection completes; count remains visible.",
+      "Mouse click expands the panel and its lazy-loaded crop displays the synthetic serial.",
+      "Enter collapses the panel; Space reopens it.",
+      "At 390px the collapsed and expanded layouts fit without horizontal overflow and the crop remains visible."
+    ],
+    "limits": [
+      "Desktop browser with a 390px viewport; no physical phone or Safari test."
+    ]
+  }
+}

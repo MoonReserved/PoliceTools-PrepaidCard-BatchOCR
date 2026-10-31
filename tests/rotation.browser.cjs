@@ -189,10 +189,10 @@ async function releaseRotation() {
   await page.goto(origin+scope); await api('waitForCache');
   const image = await syntheticImage(), pdf = pdfFixture();
   let imageId, pdfId, otherPdfId, imageBox, pdfBox, baseline;
-  await check('Empty controls and complete v8.5.1 project-scoped offline cache', async () => {
+  await check('Empty controls and complete v8.5.2 project-scoped offline cache', async () => {
     assert(await page.locator('#rotate-left').isDisabled());
     assert(await page.locator('#rotate-right').isDisabled());
-    assert.equal((await state()).version,'v8.5.1');
+    assert.equal((await state()).version,'v8.5.2');
     assert((await state()).cacheReady);
   });
   await check('Mixed image and two-page PDF import with real detection and OCR', async () => {
@@ -361,6 +361,7 @@ async function releaseRotation() {
     const id = await api('setROI',[280,450,1600,200]);
     assert.equal(bestText(boxIn(await idle(),id)),'12345678901234');
     await page.locator('#auto-next').uncheck();
+    await page.locator('#candidate-panel > summary').click();
     const candidate = page.locator(`[data-box-id="${id}"]`); await candidate.click(); await candidate.click();
     await idle(); assert((await state()).selectionOrder.includes(id));
     for (const [button,method] of [['#export-txt','exportTXT'],['#export-csv','exportCSV']]) {
@@ -580,7 +581,7 @@ async function releaseRotation() {
   for (const name of ['ocr-review.js','page-rotation.js','app.js','pdf-source.js','index.html','styles.css','offline-assets.js','review-guide.html','review-guide.css']) {
     hashes[name] = createHash('sha256').update(await fs.readFile(path.join(root,name))).digest('hex');
   }
-  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.5.1',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
+  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.5.2',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
   if (process.env.REPORT_PATH) await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({passed:checks.length,failed:0,browser:browser.version()}));
 })().catch(error => { console.error(error); process.exitCode=1; }).finally(async () => { await browser?.close(); server.close(); });
