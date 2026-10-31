@@ -189,10 +189,10 @@ async function releaseRotation() {
   await page.goto(origin+scope); await api('waitForCache');
   const image = await syntheticImage(), pdf = pdfFixture();
   let imageId, pdfId, otherPdfId, imageBox, pdfBox, baseline;
-  await check('Empty controls and complete v8.5 project-scoped offline cache', async () => {
+  await check('Empty controls and complete v8.5.1 project-scoped offline cache', async () => {
     assert(await page.locator('#rotate-left').isDisabled());
     assert(await page.locator('#rotate-right').isDisabled());
-    assert.equal((await state()).version,'v8.5');
+    assert.equal((await state()).version,'v8.5.1');
     assert((await state()).cacheReady);
   });
   await check('Mixed image and two-page PDF import with real detection and OCR', async () => {
@@ -252,25 +252,31 @@ async function releaseRotation() {
       assert.doesNotMatch(await card.locator('.review-reason').textContent(),/單字低分/);
     }
   });
-  await check('Perfect-score O/0/I/1, live edits and adoption keep warnings accurate without changing output', async () => {
+  await check('Case-sensitive ambiguity, live edits and adoption keep warnings accurate without changing output', async () => {
     const card=page.locator(`[data-result-id="${imageBox}"]`);
     const setText=async text=>page.evaluate(({fileId,boxId,text})=>{
       const box=findBox(fileId,boxId),best={text,confidence:1,charConfidence:Array.from(text,()=>1),variant:'original',variantName:'原始裁切'};
       box.result={results:[{model:'small6',best,candidates:Array.from({length:4},()=>({...best}))}]};
       box.editedText=text;box.hasEdited=false;box.verified=false;renderResults();
     },{fileId:imageId,boxId:imageBox,text});
-    for(const character of ['O','0','I','1','o','ｉ','０']){
+    for(const character of 'O0Ii1lＯ０Ｉｉ１ｌ'){
       await setText(`AB${character}D`);
       assert(await card.locator('.review-notice').isVisible());
       assert.match(await card.locator('.review-reason').textContent(),/本次預設結果含/);
+      assert.match(await card.locator('.review-reason').textContent(),/小寫 l/);
       assert.doesNotMatch(await card.locator('.review-reason').textContent(),/單字低分|不同意見/);
       assert.equal(await api('exportTXT'),`AB${character}D`);
     }
     await card.locator('textarea').fill('ABCD');
     assert(await card.locator('.review-notice').isVisible(), 'Original ambiguity remains after editing');
+    for(const character of 'oLｏＬ'){
+      await setText(`AB${character}D`);
+      assert(await card.locator('.review-notice').isHidden());
+      assert.equal(await api('exportTXT'),`AB${character}D`);
+    }
     await setText('ABCD');
     assert(await card.locator('.review-notice').isHidden());
-    for(const character of ['O','0','I','1']){
+    for(const character of 'O0Ii1lＯ０Ｉｉ１ｌ'){
       await card.locator('textarea').fill(`AB${character}D`);
       assert(await card.locator('.review-notice').isVisible());
       assert.match(await card.locator('.review-reason').textContent(),/目前內容含/);
@@ -279,15 +285,20 @@ async function releaseRotation() {
       assert.match(await card.locator('.review-heading').textContent(),/已核對圖片/);
       assert.equal(await api('exportTXT'),`AB${character}D`);
       assert.doesNotMatch(await api('exportCSV'),/⚠|易混淆|查證|建議加強核對/);
-      await card.locator('textarea').fill('ABCD');
-      assert(!await card.locator('.verified-input').isChecked());
-      assert(await card.locator('.review-notice').isHidden());
+      for(const clean of ['ABCD','ABoD','ABLD','ABｏD','ABＬD']){
+        await card.locator('textarea').fill(clean);
+        assert(!await card.locator('.verified-input').isChecked());
+        assert(await card.locator('.review-notice').isHidden());
+        assert.equal(await api('exportTXT'),clean);
+      }
     }
-    await card.locator('textarea').fill('AB0D');
+    await setText('ABoLD');
+    await card.locator('textarea').fill('ABlD');
+    assert(await card.locator('.review-notice').isVisible());
     await card.locator('tbody button').first().click();
-    assert.equal(await card.locator('textarea').inputValue(),'ABCD');
+    assert.equal(await card.locator('textarea').inputValue(),'ABoLD');
     assert(await card.locator('.review-notice').isHidden());
-    assert.equal(await card.locator('.candidate-baseline').textContent(),'ABCD');
+    assert.equal(await card.locator('.candidate-baseline').textContent(),'ABoLD');
   });
   await check('Retry replaces low-score and disagreement data while preserving the 0/1 reminder', async () => {
     await page.evaluate(({fileId,boxId})=>{
@@ -545,6 +556,8 @@ async function releaseRotation() {
     assert.equal(await guide.title(),'核對規則與品牌查證｜點數卡批次 OCR');
     assert.equal(await guide.locator('time').getAttribute('datetime'),'2026-10-30T21:03:00+08:00');
     assert.equal(await guide.locator('.brand-finding').count(),7);
+    assert.match(await guide.locator('.guide-rules').textContent(),/小寫 l/);
+    assert.match(await guide.locator('.guide-rules').textContent(),/小寫 o 與大寫 L 不列入此項提醒/);
     assert.match(await guide.locator('footer').textContent(),/如果連結失效，請聯繫三元所/);
     assert.equal(await guide.evaluate(()=>window.opener),null);
     assert(await guide.locator('a[href^="https://"]').evaluateAll(links=>links.length>=10&&links.every(a=>a.target==='_blank'&&a.rel.includes('noopener')&&a.rel.includes('noreferrer'))));
@@ -567,7 +580,7 @@ async function releaseRotation() {
   for (const name of ['ocr-review.js','page-rotation.js','app.js','pdf-source.js','index.html','styles.css','offline-assets.js','review-guide.html','review-guide.css']) {
     hashes[name] = createHash('sha256').update(await fs.readFile(path.join(root,name))).digest('hex');
   }
-  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.5',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
+  const report = {offline_run_metrics:final.metrics,offline_pdf_metrics:final.pdfStats,user_screen_regression_tested:!!process.env.REGRESSION_IMAGE,private_input_published:false,source_sha256:hashes,release:'v8.5.1',status:'pass',finished_utc:new Date().toISOString(),browser:{name:'Chrome',version:browser.version(),host:process.platform},passed:checks.length,failed:0,checks,fixtures:'Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.',limits:['Automated desktop Chrome and 390px viewport; no physical phone or Safari test.','Synthetic serials validate behavior, not accuracy across all card photos.'],uncaught_errors:errors,external_requests:external,http_write_requests:writes};
   if (process.env.REPORT_PATH) await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({passed:checks.length,failed:0,browser:browser.version()}));
 })().catch(error => { console.error(error); process.exitCode=1; }).finally(async () => { await browser?.close(); server.close(); });

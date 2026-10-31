@@ -398,7 +398,7 @@ function updateReviewNotice(card,box){
   const reasons=[];
   if(review?.ambiguousCharacters.length||currentAmbiguous.length){
     const origin=review?.ambiguousCharacters.length?(box.hasEdited&&currentAmbiguous.length?'本次預設結果與目前內容':'本次預設結果'):'目前內容';
-    reasons.push(`${origin}含 O／0 或 I／1 易混淆字元，請對照原圖核對。`);
+    reasons.push(`${origin}含 O／0、I／i／1 或小寫 l 易混淆字元，請對照原圖核對。`);
   }
   if(review?.lowCharacters.length)reasons.push('單字低分：'+review.lowCharacters.map(letter=>`第 ${letter.position} 碼「${letter.character}」${letter.score.toFixed(4)}（門檻 ${letter.threshold.toFixed(2)}）`).join('、'));
   if(review?.hasDisagreement)reasons.push(`${review.candidateCount} 個候選文字有不同意見，請展開查看紅字差異。`);

@@ -1,6 +1,6 @@
 'use strict';
 // Shared by the page and Service Worker so a ready indicator covers every dependency.
-globalThis.OFFLINE_APP_VERSION='v8.5';
+globalThis.OFFLINE_APP_VERSION='v8.5.1';
 globalThis.OFFLINE_ASSETS=[
   './','index.html','styles.css','attribution.css','review-guide.html','review-guide.css','fonts/ui-tc.woff',
   'offline-assets.js','text-diff.js','ocr-review.js','page-rotation.js','app.js','ocr-worker.js','detection.js','pdf-source.js','sw.js','service-worker.js',

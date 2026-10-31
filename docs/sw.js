@@ -1,5 +1,5 @@
 'use strict';
-// v8.5 caches ambiguity warnings and the dedicated fact-check guide together.
+// v8.5.1 caches case-sensitive ambiguity warnings and the matching guide together.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.
