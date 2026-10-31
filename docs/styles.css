@@ -38,6 +38,13 @@ main,.workspace,.workspace>.panel,.file-list,.candidate-list,.selection-panel,.r
 /* PoliceTools product name and local-file launch guidance. */
 .page-header>div{min-width:0}.page-header h1{font-size:clamp(24px,3.1vw,34px);overflow-wrap:anywhere}.local-file-help{margin-bottom:14px;background:#fff0dc;color:#87501b}.local-file-help p{margin:7px 0}.local-file-help code{overflow-wrap:anywhere}
 .rotation-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0}.rotation-tools button{min-height:44px}.rotation-tools .muted{font-variant-numeric:tabular-nums}
+/* Progress messages must not move the image while a user is tapping boxes.
+   Keep long filenames/errors readable by scrolling inside the status area. */
+#status{height:1.65em;overflow-y:auto;overflow-wrap:anywhere}
+@media(max-width:520px){
+  #status{height:3.3em;min-height:3.3em}
+  #rotation-status{flex-basis:100%;min-height:1.65em}
+}
 .custom-rotation{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}.angle-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.angle-controls input{font:inherit;color:var(--ink);width:100px;max-width:100%;min-height:44px;padding:8px;border:1px solid #a7c0ad;border-radius:7px}.angle-controls button{min-height:44px}.angle-controls input:disabled{background:#f0f2ee;opacity:.5}
 
 /* Per-character review stays beside the result; no modal interrupts the batch. */

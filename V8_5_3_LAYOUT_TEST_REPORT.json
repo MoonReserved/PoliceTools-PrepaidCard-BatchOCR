@@ -1,0 +1,263 @@
+{
+  "release": "v8.5.3",
+  "status": "pass",
+  "finished_utc": "2026-10-31T10:39:02.766183+00:00",
+  "change": "Keep progress status height stable on all devices; reserve a separate rotation-status row at widths up to 520px. Preserve normal tablet/desktop geometry. Long messages remain fully available by scrolling inside the status area.",
+  "scope": "Runtime behavior changed only in CSS; OCR, detection, image/PDF rotation, editing and exports are unchanged. Page and service-worker release metadata updated together.",
+  "baseline_reproduction": {
+    "viewport_width": 390,
+    "old_image_document_y_idle": 1307.140625,
+    "old_image_document_y_recognizing": 1326.734375,
+    "old_layout_shift_css_px": 19.59375,
+    "fixed_layout_shift_css_px": 0,
+    "test": "Synthetic image with a UUID-length filename, actual OCR progress; document coordinates measured so browser scroll anchoring cannot hide the shift."
+  },
+  "negative_control": {
+    "status": "expected_failure",
+    "baseline": "v8.5.2",
+    "test": "With BASELINE_CSS=1 the layout test rejects the old CSS at 320px when the long filename expands the status area."
+  },
+  "unit_tests": {
+    "command": "node --test tests/*.test.cjs",
+    "passed": 14,
+    "failed": 0
+  },
+  "responsive_layout": {
+    "status": "pass",
+    "browser": "156.0.8078.74",
+    "finished_utc": "2026-10-31T10:38:18.908Z",
+    "widths": [
+      320,
+      360,
+      375,
+      390,
+      393,
+      430,
+      520,
+      521,
+      600,
+      768,
+      800,
+      801,
+      1024,
+      1280,
+      1440
+    ],
+    "passed": 26,
+    "checks": [
+      "320px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "360px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "375px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "390px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "393px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "430px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "520px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "521px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "521px: tablet/desktop normal layout matches baseline exactly",
+      "600px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "600px: tablet/desktop normal layout matches baseline exactly",
+      "768px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "768px: tablet/desktop normal layout matches baseline exactly",
+      "800px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "800px: tablet/desktop normal layout matches baseline exactly",
+      "801px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "801px: tablet/desktop normal layout matches baseline exactly",
+      "1024px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "1024px: tablet/desktop normal layout matches baseline exactly",
+      "1280px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "1280px: tablet/desktop normal layout matches baseline exactly",
+      "1440px: progress, long filenames, errors and rotation labels keep image geometry stable",
+      "1440px: tablet/desktop normal layout matches baseline exactly",
+      "390px: actual canvas selection, OCR, cancellation and clean export without viewport movement",
+      "768px: actual canvas selection, OCR, cancellation and clean export without viewport movement",
+      "1280px: actual canvas selection, OCR, cancellation and clean export without viewport movement"
+    ],
+    "uncaught_errors": [],
+    "limits": [
+      "Automated Chrome at responsive viewport widths; no physical iPhone/iPad or Safari test.",
+      "Synthetic images verify interaction and layout, not recognition accuracy on every card."
+    ]
+  },
+  "browser_regression": {
+    "offline_run_metrics": {
+      "activeWorkerRequests": 0,
+      "maxActiveWorkerRequests": 1,
+      "detectStarted": 6,
+      "recognizeStarted": 2,
+      "completedJobs": 8
+    },
+    "offline_pdf_metrics": {
+      "openedDocuments": 1,
+      "activeDocuments": 1,
+      "maxActiveDocuments": 1,
+      "pageRenders": 5,
+      "cropRenders": 1,
+      "activeRenders": 0,
+      "maxActiveRenders": 1,
+      "maxCanvasPixels": 3276800,
+      "pendingJobs": 0,
+      "pdfjsVersion": "6.4.299",
+      "retainedSources": 1,
+      "closingDocuments": 0,
+      "activeSourceId": "pdf1",
+      "generation": 0
+    },
+    "user_screen_regression_tested": false,
+    "private_input_published": false,
+    "source_sha256": {
+      "ocr-review.js": "7edcb6438cf63bab2a2ff3bc1ad72f9e7f62743f594aa63b3f5d717288fb0eef",
+      "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+      "app.js": "91c1c98af793b34790eba43086581c9ab8d10b289436788c8313307260cd1a88",
+      "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+      "index.html": "d19c4d1257501186b4c07adb41377ab9571489d11ad9e9b2efef5c00ae989e8a",
+      "styles.css": "bcd6064b17cf43a8982da6d4d525364cc91e07d8b02f5a2329a6f239855117c3",
+      "offline-assets.js": "e1054c864a51cced560106468df4c26c3599897ca37b652706aac21555020be2",
+      "review-guide.html": "83890c5f2525411fc72de7e3f5d9c58eaaf09ebc02db8fc8929f4bc84707729d",
+      "review-guide.css": "92c1acbaa4db4c484ad3455b5d312e90920ed81defc28ec2891cc46c03dd894d"
+    },
+    "release": "v8.5.3",
+    "status": "pass",
+    "finished_utc": "2026-10-31T10:38:36.148Z",
+    "browser": {
+      "name": "Chrome",
+      "version": "156.0.8078.74",
+      "host": "darwin"
+    },
+    "passed": 26,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "Empty controls and complete v8.5.3 project-scoped offline cache",
+        "status": "pass"
+      },
+      {
+        "name": "Mixed image and two-page PDF import with real detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Single-character warning, per-candidate scores and mobile layout",
+        "status": "pass"
+      },
+      {
+        "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+        "status": "pass"
+      },
+      {
+        "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+        "status": "pass"
+      },
+      {
+        "name": "Case-sensitive ambiguity, live edits and adoption keep warnings accurate without changing output",
+        "status": "pass"
+      },
+      {
+        "name": "Retry replaces low-score and disagreement data while preserving the 0/1 reminder",
+        "status": "pass"
+      },
+      {
+        "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+        "status": "pass"
+      },
+      {
+        "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+        "status": "pass"
+      },
+      {
+        "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+        "status": "pass"
+      },
+      {
+        "name": "390px controls fit the page and remain usable",
+        "status": "pass"
+      },
+      {
+        "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+        "status": "pass"
+      },
+      {
+        "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+        "status": "pass"
+      },
+      {
+        "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+        "status": "pass"
+      },
+      {
+        "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+        "status": "pass"
+      },
+      {
+        "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+        "status": "pass"
+      },
+      {
+        "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+        "status": "pass"
+      },
+      {
+        "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+        "status": "pass"
+      },
+      {
+        "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+        "status": "pass"
+      },
+      {
+        "name": "Fact-check guide opens offline in a separate tab without losing work and fits mobile",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught errors, external requests or write requests",
+        "status": "pass"
+      }
+    ],
+    "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+    "limits": [
+      "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+      "Synthetic serials validate behavior, not accuracy across all card photos."
+    ],
+    "uncaught_errors": [],
+    "external_requests": [],
+    "http_write_requests": []
+  },
+  "cache_upgrade": {
+    "status": "pass",
+    "from": "v8.5.2",
+    "to": "v8.5.3",
+    "browser": "156.0.8078.74",
+    "finished_utc": "2026-10-31T10:36:06.414Z",
+    "checks": [
+      "Previous release loads from its offline cache",
+      "New service worker activates and removes only the old project cache",
+      "Other project and legacy caches are preserved",
+      "Offline reload uses the new ambiguity rules",
+      "Guide HTML and CSS are cached and open offline"
+    ],
+    "uncaught_errors": []
+  },
+  "private_input_published": false,
+  "limits": [
+    "Chrome responsive viewport tests do not replace physical iPhone/iPad, Safari, Windows or Android testing.",
+    "The recording was inspected locally; only synthetic fixtures and no private recording or extracted frames are included in the repository."
+  ]
+}

@@ -9,9 +9,11 @@
 
 工具以減少逐張框選、反覆切換圖片及手動輸入為目標。圖片、PDF 與序號辨識都在使用者的裝置內處理，不需要雲端 OCR、API Key 或使用者帳號。
 
-**目前版本：v8.5.2 · 放大候選行預設收合**
+**目前版本：v8.5.3 · 點框畫面穩定**
 
 更新日期：2026-10-31
+
+v8.5.3 固定辨識狀態列的顯示高度，避免長檔名與進度文字換行時推動圖片；手機另為旋轉狀態預留一列，平板與電腦維持原有欄位配置。過長的狀態或錯誤訊息可在狀態列內捲動查看。
 
 v8.5.2 將「放大候選行」改為預設收合，需要時點選標題展開，再點一次即可收合；候選數量仍顯示於標題旁。
 
@@ -176,6 +178,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 | `TEST_REPORT.json` | v8.1 整合版驗證摘要 |
 | `V8_2_ROTATION_TEST_REPORT.json` | v8.2 旋轉功能與 EXIF 方向驗證摘要 |
 | `V8_3_ROTATION_TEST_REPORT.json` | v8.3 清框重掃與自訂角度驗證摘要 |
+| `V8_5_3_LAYOUT_TEST_REPORT.json` | v8.5.3 跨裝置點框穩定、原版面比對與功能回歸驗證 |
 | `V8_5_2_CANDIDATE_TEST_REPORT.json` | v8.5.2 候選行收合、瀏覽器回歸與離線快取升級驗證 |
 | `V8_5_1_REVIEW_TEST_REPORT.json` | v8.5.1 大小寫警示規則、瀏覽器回歸與離線快取升級驗證 |
 | `V8_5_REVIEW_TEST_REPORT.json` | v8.5 易混淆字元、獨立查證說明頁、離線快取與瀏覽器回歸驗證 |
@@ -194,7 +197,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 3. 開啟解壓後的專案資料夾，將裡面的全部檔案與子資料夾拖進上傳區，包含 `docs`、`local-server`、兩個啟動器及 README。
 4. 檢查清單中有 `docs/index.html`，等全部檔案上傳完成，再提交變更。已有預設 README 時，以本包的 README 取代。
 5. 進入 **Settings → Pages**，選 **Source：Deploy from a branch**、**Branch：main**、**Folder：/docs**，按 **Save**。
-6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.5.2 · 放大候選行預設收合**」。
+6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.5.3 · 點框畫面穩定**」。
 7. 等待「完整離線就緒」，加入一張圖片，確認能自動出框；點框後再確認能產生序號。
 
 若帳號仍為 `MoonReserved`，且 Repo 使用上述名稱，**預期**網址為 [https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/](https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/)。這只是依命名推算的網址，不代表網站已替你部署；請以 GitHub Pages 設定頁顯示的網址為準。
@@ -310,6 +313,12 @@ py -3 serve.py
 Liberation 字型原始碼直接隨附於 `docs/sources/liberation-fonts-1.07.4-11-source.zip`，內含上游 SFD、Makefile、FontForge 腳本、授權及 Debian 補丁與建置資料；四個字型已與 Debian 對應成品逐位元組核對。重新部署網站或製作離線 ZIP 時，請完整保留 `docs/sources/` 與 `docs/licenses/`。GitHub 的 **Code → Download ZIP** 亦會包含這些檔案；請重新下載本次提交後的版本，先前已下載的舊包不會自動補入。
 
 ## 驗證範圍與已知限制
+
+### v8.5.3 點框畫面穩定
+
+跨尺寸測試涵蓋 320～1440px 共 15 種寬度：長檔名、辨識進度、錯誤訊息及方向提示更新時，圖片位置與大小保持穩定；521～1440px 的 8 種寬度另與修改前的主要區塊座標及尺寸逐項比對。390、768、1280px 均實際點框、執行 OCR、取消選取並檢查匯出。
+
+驗證結果見 [v8.5.3 測試報告](V8_5_3_LAYOUT_TEST_REPORT.json)。測試使用本機 Chrome 與合成圖片，沒有實體手機、平板或 Safari 驗證。可執行 `node tests/selection-layout.browser.cjs`；需要 Playwright／Chrome，並支援 `PLAYWRIGHT_MODULE` 與 `CHROME_BIN`。尚未提交時以 `BASELINE_REF=HEAD` 比對舊版；提交後預設比對 `HEAD^`。`BASELINE_CSS=1` 可確認同一測試會攔截舊版的版面位移。
 
 ### v8.5.2 放大候選行預設收合
 

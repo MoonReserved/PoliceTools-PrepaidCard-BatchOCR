@@ -1,6 +1,6 @@
 警政小工具-點數卡批次OCR辨識
 PoliceTools – Prepaid Card Batch OCR
-v8.5.2 · 放大候選行預設收合
+v8.5.3 · 點框畫面穩定
 
 這一包可用來本機啟動，也可上傳 GitHub。
 請先完整解壓縮 PoliceTools-PrepaidCard-BatchOCR.zip。
@@ -55,7 +55,7 @@ chmod u+x START_MAC.command
    Folder：/docs
    按 Save。
 6. 等待部署成功，開啟 Pages 設定頁顯示的 Visit site 網址。
-7. 確認頁尾顯示「v8.5.2 · 放大候選行預設收合」。
+7. 確認頁尾顯示「v8.5.3 · 點框畫面穩定」。
    等待「完整離線就緒」，用一張圖測試自動找框與點選辨識。
 
 本機啟動器可以一併留在 Repo。Pages 選 /docs 後只發布網站內容。

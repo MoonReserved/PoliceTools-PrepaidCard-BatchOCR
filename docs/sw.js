@@ -1,5 +1,5 @@
 'use strict';
-// v8.5.2 caches the collapsed candidate panel and its matching styles together.
+// v8.5.3 caches the stable selection layout with its matching page version.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.
