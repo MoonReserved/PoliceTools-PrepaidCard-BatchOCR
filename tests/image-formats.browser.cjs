@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 const path=require('node:path');
 const http=require('node:http');
-const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const playwright=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(__dirname,'../docs'),fixtures=path.join(__dirname,'fixtures/images');
 const csp=require('node:fs').readFileSync(path.join(root,'index.html'),'utf8').match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.wasm':'application/wasm'};
@@ -19,11 +19,16 @@ const server=http.createServer(async(req,res)=>{
   }catch{res.writeHead(404).end();}
 });
 function pass(name){checks.push(name);console.log('PASS',name);}
-async function payload(name,alias=name,type=''){return {name:alias,type,bytes:[...await fs.readFile(path.join(fixtures,name))]};}
+async function payload(name,alias=name,type=''){
+  // A deliberately incomplete container header exercises rejection without
+  // distributing an HEVC encoder, decoder or encoded image fixture.
+  const header=Buffer.alloc(24);header.writeUInt32BE(24);header.write('ftypheic',4);header.write('mif1heic',16);
+  return {name:alias,type,bytes:[...(name.endsWith('.heic')?header:await fs.readFile(path.join(fixtures,name)))]};
+}
 (async()=>{
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
   const origin=`http://127.0.0.1:${server.address().port}`;
-  browser=await chromium.launch({headless:true,...(process.env.CHROME_BIN?{executablePath:process.env.CHROME_BIN}:{})});
+  browser=await playwright[process.env.BROWSER||'chromium'].launch({headless:true,...(process.env.CHROME_BIN?{executablePath:process.env.CHROME_BIN}:{})});
   const context=await browser.newContext(),page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));
   context.on('request',req=>{if(/^https?:/.test(req.url())&&!req.url().startsWith(origin+'/'))external.push(req.url());if(!['GET','HEAD'].includes(req.method()))writes.push(req.method()+' '+req.url());});
@@ -43,18 +48,16 @@ async function payload(name,alias=name,type=''){return {name:alias,type,bytes:[.
     assert(g[1]>120&&g[0]<80&&g[2]<80,JSON.stringify(result));
     assert(b[2]>150&&b[0]<80&&b[1]<100,JSON.stringify(result));
   };
-  for(const name of ['serial.heic','serial-10bit.heic','primary.heic',...Array.from({length:7},(_,i)=>`orientation-${i+2}.heic`),
-    'rgb.tif','cmyk.tif','tiff_adobe_deflate.tif','packbits.tif','jpeg.tif',...Array.from({length:7},(_,i)=>`orientation-${i+2}.tif`)]){
+  for(const name of ['rgb.tif','cmyk.tif','tiff_adobe_deflate.tif','packbits.tif','jpeg.tif',...Array.from({length:7},(_,i)=>`orientation-${i+2}.tif`)]){
     const result=await page.evaluate(async p=>{const file=testFile(p),converted=await OfflineImage.prepare(file,await OfflineImage.identify(file));return {sample:await samples(converted.pages[0]),notice:converted.notice,count:converted.pages.length};},await payload(name));
     colourOK(result.sample);assert.equal(result.count,1);
-    if(name==='primary.heic')assert.match(result.notice,/主要照片/);
     pass(name+': full resolution, orientation and colour markers');
   }
   for(const name of ['gray.tif','fax4.tif']){
     const result=await page.evaluate(async p=>{const file=testFile(p),converted=await OfflineImage.prepare(file,await OfflineImage.identify(file));return samples(converted.pages[0]);},await payload(name));
     assert.deepEqual(result.size,[900,500]);pass(name+': grayscale/fax decoding');
   }
-  for(const [name,alias,type] of [['serial.png','extensionless',''],['serial.heic','PHONE.HEIF','application/octet-stream'],['serial.heic','wrong.jpg','image/jpeg'],['rgb.tif','SCAN.TIFF',''],['serial.avif','photo.avif','image/avif'],['serial.bmp','photo.bmp','image/bmp'],['serial.gif','photo.gif','image/gif']]){
+  for(const [name,alias,type] of [['serial.png','extensionless',''],['rgb.tif','SCAN.TIFF',''],['serial.avif','photo.avif','image/avif'],['serial.bmp','photo.bmp','image/bmp'],['serial.gif','photo.gif','image/gif']]){
     const result=await page.evaluate(async p=>{const file=testFile(p),converted=await OfflineImage.prepare(file,await OfflineImage.identify(file));return samples(converted.pages[0]);},await payload(name,alias,type));
     colourOK(result);pass(alias+': accepted with expected pixels');
   }
@@ -66,11 +69,33 @@ async function payload(name,alias=name,type=''){return {name:alias,type,bytes:[.
     await OfflineImage.prepare(svg,await OfflineImage.identify(svg));return results;
   });
   assert.deepEqual(native,['image/jpeg','image/webp']);pass('JPEG/JFIF, WebP and SVG decode');
+  for(const [alias,type] of [['PHONE.HEIF','application/octet-stream'],['wrong.jpg','image/jpeg']]){
+    const rejected=await page.evaluate(async p=>{const f=testFile(p),format=await OfflineImage.identify(f);try{await OfflineImage.prepare(f,format);return {format};}catch(e){return {format,error:e.message};}},await payload('serial.heic',alias,type));
+    assert.equal(rejected.format,'heif');assert.match(rejected.error,/授權.*Safari.*JPG／PNG/);pass(alias+': unsupported HEIC has licensing and local conversion guidance');
+  }
+  // Validate the native-result snapshot and <img> fallback using real PNG
+  // pixels. This does not claim to test actual HEIC decoding in this browser.
+  for(const fallback of [false,true]){
+    const result=await page.evaluate(async({p,fallback})=>{
+      const original=window.createImageBitmap;let calls=0;
+      if(fallback)window.createImageBitmap=(...args)=>++calls===1?Promise.reject(Error('Blob decoder unavailable')):original(...args);
+      try{const r=await OfflineImage.prepare(testFile(p),'heif');return {sample:await samples(r.pages[0]),type:r.pages[0].type,notice:r.notice};}
+      finally{window.createImageBitmap=original;}
+    },{p:await payload('serial.png'),fallback});
+    colourOK(result.sample);assert.equal(result.type,'image/png');assert.match(result.notice,/原生/);pass('Native result snapshot preserves full resolution and pixels'+(fallback?' through img fallback':''));
+  }
+  if(process.env.HEIC_FIXTURE_DIR){
+    for(const name of ['serial.heic','serial-10bit.heic']){
+      const p={name,bytes:[...await fs.readFile(path.join(process.env.HEIC_FIXTURE_DIR,name))]};
+      const result=await page.evaluate(async p=>{const f=testFile(p),r=await OfflineImage.prepare(f,await OfflineImage.identify(f));return samples(r.pages[0]);},p);
+      colourOK(result);pass(name+': actual native HEIC decoding (local fixture, not distributed)');
+    }
+  }
   const pages=await payload('pages.tiff');
   const tiff=await page.evaluate(async p=>{const f=testFile(p),r=await OfflineImage.prepare(f,'tiff');let error='';try{await OfflineImage.prepare(f,'tiff',{maxPages:1});}catch(e){error=e.code;}return {count:r.pages.length,first:await samples(r.pages[0]),error};},pages);
   assert.equal(tiff.count,2);colourOK(tiff.first);assert.equal(tiff.error,'PAGE_LIMIT');pass('Multipage TIFF and page limit before pixel allocation');
   // Real UI import, detector, original-resolution recognition, rotation/retry and export.
-  await page.locator('#image').setInputFiles(['serial.heic','pages.tiff'].map(name=>path.join(fixtures,name)));
+  await page.locator('#image').setInputFiles(['serial.png','pages.tiff'].map(name=>path.join(fixtures,name)));
   let s=await page.evaluate(()=>offlineOCRTest.whenIdle());
   assert.equal(s.files.length,3);assert(s.files.every(f=>f.status==='ready'&&f.boxes.length));
   assert.equal(await page.locator('.file-page').nth(1).textContent(),'TIFF 第 1／2 頁');
@@ -90,7 +115,7 @@ async function payload(name,alias=name,type=''){return {name:alias,type,bytes:[.
   const mixed=await page.evaluate(async inputs=>{
     await offlineOCRTest.addFiles(inputs.map(testFile));await offlineOCRTest.whenIdle();return {count:state.files.length,warning:document.getElementById('import-warning').textContent};
   },[damaged,badTIFF,{name:'camera.DNG',type:'image/dng',bytes:[1,2,3]},await payload('serial.png')]);
-  assert.equal(mixed.count,1);assert.match(mixed.warning,/3 個檔案未加入/);assert.match(mixed.warning,/RAW/);pass('Damaged HEIC/TIFF and RAW rejected while good files continue');
+  assert.equal(mixed.count,1);assert.match(mixed.warning,/3 個檔案未加入/);assert.match(mixed.warning,/RAW/);assert.match(mixed.warning,/授權.*Safari.*JPG／PNG/);pass('HEIC guidance, damaged TIFF and RAW rejected while good files continue');
   await page.evaluate(()=>offlineOCRTest.clear());
   // Keep 199 tiny native pages paused, then atomically reject an overflowing TIFF batch.
   const limit=await page.evaluate(async p=>{
@@ -109,20 +134,29 @@ async function payload(name,alias=name,type=''){return {name:alias,type,bytes:[.
   });
   assert.deepEqual(white,[255,255,255,255]);pass('Transparent PNG original-resolution OCR crop uses a white background');
   await page.evaluate(()=>offlineOCRTest.clear());
+  const nativeCancelled=await page.evaluate(async p=>{
+    const original=window.createImageBitmap;let release,started,closed=false;
+    const ready=new Promise(r=>started=r);
+    window.createImageBitmap=async(...args)=>{const bitmap=await original(...args);started();await new Promise(r=>release=r);const close=bitmap.close.bind(bitmap);bitmap.close=()=>{closed=true;close();};return bitmap;};
+    let cancelled=false;
+    try{const pending=OfflineImage.prepare(testFile(p),'heif',{isCancelled:()=>cancelled});await ready;cancelled=true;release();try{await pending;return {error:'',closed};}catch(e){return {error:e.message,closed};}}
+    finally{window.createImageBitmap=original;}
+  },await payload('serial.png'));
+  assert.match(nativeCancelled.error,/取消/);assert(nativeCancelled.closed);pass('Native import cancellation releases decoded bitmap');
   // Cancellation terminates an in-flight codec and the next batch can still import.
   const cancelled=await page.evaluate(async p=>{
     const NativeWorker=window.Worker;let started;const ready=new Promise(r=>started=r);
     window.Worker=class extends NativeWorker{constructor(url,...args){super(url,...args);if(String(url).includes('image-decoder'))started();}};
     try{const pending=offlineOCRTest.addFiles([testFile(p)]);await ready;await offlineOCRTest.clear();await pending;return state.files.length;}finally{window.Worker=NativeWorker;}
-  },await payload('serial.heic'));
-  assert.equal(cancelled,0);pass('Clear during HEIC conversion does not restore removed data');
+  },await payload('pages.tiff'));
+  assert.equal(cancelled,0);pass('Clear during TIFF conversion does not restore removed data');
   await context.setOffline(true);await page.reload();await page.evaluate(()=>offlineOCRTest.waitForCache());
-  await page.locator('#image').setInputFiles(['serial.heic','pages.tiff'].map(name=>path.join(fixtures,name)));
+  await page.locator('#image').setInputFiles(['serial.png','pages.tiff'].map(name=>path.join(fixtures,name)));
   s=await page.evaluate(()=>offlineOCRTest.whenIdle());assert.equal(s.files.length,3);assert(s.files.every(f=>f.status==='ready'&&f.boxes.length));
   await page.evaluate(()=>offlineOCRTest.selectBox(state.files[0].id,state.files[0].boxes.find(b=>b.box[1]>150).id));await page.evaluate(()=>offlineOCRTest.whenIdle());
-  assert.match(await page.evaluate(()=>offlineOCRTest.exportTXT()),/12345678901234/);pass('Offline reload, new HEIC/TIFF imports and actual OCR');
+  assert.match(await page.evaluate(()=>offlineOCRTest.exportTXT()),/12345678901234/);pass('Offline reload, new PNG/TIFF imports and actual OCR');
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.deepEqual(writes,[]);pass('No uncaught errors, external requests or uploads');
-  const report={status:'pass',release:'v8.6',browser:browser.version(),finished_utc:new Date().toISOString(),passed:checks.length,checks,uncaught_errors:errors,external_requests:external,http_write_requests:writes};
+  const report={status:'pass',release:'v8.6.2',browser:browser.version(),native_heic_tested:!!process.env.HEIC_FIXTURE_DIR,finished_utc:new Date().toISOString(),passed:checks.length,checks,uncaught_errors:errors,external_requests:external,http_write_requests:writes};
   if(process.env.REPORT_PATH)await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{await browser?.close();server.close();});

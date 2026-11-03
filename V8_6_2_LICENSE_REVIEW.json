@@ -1,0 +1,170 @@
+{
+  "release": "v8.6.2",
+  "reviewed_utc": "2026-11-03T03:58:24.489609+00:00",
+  "scope": "All distributed third-party runtime libraries, model weights, fonts, PDF resources and desktop launchers. Public license/provenance review; not a patent freedom-to-operate opinion.",
+  "removed": [
+    "HEVC libheif/libde265 browser bundle",
+    "Combined HEVC codec source archive",
+    "Retired LGPL notice files",
+    "HEVC-encoded synthetic fixtures and their generation dependency"
+  ],
+  "other_functions_removed": [],
+  "retained": [
+    {
+      "component": "PaddleOCR/RapidOCR models",
+      "license": "Apache-2.0",
+      "evidence": "Official RapidOCR README explicitly covers hosted ONNX conversions; both SHA-256 values occur in official model registry.",
+      "model_sha256": {
+        "docs/models/small6.onnx": "6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884",
+        "docs/models/det5.onnx": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae"
+      },
+      "notices": [
+        "PADDLEOCR_LICENSE.txt",
+        "RAPIDOCR_LICENSE.txt",
+        "THIRD_PARTY_NOTICES.txt",
+        "ASSET_SOURCES.txt"
+      ]
+    },
+    {
+      "component": "ONNX Runtime Web 1.23.2",
+      "license": "MIT plus bundled third-party licenses",
+      "evidence": "License and complete ThirdPartyNotices byte-identical to v1.23.2 upstream. Runtime bytes unchanged."
+    },
+    {
+      "component": "UTIF 588351078202eebccdb3ba996f5b98c640e4265a",
+      "license": "MIT plus Apache-2.0 for incorporated PDF.js JPEG decoder",
+      "evidence": "UTIF bytes match pinned source; Photopea MIT retained; Mozilla JPEG and supplemental Photopea UZIP notices added. No runtime change.",
+      "limitation": "UTIF upstream identifies PDFJS.JpegImage but does not identify its exact embedded PDF.js revision."
+    },
+    {
+      "component": "PDF.js 6.4.299 and packed dependencies",
+      "license": "Apache-2.0, MIT, BSD-family, CC0, GPLv2 with Liberation font exception; see individual notices",
+      "verified_pack_entries": 186,
+      "corresponding_font_source_zip_valid": true,
+      "font_source_members": 4,
+      "evidence": "Every packed asset matches recorded SHA-256; all component notices and Liberation source retained. Prior source/binary mapping is in PDFJS_ASSET_SOURCES.txt and LIBERATION_FONT_SOURCE.txt."
+    },
+    {
+      "component": "Noto Sans CJK TC Regular 2.004 WOFF subset",
+      "license": "OFL-1.1",
+      "evidence": "Full upstream OFL matches; copyright extracted from actual delivered font name table and added to visible notices. Font bytes unchanged."
+    },
+    {
+      "component": "Go 1.27.3 desktop launchers",
+      "license": "BSD-3-Clause and incorporated Go dependency licenses/patent grants",
+      "evidence": "Official LICENSE/PATENTS match; source and all four executable hashes match BUILD_INFO; dependency notices retained. No external Go modules."
+    }
+  ],
+  "official_license_matches": [
+    {
+      "source_name": "rapid-license",
+      "local_file": "docs/licenses/RAPIDOCR_LICENSE.txt",
+      "sha256": "3e0af25fdd06aa9586ae97adb00ea927ebe5a3805ac77d2d3a81ce5f55693333"
+    },
+    {
+      "source_name": "paddle-license",
+      "local_file": "docs/licenses/PADDLEOCR_LICENSE.txt",
+      "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e"
+    },
+    {
+      "source_name": "ort-license",
+      "local_file": "docs/licenses/ONNX_RUNTIME_LICENSE.txt",
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    {
+      "source_name": "ort-notices",
+      "local_file": "docs/licenses/ONNX_RUNTIME_THIRD_PARTY_NOTICES.txt",
+      "sha256": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc"
+    },
+    {
+      "source_name": "go-license",
+      "local_file": "local-server/LICENSE_GO.txt",
+      "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+    },
+    {
+      "source_name": "go-patents",
+      "local_file": "local-server/PATENTS_GO.txt",
+      "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+    }
+  ],
+  "upstream_fetches": [
+    {
+      "name": "rapid-readme",
+      "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/main/README.md",
+      "bytes": 11938,
+      "sha256": "7bc89a454369b04f055731f1a66266de1ba1c6627af372884f37e4bccb84e90b"
+    },
+    {
+      "name": "rapid-license",
+      "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/main/LICENSE",
+      "bytes": 11422,
+      "sha256": "3e0af25fdd06aa9586ae97adb00ea927ebe5a3805ac77d2d3a81ce5f55693333"
+    },
+    {
+      "name": "rapid-registry",
+      "url": "https://raw.githubusercontent.com/RapidAI/RapidOCR/main/python/rapidocr/default_models.yaml",
+      "bytes": 85382,
+      "sha256": "90e0159dead16c21adbf000014a46043c981ae097f041d92d8b19a52c2f2ed9a"
+    },
+    {
+      "name": "paddle-license",
+      "url": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/LICENSE",
+      "bytes": 11376,
+      "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e"
+    },
+    {
+      "name": "paddle-readme",
+      "url": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/README.md",
+      "bytes": 25918,
+      "sha256": "63d76041f1dcb84e1dd141d45dc8dec5d86a3e357fe98bf8432ad2721c0ced90"
+    },
+    {
+      "name": "uzip-license",
+      "url": "https://raw.githubusercontent.com/photopea/UZIP.js/master/LICENSE",
+      "bytes": 1065,
+      "sha256": "786adae9320db47cd483f9a8774ebd3edab8876d714caa4fb0aee8e5b2c3edc0"
+    },
+    {
+      "name": "noto-license",
+      "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/LICENSE",
+      "bytes": 4301,
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2"
+    },
+    {
+      "name": "ort-license",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.23.2/LICENSE",
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    {
+      "name": "ort-notices",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.23.2/ThirdPartyNotices.txt",
+      "bytes": 326866,
+      "sha256": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc"
+    },
+    {
+      "name": "go-license",
+      "url": "https://raw.githubusercontent.com/golang/go/go1.27.3/LICENSE",
+      "bytes": 1453,
+      "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad"
+    },
+    {
+      "name": "go-patents",
+      "url": "https://raw.githubusercontent.com/golang/go/go1.27.3/PATENTS",
+      "bytes": 1303,
+      "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc"
+    }
+  ],
+  "source_metadata_limitations": [
+    "RapidOCR README links MODEL_LICENSES.md, which returned 404 during this review; model licensing relies on its explicit README policy, upstream PaddleOCR license and matching official registry hashes.",
+    "No claim of universal patent clearance or security defect absence is made."
+  ],
+  "github_inventory_before_commit": {
+    "branches": [
+      "main"
+    ],
+    "tags": [],
+    "releases": [],
+    "history_cleanup": "Separate review required; a deletion commit alone does not remove old Git objects."
+  }
+}

@@ -27,8 +27,28 @@
   }
   async function identify(file){return classify(file,new Uint8Array(await file.slice(0,512).arrayBuffer()));}
   function checkSize(width,height){
-    if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1||!Number.isSafeInteger(width*height))throw Error('圖片尺寸無效或檔案已損毀。');
-    if(width*height>MAX_PIXELS)throw Error('圖片超過 8,000 萬像素，請先另存較小版本。');
+    let message='';
+    if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1||!Number.isSafeInteger(width*height))message='圖片尺寸無效或檔案已損毀。';
+    else if(width*height>MAX_PIXELS)message='圖片超過 8,000 萬像素，請先另存較小版本。';
+    if(message){const error=Error(message);error.code='IMAGE_SIZE';throw error;}
+  }
+  async function nativeHeif(file,isCancelled){
+    let bitmap;
+    try{bitmap=await decode(file);}
+    catch(error){
+      if(error.code==='IMAGE_SIZE')throw error;
+      throw Error('目前瀏覽器無法讀取此 HEIC／HEIF 照片，或檔案已損毀。因 HEVC 專利授權適用範圍尚未確認，本工具未內附 HEVC 解碼器。請改用支援 HEIC 的新版 Safari（Safari 17 起提供支援，仍依裝置與檔案而定），或用裝置內建／可信任的本機轉檔程式另存為 JPG／PNG 後再加入；僅更改副檔名無法轉檔。');
+    }
+    const canvas=document.createElement('canvas');
+    try{
+      if(isCancelled())throw Error('已取消圖片匯入。');
+      canvas.width=bitmap.width;canvas.height=bitmap.height;
+      canvas.getContext('2d').drawImage(bitmap,0,0);
+      // Keep one native-decoded snapshot for preview, rotation and OCR.
+      const png=await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error('圖片轉換失敗，請先另存為 JPG／PNG。')),'image/png'));
+      if(isCancelled())throw Error('已取消圖片匯入。');
+      return {pages:[png],notice:'HEIC／HEIF 由瀏覽器原生讀取單張影像；多圖檔的其餘影像與 Live Photo 影片請另行匯出。'};
+    }finally{bitmap.close();canvas.width=canvas.height=0;}
   }
   async function decode(file){
     let bitmap;
@@ -63,7 +83,8 @@
     if(format==='bigtiff')throw Error('尚不支援 BigTIFF，請先另存為一般 TIFF、PNG 或 PDF。');
     if(format==='unknown')throw Error('請選擇可讀取的圖片或 PDF；特殊格式請先另存為 JPG／PNG。');
     if(isCancelled())throw Error('已取消圖片匯入。');
-    if(format==='heif'||format==='tiff')return convert(file,format,maxPages,isCancelled);
+    if(format==='heif')return nativeHeif(file,isCancelled);
+    if(format==='tiff')return convert(file,format,maxPages,isCancelled);
     const bitmap=await decode(file);bitmap.close();
     return {pages:[file],notice:''};
   }

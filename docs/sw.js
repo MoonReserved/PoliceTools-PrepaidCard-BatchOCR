@@ -1,5 +1,5 @@
 'use strict';
-// v8.6.1 excludes lowercase i from unconditional review warnings.
+// v8.6.2 uses native HEIC decoding and retires bundled HEVC assets.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.

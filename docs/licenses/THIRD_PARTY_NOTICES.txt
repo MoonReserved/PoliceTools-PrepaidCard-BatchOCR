@@ -1,0 +1,89 @@
+Third-party notices supplement — v8.6.2 (2026-11-03)
+
+This file supplements, and does not replace, the full licenses distributed
+alongside this file. No third-party copyright is assigned to this app's author.
+An open-source copyright license is not a warranty against all third-party
+patent claims. No HEVC decoder is included in this release.
+
+1. OCR models and conversion
+Upstream model weights: Baidu and/or the respective PaddleOCR rights holders.
+Conversion and engineering: Copyright RapidOCR Authors.
+Licenses: PADDLEOCR_LICENSE.txt and RAPIDOCR_LICENSE.txt (Apache-2.0).
+RapidOCR explicitly states that its hosted PaddleOCR-derived models and ONNX
+conversions are redistributed under the same upstream Apache-2.0 terms:
+https://github.com/RapidAI/RapidOCR/blob/main/README.md#%EF%B8%8F-license
+https://github.com/PaddlePaddle/PaddleOCR/blob/main/LICENSE
+Model download sources, hashes and preprocessing changes: ASSET_SOURCES.txt.
+The model bytes are unchanged. The character dictionary is extracted from
+model metadata; local JavaScript preprocessing and integration are separate.
+
+2. ONNX Runtime Web 1.23.2
+Copyright (c) Microsoft Corporation. All rights reserved.
+License: ONNX_RUNTIME_LICENSE.txt (MIT).
+Retain ONNX_RUNTIME_THIRD_PARTY_NOTICES.txt for its incorporated components.
+https://github.com/microsoft/onnxruntime/tree/v1.23.2
+
+3. UTIF.js and its incorporated image decoding code
+UTIF: Copyright (c) 2017 Photopea. License: UTIF_LICENSE.txt (MIT).
+https://github.com/photopea/UTIF.js/tree/588351078202eebccdb3ba996f5b98c640e4265a
+
+JPEG decoder: Copyright 2014 Mozilla Foundation.
+Licensed under the Apache License, Version 2.0; full text: PDFJS_LICENSE.txt.
+The UTIF source references PDFJS.JpegImage and contains an adapted/minified
+PDF.js JPEG decoder. No exact PDF.js revision is declared by UTIF upstream;
+we do not describe it as the version of PDF.js used for this app's PDF reader.
+Reference source and license header:
+https://github.com/mozilla/pdf.js/blob/v6.4.299/src/core/jpg.js
+Upstream modifications are included as distributed by Photopea; this app
+has not modified the bundled UTIF.js bytes.
+
+Supplemental DEFLATE attribution, Photopea UZIP.js:
+https://github.com/photopea/UZIP.js/blob/master/LICENSE
+MIT License
+
+Copyright (c) 2018 Photopea
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+4. PDF.js 6.4.299 and PDF resources
+Copyright Mozilla Foundation and contributors; Apache-2.0.
+Full license: PDFJS_LICENSE.txt.
+PDFJS_THIRD_PARTY_LICENSES.txt retains the separate notices for Adobe CMaps,
+Foxit/PDFium fonts, Liberation fonts, the CC0 ICC profile, PDFium JBIG2,
+OpenJPEG, Mozilla decoder wrappers, qcms, core-js and Brotli.
+Resources and modifications: PDFJS_ASSET_SOURCES.txt.
+Liberation Sans 1.07.4: GPLv2 with the Liberation font exception.
+The full corresponding source and Debian patches remain in
+../sources/liberation-fonts-1.07.4-11-source.zip (see LIBERATION_FONT_SOURCE.txt).
+
+5. Noto Sans CJK TC Regular 2.004
+© 2014-2021 Adobe (http://www.adobe.com/).
+License: NOTO_FONT_OFL.txt (SIL Open Font License 1.1).
+Copyright/version above is retained from the distributed font's name table.
+This application distributes a WOFF subset for its user interface, not a
+standalone font product. Subsetting is the local modification.
+https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE
+
+6. Desktop local server (repository download only)
+Go 1.27.3 runtime and standard library: Copyright The Go Authors.
+The server has no third-party Go modules; the incorporated Go components'
+BSD, patent grants and other notices are retained in the repository:
+local-server/LICENSE_GO.txt, local-server/PATENTS_GO.txt,
+local-server/THIRD_PARTY_NOTICES.txt and local-server/BUILD_INFO.json.
+The launcher files are not downloaded by the hosted website.

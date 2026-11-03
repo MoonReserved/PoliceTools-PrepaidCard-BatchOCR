@@ -18,17 +18,6 @@ async function png(data,width,height,orientation=1){
     return await output.convertToBlob({type:'image/png'});
   }finally{raw.width=raw.height=0;if(output!==raw)output.width=output.height=0;}
 }
-async function heif(buffer,maxPixels){
-  importScripts('image-codecs/libheif-bundle.js');
-  const lib=await libheif(),decoder=new lib.HeifDecoder(),images=decoder.decode(new Uint8Array(buffer));
-  if(!images.length)throw Error('HEIC／HEIF 檔案損毀或使用不支援的編碼，請另存為 JPG／PNG。');
-  try{
-    const image=images.find(item=>item.is_primary())||images[0],width=image.get_width(),height=image.get_height();
-    dimensions(width,height,maxPixels);
-    const data=await new Promise((resolve,reject)=>image.display({width,height,data:new Uint8ClampedArray(width*height*4)},result=>result?resolve(result.data):reject(Error('無法解碼 HEIC／HEIF，請另存為 JPG／PNG。'))));
-    return {pages:[await png(data,width,height)],notice:images.length>1?'HEIC／HEIF 含多張影像，本次讀取主要照片；其餘影像請另存後加入。':''};
-  }finally{for(const image of images)image.free();}
-}
 async function tiff(buffer,maxPixels,maxPages){
   self.window=self; // UTIF checks optional window.UDOC for CMYK colour profiles.
   importScripts('image-codecs/UTIF.js');
@@ -55,7 +44,8 @@ async function tiff(buffer,maxPixels,maxPages){
 }
 self.onmessage=async({data:{file,format,maxPages,maxPixels}})=>{
   try{
+    if(format!=='tiff')throw Error('此背景轉換器僅支援 TIFF，請先另存為 JPG／PNG。');
     const buffer=await file.arrayBuffer();
-    self.postMessage(await (format==='heif'?heif(buffer,maxPixels):tiff(buffer,maxPixels,maxPages)));
+    self.postMessage(await tiff(buffer,maxPixels,maxPages));
   }catch(error){self.postMessage({error:error.message||'圖片轉換失敗，請另存為 JPG／PNG。',code:error.code||''});}
 };

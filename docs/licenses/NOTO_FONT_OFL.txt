@@ -1,3 +1,7 @@
+Noto Sans CJK TC Regular 2.004 — local WOFF subset
+© 2014-2021 Adobe (http://www.adobe.com/).
+Copyright retained from the distributed font metadata. Original license follows.
+
 This Font Software is licensed under the SIL Open Font License,
 Version 1.1.
 

@@ -31,3 +31,10 @@ test('unsupported formats give actionable errors without a worker',async()=>{
   for(const [format,message] of [['raw',/RAW/],['bigtiff',/BigTIFF/],['unknown',/JPG／PNG/]])await assert.rejects(image.prepare({},format),message);
   await assert.rejects(image.prepare({},'native',{isCancelled:()=>true}),/取消/);
 });
+test('oversized native HEIC releases its bitmap and keeps the size error',async()=>{
+  let closed=false;
+  const context={createImageBitmap:async()=>({width:10000,height:8001,close(){closed=true;}})};
+  require('node:vm').runInNewContext(require('node:fs').readFileSync(require('node:path').join(__dirname,'../docs/image-source.js'),'utf8'),context);
+  await assert.rejects(context.OfflineImage.prepare({},'heif'),error=>error.code==='IMAGE_SIZE'&&/8,000 萬/.test(error.message)&&!/授權/.test(error.message));
+  assert(closed);
+});

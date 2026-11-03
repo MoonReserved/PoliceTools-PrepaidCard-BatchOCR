@@ -9,13 +9,13 @@
 
 工具以減少逐張框選、反覆切換圖片及手動輸入為目標。圖片、PDF 與序號辨識都在使用者的裝置內處理，不需要雲端 OCR、API Key 或使用者帳號。
 
-**目前版本：v8.6.1 · 小寫 i 警示調整**
+**目前版本：v8.6.2 · 原生照片讀取與授權揭示**
 
 更新日期：2026-11-03
 
 v8.6.1 將小寫 `i`（含全形 `ｉ`）移出主動警示；仍保留單字分數低於 0.80、四個候選文字分歧，以及 `I／l／1／O／0` 的提醒。
 
-v8.6 新增 HEIC／HEIF 本機解碼及多頁 TIFF 匯入；支援缺少 MIME、大小寫副檔名及常見圖片格式，匯入前會檢查可否解碼，個別損毀檔不影響同批其他圖片。預覽、旋轉與高解析度 OCR 裁切共用同一份完整尺寸影像，透明圖片裁切使用白底。解碼器、授權及對應原始碼全部納入離線資源。
+v8.6.2 撤除內附 HEVC 解碼器與其原始碼下載包；HEIC／HEIF 改由瀏覽器原生讀取，無法讀取時說明授權考量並提示使用支援 HEIC 的新版 Safari 或本機轉存 JPG／PNG。保留多頁 TIFF、PDF 與原有 OCR 功能，補齊 TIFF 內附 JPEG 解碼、模型及字型著作權揭示。升級時會清除本專案舊版離線快取；未重新連網更新的舊版副本不會自動消失。
 
 v8.5.3 固定辨識狀態列的顯示高度，避免長檔名與進度文字換行時推動圖片；手機另為旋轉狀態預留一列，平板與電腦維持原有欄位配置。過長的狀態或錯誤訊息可在狀態列內捲動查看。
 
@@ -135,7 +135,7 @@ v8.3 新增自訂旋轉角度與歪斜警語。每次旋轉會清除目前頁面
 
 | 項目 | 說明 |
 | --- | --- |
-| HEIC／HEIF／HIF | 在本機背景解碼成完整尺寸 PNG；保留容器方向，讀取主要照片。多圖檔會提示只讀取主要照片；不展開 Live Photo 影片 |
+| HEIC／HEIF／HIF | 僅使用瀏覽器原生解碼，讀取成功後保存為完整尺寸 PNG 供辨識；不內附 HEVC 解碼器。Safari 17 起有 HEIC 支援，實際仍依裝置與檔案而定。多圖檔只取瀏覽器提供的單張影像，不展開 Live Photo 影片 |
 | TIFF／TIF | 支援一般 RGB、灰階、黑白、CMYK 掃描檔與常見壓縮（LZW、Deflate、PackBits、JPEG、CCITT Fax）；多頁自動拆開，保留頁碼與方向 |
 | JPG／JPEG／JFIF、PNG、WebP、AVIF、GIF、BMP、SVG | 使用瀏覽器原生解碼並在匯入前驗證；動態圖片讀取首張。若瀏覽器不支援該編碼，會提示改存 JPG／PNG |
 | 相機 RAW／DNG、BigTIFF、特殊 TIFF 編碼 | 顯示明確提示，請先用照片軟體匯出 JPG／PNG 或一般 TIFF／PDF；不會把感光原始資料誤當一般圖片 |
@@ -146,7 +146,9 @@ v8.3 新增自訂旋轉角度與歪斜警語。每次旋轉會清除目前頁面
 | 單批程式上限 | 200 張／頁，包含目前佇列中的頁面 |
 | 單一檔案上限 | 50 MiB，約 52.4 MB |
 
-一張圖片或一頁 PDF／TIFF 各算一個處理單位。程式會逐頁處理，PDF 各頁共用原始檔案，並按需要繪製頁面。HEIC／TIFF 在匯入時於裝置內轉成無損 PNG，原始檔案不會修改；轉換後可能比原檔占用更多記憶體，手機建議先以少量照片試用。每張圖片上限 8,000 萬像素。
+一張圖片或一頁 PDF／TIFF 各算一個處理單位。程式會逐頁處理，PDF 各頁共用原始檔案，並按需要繪製頁面。瀏覽器可讀的 HEIC 與 TIFF 在匯入時於裝置內轉成 PNG，原始檔案不會修改；這是供 OCR 使用的畫面副本，不保證保留 HDR、色深或所有中繼資料。轉換後可能比原檔占用更多記憶體，手機建議先以少量照片試用。每張圖片上限 8,000 萬像素。
+
+若 HEIC 無法讀取，請改用支援 HEIC 的新版 Safari，或用 Apple「預覽程式／照片」等可信任的本機工具匯出 JPG／PNG；僅改副檔名不會轉檔。iPhone「設定 → 相機 → 格式 → 最相容」可讓新照片使用 JPEG，但不會轉換既有照片。[Apple 官方轉檔說明](https://support.apple.com/en-gb/116944)；[Safari 17 原生 HEIC 支援](https://developer.apple.com/documentation/safari-release-notes/safari-17-release-notes)。本工具不支援匯入 HEVC 影片。
 
 上述建議量不是裝置效能保證。圖片解析度、PDF 內容、可用記憶體及瀏覽器都會影響負荷；手機發熱或操作變慢時，請先匯出已完成結果，再分批繼續。
 
@@ -187,6 +189,8 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 | `V8_2_ROTATION_TEST_REPORT.json` | v8.2 旋轉功能與 EXIF 方向驗證摘要 |
 | `V8_3_ROTATION_TEST_REPORT.json` | v8.3 清框重掃與自訂角度驗證摘要 |
 | `V8_6_1_REVIEW_TEST_REPORT.json` | v8.6.1 小寫 i 警示調整、功能回歸與離線升級驗證 |
+| `V8_6_2_TEST_REPORT.json` | v8.6.2 原生 HEIC、Safari 實測、既有功能與快取清理驗證 |
+| `V8_6_2_LICENSE_REVIEW.json` | 第三方元件授權核對、來源與移除範圍 |
 | `V8_5_3_LAYOUT_TEST_REPORT.json` | v8.5.3 跨裝置點框穩定、原版面比對與功能回歸驗證 |
 | `V8_5_2_CANDIDATE_TEST_REPORT.json` | v8.5.2 候選行收合、瀏覽器回歸與離線快取升級驗證 |
 | `V8_5_1_REVIEW_TEST_REPORT.json` | v8.5.1 大小寫警示規則、瀏覽器回歸與離線快取升級驗證 |
@@ -206,7 +210,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 3. 開啟解壓後的專案資料夾，將裡面的全部檔案與子資料夾拖進上傳區，包含 `docs`、`local-server`、兩個啟動器及 README。
 4. 檢查清單中有 `docs/index.html`，等全部檔案上傳完成，再提交變更。已有預設 README 時，以本包的 README 取代。
 5. 進入 **Settings → Pages**，選 **Source：Deploy from a branch**、**Branch：main**、**Folder：/docs**，按 **Save**。
-6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.6.1 · 小寫 i 警示調整**」。
+6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.6.2 · 原生照片讀取與授權揭示**」。
 7. 等待「完整離線就緒」，加入一張圖片，確認能自動出框；點框後再確認能產生序號。
 
 若帳號仍為 `MoonReserved`，且 Repo 使用上述名稱，**預期**網址為 [https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/](https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/)。這只是依命名推算的網址，不代表網站已替你部署；請以 GitHub Pages 設定頁顯示的網址為準。
@@ -301,8 +305,7 @@ py -3 serve.py
 | PaddleOCR | 序號辨識 | PP-OCRv6 small | [Apache License 2.0](docs/licenses/PADDLEOCR_LICENSE.txt) |
 | RapidOCR | ONNX 模型轉換來源與前處理參考 | 隨附模型來源見資產說明 | [Apache License 2.0](docs/licenses/RAPIDOCR_LICENSE.txt) |
 | ONNX Runtime Web | 瀏覽器內 WebAssembly 推論 | 1.23.2 | [MIT License](docs/licenses/ONNX_RUNTIME_LICENSE.txt) |
-| libheif-js／libheif、libde265 | HEIC／HEIF 本機解碼 | 1.23.5、1.0.15 | [LGPLv3](docs/licenses/LIBHEIF_LICENSE.txt)、[libde265 授權](docs/licenses/LIBDE265_LICENSE.txt)；[對應原始碼與建置腳本](docs/sources/image-codecs-source.zip) |
-| UTIF | TIFF 解碼 | 固定提交 588351078202eebccdb3ba996f5b98c640e4265a | [MIT](docs/licenses/UTIF_LICENSE.txt)；[版本來源與雜湊](docs/licenses/IMAGE_CODECS.txt) |
+| UTIF | TIFF 解碼 | 固定提交 588351078202eebccdb3ba996f5b98c640e4265a | Photopea MIT；內附 PDF.js JPEG 解碼另適用 Apache-2.0。[MIT](docs/licenses/UTIF_LICENSE.txt)、[內附元件揭示](docs/licenses/THIRD_PARTY_NOTICES.txt)、[版本來源與雜湊](docs/licenses/IMAGE_CODECS.txt) |
 | PDF.js | PDF 解析與逐頁繪製 | 6.4.299 | [Apache License 2.0](docs/licenses/PDFJS_LICENSE.txt) |
 | core-js、Brotli | PDF.js 內含的相容性與解碼元件 | core-js 3.50.0；Brotli 隨 PDF.js 6.4.299 | [完整 MIT 授權與著作權聲明](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt) |
 | Liberation Sans | PDF 支援字型 | 1.07.4；成品與 Debian 1:1.07.4-11 一致 | [GPLv2 與字型例外](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt)；[完整對應原始碼](docs/sources/liberation-fonts-1.07.4-11-source.zip) |
@@ -311,6 +314,7 @@ py -3 serve.py
 
 其他第三方聲明與來源：
 
+- [著作權、模型與內附元件補充揭示](docs/licenses/THIRD_PARTY_NOTICES.txt)
 - [ONNX Runtime 第三方聲明](docs/licenses/ONNX_RUNTIME_THIRD_PARTY_NOTICES.txt)
 - [PDF.js 支援資源的第三方授權](docs/licenses/PDFJS_THIRD_PARTY_LICENSES.txt)
 - [OCR 模型、執行環境與字型來源](docs/licenses/ASSET_SOURCES.txt)
@@ -325,11 +329,21 @@ Liberation 字型原始碼直接隨附於 `docs/sources/liberation-fonts-1.07.4-
 
 ## 驗證範圍與已知限制
 
+### v8.6.2 原生照片讀取與授權揭示
+
+移除內附 HEVC 解碼器、其原始碼 ZIP 與 HEVC 編碼測試圖片；保留 TIFF、PDF、OCR 與啟動器。補上 UTIF 內附 PDF.js JPEG 解碼的 Apache 授權揭示、Photopea 壓縮程式署名、模型權利來源及 Noto 字型著作權。授權核對是公開來源、授權條文與檔案雜湊的核對，不是逐項專利侵權鑑定，也不保證所有第三方權利毫無爭議；上游未標示 UTIF 內附 JPEG 程式的確切 PDF.js 修訂版，已在揭示中註明。
+
+23 項單元／發行檔檢查、Chrome 34 項圖片格式檢查、26 項功能回歸、26 項響應式版面檢查及 7 項離線升級檢查通過。另在 macOS Safari 26.5.2 通過 17 項實測，包含真正的 8-bit／10-bit HEIC、八種方向、缺少或錯誤 MIME、HEIC 與多頁 TIFF 混合匯入、實際 OCR、旋轉與失敗提示。Safari 使用的合成 HEIC 僅留在測試環境，不隨 GitHub 發布。未在實體 iPhone、Safari 17 或 Firefox 驗證。[完整測試報告](V8_6_2_TEST_REPORT.json)；[授權核對紀錄](V8_6_2_LICENSE_REVIEW.json)。
+
+Safari 測試先執行 `safaridriver --port 4445`，再設定本機 `HEIC_FIXTURE_DIR` 執行 `python3 tests/safari-native.browser.py`。測試須在系統已允許 Safari 遠端自動化的環境進行。一般 Chrome 測試不需要 HEIC 解碼套件。
+
 ### v8.6.1 小寫 i 警示調整
 
 19 項單元測試、26 項瀏覽器回歸檢查與 6 項離線升級檢查全部通過。驗證小寫 `i／ｉ` 高分且候選一致時不提醒、剛好 0.80 不提醒、低於門檻或四候選文字分歧仍提醒；`I／l／1／O／0` 與對應全形字元繼續主動警示。另涵蓋手動編輯、採用候選、核對、匯出、實際圖片／PDF OCR、旋轉，以及 v8.6 → v8.6.1 快取更新與離線重開。結果見 [v8.6.1 測試報告](V8_6_1_REVIEW_TEST_REPORT.json)；本次使用 macOS Chrome 與響應式視窗，未測試 Safari、Firefox 或實體手機。
 
 ### v8.6 HEIC／TIFF 圖片支援
+
+以下為舊版歷史測試；v8.6.2 已改為原生 HEIC 讀取，不再附帶當時的 HEVC 解碼器與測試圖片。
 
 測試涵蓋真正編碼的 8-bit／10-bit HEIC、HEIF 主要照片、HEIC／TIFF 八種方向、彩色／灰階／黑白 TIFF、JPEG／LZW／Deflate／PackBits／Fax 壓縮、多頁 TIFF、缺少或錯誤 MIME、JPG／JFIF、PNG、WebP、AVIF、GIF、BMP、SVG。另驗證實際 OCR、旋轉後重試、透明圖片白底裁切、損毀檔隔離、200 頁上限、轉換中清空與離線新匯入。完整結果見 [v8.6 測試報告](V8_6_IMAGE_FORMAT_TEST_REPORT.json)。
 

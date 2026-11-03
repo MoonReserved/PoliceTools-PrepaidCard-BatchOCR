@@ -1,0 +1,328 @@
+{
+  "release": "v8.6.2",
+  "status": "pass",
+  "finished_utc": "2026-11-03T03:58:24.492242+00:00",
+  "total_checks": 133,
+  "suites": {
+    "formats": {
+      "status": "pass",
+      "release": "v8.6.2",
+      "browser": "156.0.8078.74",
+      "native_heic_tested": false,
+      "finished_utc": "2026-11-03T03:53:56.064Z",
+      "passed": 34,
+      "checks": [
+        "rgb.tif: full resolution, orientation and colour markers",
+        "cmyk.tif: full resolution, orientation and colour markers",
+        "tiff_adobe_deflate.tif: full resolution, orientation and colour markers",
+        "packbits.tif: full resolution, orientation and colour markers",
+        "jpeg.tif: full resolution, orientation and colour markers",
+        "orientation-2.tif: full resolution, orientation and colour markers",
+        "orientation-3.tif: full resolution, orientation and colour markers",
+        "orientation-4.tif: full resolution, orientation and colour markers",
+        "orientation-5.tif: full resolution, orientation and colour markers",
+        "orientation-6.tif: full resolution, orientation and colour markers",
+        "orientation-7.tif: full resolution, orientation and colour markers",
+        "orientation-8.tif: full resolution, orientation and colour markers",
+        "gray.tif: grayscale/fax decoding",
+        "fax4.tif: grayscale/fax decoding",
+        "extensionless: accepted with expected pixels",
+        "SCAN.TIFF: accepted with expected pixels",
+        "photo.avif: accepted with expected pixels",
+        "photo.bmp: accepted with expected pixels",
+        "photo.gif: accepted with expected pixels",
+        "JPEG/JFIF, WebP and SVG decode",
+        "PHONE.HEIF: unsupported HEIC has licensing and local conversion guidance",
+        "wrong.jpg: unsupported HEIC has licensing and local conversion guidance",
+        "Native result snapshot preserves full resolution and pixels",
+        "Native result snapshot preserves full resolution and pixels through img fallback",
+        "Multipage TIFF and page limit before pixel allocation",
+        "serial.png: actual OCR, rotation, saved crop retry and clean export",
+        "pages.tiff: actual OCR, rotation, saved crop retry and clean export",
+        "HEIC guidance, damaged TIFF and RAW rejected while good files continue",
+        "200-page cap remains atomic with TIFF and existing queue",
+        "Transparent PNG original-resolution OCR crop uses a white background",
+        "Native import cancellation releases decoded bitmap",
+        "Clear during TIFF conversion does not restore removed data",
+        "Offline reload, new PNG/TIFF imports and actual OCR",
+        "No uncaught errors, external requests or uploads"
+      ],
+      "uncaught_errors": [],
+      "external_requests": [],
+      "http_write_requests": []
+    },
+    "regression": {
+      "offline_run_metrics": {
+        "activeWorkerRequests": 0,
+        "maxActiveWorkerRequests": 1,
+        "detectStarted": 6,
+        "recognizeStarted": 2,
+        "completedJobs": 8
+      },
+      "offline_pdf_metrics": {
+        "openedDocuments": 1,
+        "activeDocuments": 1,
+        "maxActiveDocuments": 1,
+        "pageRenders": 5,
+        "cropRenders": 1,
+        "activeRenders": 0,
+        "maxActiveRenders": 1,
+        "maxCanvasPixels": 3276800,
+        "pendingJobs": 0,
+        "pdfjsVersion": "6.4.299",
+        "retainedSources": 1,
+        "closingDocuments": 0,
+        "activeSourceId": "pdf1",
+        "generation": 0
+      },
+      "user_screen_regression_tested": false,
+      "private_input_published": false,
+      "source_sha256": {
+        "ocr-review.js": "d8c6f8c4ca3fdc636df559bb778f114f3632e8668d2e44c479b50d98da8d1a5b",
+        "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+        "app.js": "3f263848d9438aaa8f829ad7723a80f2663029cd88a248290a8d645b955fce84",
+        "pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+        "index.html": "7f444c8f364640564ac431d887320390a214710d3e59db9f4d6043b3c2dcf2d4",
+        "styles.css": "bcd6064b17cf43a8982da6d4d525364cc91e07d8b02f5a2329a6f239855117c3",
+        "offline-assets.js": "ba1abf543d6de1ceac520aa513a7dd29694517f64dbf11ade0da7910d7f7c66f",
+        "review-guide.html": "06b070cb5c2e3ec965a2cbb9fb7003b37441a77c1508a4aec988c464bea61f0b",
+        "review-guide.css": "92c1acbaa4db4c484ad3455b5d312e90920ed81defc28ec2891cc46c03dd894d"
+      },
+      "release": "v8.6.2",
+      "status": "pass",
+      "finished_utc": "2026-11-03T03:54:54.078Z",
+      "browser": {
+        "name": "Chrome",
+        "version": "156.0.8078.74",
+        "host": "darwin"
+      },
+      "passed": 26,
+      "failed": 0,
+      "checks": [
+        {
+          "name": "Empty controls and complete v8.6.2 project-scoped offline cache",
+          "status": "pass"
+        },
+        {
+          "name": "Mixed image and two-page PDF import with real detection and OCR",
+          "status": "pass"
+        },
+        {
+          "name": "Single-character warning, per-candidate scores and mobile layout",
+          "status": "pass"
+        },
+        {
+          "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+          "status": "pass"
+        },
+        {
+          "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+          "status": "pass"
+        },
+        {
+          "name": "Case-sensitive ambiguity, live edits and adoption keep warnings accurate without changing output",
+          "status": "pass"
+        },
+        {
+          "name": "Retry replaces low-score and disagreement data while preserving the 0/1 reminder",
+          "status": "pass"
+        },
+        {
+          "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+          "status": "pass"
+        },
+        {
+          "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+          "status": "pass"
+        },
+        {
+          "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+          "status": "pass"
+        },
+        {
+          "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+          "status": "pass"
+        },
+        {
+          "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+          "status": "pass"
+        },
+        {
+          "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+          "status": "pass"
+        },
+        {
+          "name": "390px controls fit the page and remain usable",
+          "status": "pass"
+        },
+        {
+          "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+          "status": "pass"
+        },
+        {
+          "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+          "status": "pass"
+        },
+        {
+          "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+          "status": "pass"
+        },
+        {
+          "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+          "status": "pass"
+        },
+        {
+          "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+          "status": "pass"
+        },
+        {
+          "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+          "status": "pass"
+        },
+        {
+          "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+          "status": "pass"
+        },
+        {
+          "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+          "status": "pass"
+        },
+        {
+          "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+          "status": "pass"
+        },
+        {
+          "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+          "status": "pass"
+        },
+        {
+          "name": "Fact-check guide opens offline in a separate tab without losing work and fits mobile",
+          "status": "pass"
+        },
+        {
+          "name": "No uncaught errors, external requests or write requests",
+          "status": "pass"
+        }
+      ],
+      "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+      "limits": [
+        "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+        "Synthetic serials validate behavior, not accuracy across all card photos."
+      ],
+      "uncaught_errors": [],
+      "external_requests": [],
+      "http_write_requests": []
+    },
+    "cache": {
+      "status": "pass",
+      "from": "v8.6.1",
+      "to": "v8.6.2",
+      "browser": "156.0.8078.74",
+      "finished_utc": "2026-11-03T03:56:12.304Z",
+      "checks": [
+        "Previous release with HEVC assets loads from its offline cache",
+        "New service worker activates and removes the old project cache and HEVC assets",
+        "Other project and legacy caches are preserved",
+        "Offline reload preserves ambiguity rules",
+        "TIFF and notices are cached; unsupported HEIC shows guidance offline",
+        "Supplemental copyright notices open offline",
+        "Guide HTML and CSS are cached and open offline"
+      ],
+      "uncaught_errors": []
+    },
+    "layout": {
+      "status": "pass",
+      "browser": "156.0.8078.74",
+      "finished_utc": "2026-11-03T03:56:21.942Z",
+      "widths": [
+        320,
+        360,
+        375,
+        390,
+        393,
+        430,
+        520,
+        521,
+        600,
+        768,
+        800,
+        801,
+        1024,
+        1280,
+        1440
+      ],
+      "passed": 26,
+      "checks": [
+        "320px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "360px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "375px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "390px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "393px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "430px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "520px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "521px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "521px: tablet/desktop normal layout matches baseline exactly",
+        "600px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "600px: tablet/desktop normal layout matches baseline exactly",
+        "768px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "768px: tablet/desktop normal layout matches baseline exactly",
+        "800px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "800px: tablet/desktop normal layout matches baseline exactly",
+        "801px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "801px: tablet/desktop normal layout matches baseline exactly",
+        "1024px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "1024px: tablet/desktop normal layout matches baseline exactly",
+        "1280px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "1280px: tablet/desktop normal layout matches baseline exactly",
+        "1440px: progress, long filenames, errors and rotation labels keep image geometry stable",
+        "1440px: tablet/desktop normal layout matches baseline exactly",
+        "390px: actual canvas selection, OCR, cancellation and clean export without viewport movement",
+        "768px: actual canvas selection, OCR, cancellation and clean export without viewport movement",
+        "1280px: actual canvas selection, OCR, cancellation and clean export without viewport movement"
+      ],
+      "uncaught_errors": [],
+      "limits": [
+        "Automated Chrome at responsive viewport widths; no physical iPhone/iPad or Safari test.",
+        "Synthetic images verify interaction and layout, not recognition accuracy on every card."
+      ]
+    },
+    "safari": {
+      "status": "pass",
+      "release": "v8.6.2",
+      "browser": "Safari 26.5.2",
+      "passed": 17,
+      "checks": [
+        "Safari loads v8.6.2 and prepares offline assets",
+        "serial.heic: real native HEIC full-size pixels and orientation",
+        "serial-10bit.heic: real native HEIC full-size pixels and orientation",
+        "orientation-2.heic: real native HEIC full-size pixels and orientation",
+        "orientation-3.heic: real native HEIC full-size pixels and orientation",
+        "orientation-4.heic: real native HEIC full-size pixels and orientation",
+        "orientation-5.heic: real native HEIC full-size pixels and orientation",
+        "orientation-6.heic: real native HEIC full-size pixels and orientation",
+        "orientation-7.heic: real native HEIC full-size pixels and orientation",
+        "orientation-8.heic: real native HEIC full-size pixels and orientation",
+        "Native HEIC with misleading MIME/name: PHONE.HEIF",
+        "Native HEIC with misleading MIME/name: wrong.jpg",
+        "Safari HEIC + multipage TIFF import and real detection",
+        "Safari real HEIC OCR and export",
+        "Safari HEIC rotation preserves recognition",
+        "Safari unreadable HEIC guidance does not block valid PNG",
+        "Safari has no uncaught page errors"
+      ],
+      "native_heic_tested": true,
+      "private_input_published": false,
+      "physical_iphone_tested": false
+    },
+    "unit": {
+      "passed": 23,
+      "failed": 0,
+      "command": "node --test tests/*.test.cjs"
+    }
+  },
+  "limits": [
+    "No physical iPhone, Safari 17 or Firefox test.",
+    "Synthetic HEIC files tested locally only, not distributed.",
+    "Tests show the exercised cases pass; they do not guarantee absence of all bugs."
+  ]
+}

@@ -1,6 +1,6 @@
 警政小工具-點數卡批次OCR辨識
 PoliceTools – Prepaid Card Batch OCR
-v8.6.1 · 小寫 i 警示調整
+v8.6.2 · 原生照片讀取與授權揭示
 
 這一包可用來本機啟動，也可上傳 GitHub。
 請先完整解壓縮 PoliceTools-PrepaidCard-BatchOCR.zip。
@@ -55,7 +55,7 @@ chmod u+x START_MAC.command
    Folder：/docs
    按 Save。
 6. 等待部署成功，開啟 Pages 設定頁顯示的 Visit site 網址。
-7. 確認頁尾顯示「v8.6.1 · 小寫 i 警示調整」。
+7. 確認頁尾顯示「v8.6.2 · 原生照片讀取與授權揭示」。
    等待「完整離線就緒」，用一張圖測試自動找框與點選辨識。
 
 本機啟動器可以一併留在 Repo。Pages 選 /docs 後只發布網站內容。
@@ -70,8 +70,10 @@ GitHub 網頁上傳每個檔案上限 25 MiB、每次最多 100 個；請上傳�
 連結失效請聯繫三元所。說明頁可離線查看，外部來源需連網。
 
 1. 一次加入多張圖片或多頁 PDF／TIFF；PDF、TIFF 會自動拆頁。
-   HEIC／HEIF 在本機轉換；也支援 JPG、PNG、WebP、AVIF、GIF、BMP。
-   動態圖片讀取首張；HEIF 多圖檔讀取主要照片。RAW／DNG 請先匯出 JPG／PNG。
+   HEIC／HEIF 依瀏覽器原生支援；也支援 JPG、PNG、WebP、AVIF、GIF、BMP。
+   HEIC 無法讀取時，請改用支援 HEIC 的新版 Safari，或先用可信任的本機工具轉為 JPG／PNG。
+   本版因 HEVC 專利授權適用範圍尚未確認，不再內附 HEVC 解碼器。改副檔名不等於轉檔。
+   動態圖片讀取首張；HEIF 多圖檔只取瀏覽器提供的單張影像。RAW／DNG 請先匯出 JPG／PNG。
 2. 圖片或 PDF 頁面橫倒時，按預覽上方「向左 90°／向右 90°」。
    也可在「自訂旋轉角度」輸入 -360～360 度，按套用或 Enter。
    正數向右、負數向左；例如 3.25、-3.25；輸入 0 恢復原方向。
