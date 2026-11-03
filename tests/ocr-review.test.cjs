@@ -54,8 +54,8 @@ test('Invalid thresholds fail explicitly', () => {
   for (const threshold of [-1, 2, NaN, Infinity, '0.8']) assert.throws(() => review.analyze(null,{threshold}));
   assert.throws(() => review.analyze(null,{characterThresholds:{I:2}}));
 });
-test('Each O, 0, I, i, 1 and lowercase l triggers review even with perfect scores and identical candidates', () => {
-  for (const character of 'O0Ii1lＯ０Ｉｉ１ｌ') {
+test('Each O, 0, I, 1 and lowercase l triggers review even with perfect scores and identical candidates', () => {
+  for (const character of 'O0I1lＯ０Ｉ１ｌ') {
     const p = primary(candidate(`AB${character}CD`, [1, 1, 1, 1, 1])), before = structuredClone(p);
     const r = review.analyze(p);
     assert(r.needsReview); assert(!r.hasDisagreement); assert.equal(r.lowCharacters.length, 0);
@@ -63,11 +63,13 @@ test('Each O, 0, I, i, 1 and lowercase l triggers review even with perfect score
     assert.equal(r.text, p.best.text); assert.deepEqual(p, before);
   }
 });
-test('Lowercase o and uppercase L do not trigger ambiguity, but low scores and disagreement still trigger review', () => {
-  for (const character of 'oLｏＬ') {
+test('Lowercase i/o and uppercase L only trigger review for low scores or candidate disagreement', () => {
+  for (const character of 'ioLｉｏＬ') {
     const p = primary(candidate(`AB${character}CD`, [1, 1, 1, 1, 1]));
     const r = review.analyze(p);
     assert(!r.needsReview); assert.deepEqual(r.ambiguousCharacters, []);
+    p.best.charConfidence[2] = .8;
+    assert(!review.analyze(p).needsReview);
     p.best.charConfidence[2] = .79;
     const low = review.analyze(p);
     assert(low.needsReview); assert.equal(low.lowCharacters[0].character, character);
@@ -83,8 +85,8 @@ test('Ambiguity is independent of available scores and preserves Unicode positio
     {position:2,character:'O'}, {position:4,character:'0'}, {position:6,character:'I'}, {position:8,character:'1'},
     {position:11,character:'l'}, {position:12,character:'ｌ'}
   ]);
-  for (const text of ['O', '0', 'I', 'i', '1', 'l', 'ｌ']) assert(review.analyze({best:{text}}).needsReview);
-  for (const text of ['', 'ABCD23456789', 'QDLB8', 'oLｏＬ', null, undefined]) {
+  for (const text of ['O', '0', 'I', '1', 'l', 'ｌ']) assert(review.analyze({best:{text}}).needsReview);
+  for (const text of ['', 'ABCD23456789', 'QDLB8', 'ioLｉｏＬ', null, undefined]) {
     assert.deepEqual(review.findAmbiguousCharacters(text), []);
     assert(!review.analyze(primary(candidate(text || ''))).needsReview);
   }

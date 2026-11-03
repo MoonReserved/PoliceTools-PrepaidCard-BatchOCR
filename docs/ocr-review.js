@@ -8,11 +8,11 @@
   const validScore = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
 
   // Detection only: preserve the original character and its code-point position.
-  // Match case explicitly: lowercase l is ambiguous, lowercase o and uppercase L are not.
-  // Include full-width forms without rewriting the user's code; retain lowercase i.
+  // Match case explicitly: lowercase l is ambiguous; lowercase i/o and uppercase L are not.
+  // Include full-width forms without rewriting the user's code.
   function findAmbiguousCharacters(text) {
     return Array.from(typeof text === 'string' ? text : '', (character, index) => ({position: index + 1, character}))
-      .filter(({character}) => /^[O0Ii1l]$/.test(character.normalize('NFKC')));
+      .filter(({character}) => /^[O0I1l]$/.test(character.normalize('NFKC')));
   }
 
   function analyze(primary, options = {}) {

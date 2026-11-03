@@ -1,0 +1,162 @@
+{
+  "release": "v8.6.1",
+  "status": "pass",
+  "finished_utc": "2026-11-03T03:22:52.131915+00:00",
+  "change": "Exclude lowercase i and full-width ｉ from unconditional ambiguity warnings. Keep per-character scores below 0.80, four-candidate disagreement, and I/l/1/O/0 warnings.",
+  "unit_tests": {
+    "command": "node --test tests/*.test.cjs",
+    "passed": 19,
+    "failed": 0,
+    "regression_proof": "The updated review tests failed for lowercase i against the original implementation and passed after the fix."
+  },
+  "browser_regression": {
+    "browser": {
+      "name": "Chrome",
+      "version": "156.0.8078.74",
+      "host": "darwin"
+    },
+    "passed": 26,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "Empty controls and complete v8.6.1 project-scoped offline cache",
+        "status": "pass"
+      },
+      {
+        "name": "Mixed image and two-page PDF import with real detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Single-character warning, per-candidate scores and mobile layout",
+        "status": "pass"
+      },
+      {
+        "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+        "status": "pass"
+      },
+      {
+        "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+        "status": "pass"
+      },
+      {
+        "name": "Case-sensitive ambiguity, live edits and adoption keep warnings accurate without changing output",
+        "status": "pass"
+      },
+      {
+        "name": "Retry replaces low-score and disagreement data while preserving the 0/1 reminder",
+        "status": "pass"
+      },
+      {
+        "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+        "status": "pass"
+      },
+      {
+        "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+        "status": "pass"
+      },
+      {
+        "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+        "status": "pass"
+      },
+      {
+        "name": "390px controls fit the page and remain usable",
+        "status": "pass"
+      },
+      {
+        "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+        "status": "pass"
+      },
+      {
+        "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+        "status": "pass"
+      },
+      {
+        "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+        "status": "pass"
+      },
+      {
+        "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+        "status": "pass"
+      },
+      {
+        "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+        "status": "pass"
+      },
+      {
+        "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+        "status": "pass"
+      },
+      {
+        "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+        "status": "pass"
+      },
+      {
+        "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+        "status": "pass"
+      },
+      {
+        "name": "Fact-check guide opens offline in a separate tab without losing work and fits mobile",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught errors, external requests or write requests",
+        "status": "pass"
+      }
+    ],
+    "uncaught_errors": [],
+    "external_requests": [],
+    "http_write_requests": []
+  },
+  "cache_upgrade": {
+    "status": "pass",
+    "from": "v8.6",
+    "to": "v8.6.1",
+    "browser": "156.0.8078.74",
+    "finished_utc": "2026-11-03T03:22:24.317Z",
+    "checks": [
+      "Previous release loads from its offline cache",
+      "New service worker activates and removes only the old project cache",
+      "Other project and legacy caches are preserved",
+      "Offline reload preserves ambiguity rules",
+      "Image codecs and sources are cached; HEIC decodes offline after upgrade",
+      "Guide HTML and CSS are cached and open offline"
+    ],
+    "uncaught_errors": []
+  },
+  "source_sha256": {
+    "docs/ocr-review.js": "d8c6f8c4ca3fdc636df559bb778f114f3632e8668d2e44c479b50d98da8d1a5b",
+    "docs/page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+    "docs/app.js": "3f263848d9438aaa8f829ad7723a80f2663029cd88a248290a8d645b955fce84",
+    "docs/pdf-source.js": "634fd3da54ca8489beccacc8eea0b2ef935867dfcfc462d3acc476ab65e17bfc",
+    "docs/index.html": "a1f478bb32bba1b2d21889401ac428eacc3d9d2d8b6079d8e8b1e0aa9ed6a2cc",
+    "docs/styles.css": "bcd6064b17cf43a8982da6d4d525364cc91e07d8b02f5a2329a6f239855117c3",
+    "docs/offline-assets.js": "776fa9b73c8d55d0335901350ea51b58b8d74570d7a05df5c5830a3fa460cae8",
+    "docs/review-guide.html": "06b070cb5c2e3ec965a2cbb9fb7003b37441a77c1508a4aec988c464bea61f0b",
+    "docs/review-guide.css": "92c1acbaa4db4c484ad3455b5d312e90920ed81defc28ec2891cc46c03dd894d"
+  },
+  "private_input_published": false,
+  "limits": [
+    "Automated macOS Chrome with responsive viewports; Safari, Firefox and physical devices were not tested.",
+    "Synthetic OCR fixtures check behavior, not accuracy across every card photo."
+  ]
+}

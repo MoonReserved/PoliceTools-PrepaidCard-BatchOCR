@@ -37,6 +37,7 @@ const server = http.createServer(async (req,res) => {
   const url = `http://127.0.0.1:${server.address().port}${scope}`;
   await page.goto(url); await page.evaluate(()=>offlineOCRTest.waitForCache());
   assert.equal(await page.evaluate(()=>offlineOCRTest.getState().version),previousVersion);
+  if(previousVersion==='v8.6')assert(await page.evaluate(()=>Array.from('iｉ').every(text=>OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
   await page.evaluate(async()=>{
     await caches.open('offline-serial-ocr:%2Fother-project%2F:v8.4');
     await caches.open('offline-serial-ocr-v7-legacy');
@@ -54,8 +55,8 @@ const server = http.createServer(async (req,res) => {
   assert.equal(await page.evaluate(()=>offlineOCRTest.getState().version),currentVersion);
   await context.setOffline(true);
   await page.reload(); await page.evaluate(()=>offlineOCRTest.waitForCache());
-  assert(await page.evaluate(()=>Array.from('O0Ii1lＯ０Ｉｉ１ｌ').every(text=>OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
-  assert(await page.evaluate(()=>Array.from('oLｏＬ').every(text=>!OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
+  assert(await page.evaluate(()=>Array.from('O0I1lＯ０Ｉ１ｌ').every(text=>OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
+  assert(await page.evaluate(()=>Array.from('ioLｉｏＬ').every(text=>!OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
   const result = await page.evaluate(async()=>{
     const cache = await caches.open(offlineOCRTest.getState().cacheName);
     const files = await Promise.all(['ocr-review.js','review-guide.html','review-guide.css','image-source.js','image-decoder-worker.js','image-codecs/libheif-bundle.js','image-codecs/UTIF.js','licenses/IMAGE_CODECS.txt','sources/image-codecs-source.zip'].map(async name=>Boolean(await cache.match(new URL(name,location.href).href))));
@@ -73,7 +74,7 @@ const server = http.createServer(async (req,res) => {
   assert.deepEqual(size,[900,500]);
   await page.goto(url+'review-guide.html');
   assert.equal(await page.locator('.brand-finding').count(),7);
-  assert.match(await page.locator('.guide-rules').textContent(),/小寫 o 與大寫 L 不列入此項提醒/);
+  assert.match(await page.locator('.guide-rules').textContent(),/小寫 i、o 與大寫 L 不列入此項提醒/);
   assert.deepEqual(errors,[]);
   const report = {status:'pass',from:previousVersion,to:currentVersion,browser:browser.version(),finished_utc:new Date().toISOString(),
     checks:['Previous release loads from its offline cache','New service worker activates and removes only the old project cache','Other project and legacy caches are preserved','Offline reload preserves ambiguity rules','Image codecs and sources are cached; HEIC decodes offline after upgrade','Guide HTML and CSS are cached and open offline'],uncaught_errors:errors};
