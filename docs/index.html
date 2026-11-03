@@ -27,6 +27,10 @@
     <p>啟動後會自動開啟本機網址；不必安裝 Python，也不會上傳圖片。若從正式網站開啟仍看到此提示，請確認瀏覽器允許這個網站執行 JavaScript。</p>
   </section>
   <div id="cache-status" data-testid="cache-status" class="notice" role="status">正在準備完整離線資源…</div>
+  <aside id="leave-warning" class="notice leave-warning" aria-label="資料保存提醒">
+    <strong>資料不會自動保存</strong>
+    <p>重新整理（F5）或離開此頁，<strong>已輸入的資料與復原紀錄會消失</strong>。請先複製或匯出結果。</p>
+  </aside>
   <section class="panel import-panel" aria-labelledby="import-title">
     <div class="section-title"><h2 id="import-title"><span class="step">1</span>加入圖片或 PDF</h2><button id="clear" class="subtle" type="button" disabled>清空這一批</button></div>
     <div class="import-row"><label class="file-button">選擇圖片或 PDF<input id="image" data-testid="image-input" type="file" accept="image/*,application/pdf,.pdf,.heic,.heif,.hif,.heics,.heifs,.tif,.tiff,.jpg,.jpeg,.jfif,.png,.webp,.avif,.gif,.bmp,.svg" multiple disabled></label><div><p id="batch-hint" class="hint"></p><p class="hint">PDF 會按第 1、2、3…頁自動拆開，也可與圖片混合加入。每次只繪製需要的頁面。</p><p class="hint">支援 TIFF、JPG、PNG、WebP、AVIF、GIF、BMP；HEIC／HEIF 依瀏覽器原生支援，無法讀取時會提供轉檔指引。TIFF 會逐頁加入，動態圖片讀取首張。RAW 請先匯出 JPG／PNG。</p><p class="hint">單檔上限 50 MiB。需要密碼的 PDF，請先在本機另存為不需密碼的副本。</p></div></div>
@@ -36,7 +40,6 @@
     <progress id="batch-progress" value="0" max="1" aria-label="文字區域掃描進度"></progress>
     <p id="status" data-testid="status" role="status" aria-live="polite">加入檔案後，會自動逐頁尋找候選文字行。</p>
   </section>
-  <p id="leave-warning" class="hint leave-warning" hidden>重新整理（F5）或離開此頁，已輸入的資料與復原紀錄會消失。請先複製或匯出結果。</p>
   <div class="workspace">
     <aside class="panel file-panel" aria-labelledby="files-title"><div class="section-title"><h2 id="files-title">頁面佇列</h2><span id="file-count" class="muted">0 張／頁</span></div><p class="queue-order-help">↑ 往前、↓ 往後。調整瀏覽與待掃描順序；序號輸出仍依點框順序。</p><div id="file-list" class="file-list" data-testid="file-list"><p class="empty-note">圖片與 PDF 的每一頁會列在這裡。</p></div></aside>
     <section class="panel selection-panel" aria-labelledby="selection-title">
@@ -68,7 +71,7 @@
     <p class="hint">輸出採用上方清單的順序。複製與 TXT 只含序號；CSV 的 order 欄保留介面序位，篩選後可能跳號。CSV 請用「匯入資料」並將文字欄指定為文字，避免前導零消失或以公式解讀。</p>
   </section>
   <footer>
-    <p id="app-version">v8.7 · 操作復原與離頁提醒</p>
+    <p id="app-version">v8.7.1 · 離頁提醒與返回保護</p>
     <p>圖片、PDF、辨識結果與最近 50 步復原紀錄只留在此分頁的記憶體；清空後仍可復原。重新整理或關閉即消失，請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
     <p>PDF 只轉成頁面畫面，不執行文件內的指令或開啟連結。顯示「完整離線就緒」後，可在同一瀏覽器、同一網址離線開啟。請保留網站資料；無痕模式、系統清理或清除快取可能移除離線資源。</p>
     <section class="attribution" aria-labelledby="attribution-title">
@@ -102,6 +105,11 @@
     </section>
   </footer>
 </main>
+<dialog id="leave-dialog" class="leave-dialog" aria-labelledby="leave-dialog-title" aria-describedby="leave-dialog-description">
+  <h2 id="leave-dialog-title">確定要離開此網頁嗎？</h2>
+  <p id="leave-dialog-description">已輸入的資料與復原紀錄會消失，請先複製或匯出結果。</p>
+  <div class="leave-dialog-actions"><button id="stay-on-page" type="button" autofocus>留在此頁</button><button id="leave-page" class="subtle" type="button">離開頁面</button></div>
+</dialog>
 <div class="history-dock" role="group" aria-label="操作復原與重做">
   <p id="history-notice" class="history-notice" role="status" aria-live="polite" aria-atomic="true"></p>
   <div class="history-buttons">

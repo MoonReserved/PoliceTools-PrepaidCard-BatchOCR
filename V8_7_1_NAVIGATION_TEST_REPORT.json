@@ -1,0 +1,98 @@
+{
+  "release": "v8.7.1",
+  "status": "pass",
+  "finished_utc": "2026-11-03T12:52:09.885201+00:00",
+  "changes": [
+    "Show the data-loss notice below offline status immediately, before importing files.",
+    "Confirm browser Back in an in-page dialog when current or undoable work is present.",
+    "Keep one history guard; repeated Cancel does not grow the history; confirmed Leave goes to the actual previous page.",
+    "Keep native beforeunload for address changes and refresh."
+  ],
+  "unit_tests": {
+    "passed": 23,
+    "failed": 0
+  },
+  "suites": {
+    "history": {
+      "status": "pass",
+      "release": "v8.7.1",
+      "checks": [
+        "Empty page shows the notice below offline status without prompting on exit",
+        "Import undo/redo restores all pages and completed detection",
+        "Typing is grouped; Ctrl/Cmd undo and redo preserve verified state and focus",
+        "Candidate adoption and native beforeinput undo/redo restore exact text",
+        "Clear undo/redo restores selections, previews, manual edits and exports",
+        "New edit after undo discards redo and keeps later text",
+        "Selection, manual box and output ordering restore together",
+        "Remove page and page ordering can be recovered",
+        "Rotation and retry preserve completed edits across undo",
+        "In-flight OCR cannot overwrite undone/cleared state",
+        "Clear during background detection resumes exactly one scan after recovery",
+        "Output filter, edits and paused queues are restored",
+        "PDF clear and remove recovery reopens the source for navigation and OCR",
+        "IME composition is one action and history keys do not interfere with angle input",
+        "History cap releases discarded preview URLs without breaking live previews",
+        "Floating controls stay within desktop/mobile viewport and notice fades",
+        "Reload and navigation ask before leaving; dismiss preserves data",
+        "Browser Back confirms in-page, Cancel preserves work, and Leave really exits"
+      ],
+      "passed": 18,
+      "browser": "156.0.8078.80",
+      "ocr": "deterministic delayed worker; real image/PDF decoding",
+      "uncaught_errors": []
+    },
+    "safari_navigation": {
+      "status": "pass",
+      "release": "v8.7.1",
+      "browser": "Safari 26.5.2",
+      "passed": 8,
+      "checks": [
+        "Initial notice is visible directly below offline status",
+        "Safari Back / Stay preserves the image without growing history: 1",
+        "Safari Back / Stay preserves the image without growing history: 2",
+        "Safari Back / Stay preserves the image without growing history: 3",
+        "Safari Back also protects cleared but recoverable data",
+        "Confirming Leave reaches the actual previous page",
+        "Forward restoration keeps at most one guard step",
+        "An empty reloaded page can go Back without a warning or duplicate stop"
+      ],
+      "scope": "Dedicated native Safari WebDriver window; synthetic PNG; browser history Back/Forward, Stay/Leave, clear/undo and reload."
+    },
+    "cache_upgrade": {
+      "status": "pass",
+      "from": "v8.7",
+      "to": "v8.7.1",
+      "browser": "156.0.8078.80",
+      "retired_resource_bytes": "inert test markers",
+      "finished_utc": "2026-11-03T12:51:00.362Z",
+      "checks": [
+        "Previous release loads with inert markers at retired HEVC asset URLs",
+        "New service worker activates and removes the old project cache and HEVC assets",
+        "Other project and legacy caches are preserved",
+        "Offline reload preserves ambiguity rules",
+        "TIFF and notices are cached; unsupported HEIC shows guidance offline",
+        "Supplemental copyright notices open offline",
+        "Guide HTML and CSS are cached and open offline"
+      ],
+      "uncaught_errors": []
+    }
+  },
+  "manual_verification": [
+    "Safari in-page Stay button clicked through macOS accessibility UI; dialog closed and the synthetic image remained."
+  ],
+  "limitations": [
+    "Safari navigation suite uses real Safari 26.5.2 with a synthetic PNG. Buttons are activated with native Enter because SafariDriver pointer coordinates ignore the existing page zoom.",
+    "Chrome history suite uses a delayed deterministic OCR worker and real image/PDF decoding; the OCR engines were not changed.",
+    "Browser history-menu jumps over multiple entries, rapid multi-step traversals and mobile app termination may bypass confirmation. Export before leaving.",
+    "No physical iPhone or Windows test."
+  ],
+  "source_sha256": {
+    "docs/app.js": "16d2023567f57f10e47e27c8b5eeab8b981655a0d7321710df24cc3cd4d06846",
+    "docs/index.html": "c6aac8e51791d5e2611376c31f4dbb0fbfee7e3a8dabcc13134c707089139998",
+    "docs/styles.css": "3030ce3c2d84723e76524c7967133fa92d90a880c7fddbf79dd1264619361898",
+    "docs/offline-assets.js": "57baaf5669ad9b3f257c8d3db8537883e25a0b7499ba9fe58eb9464d03062da2",
+    "docs/sw.js": "a3d5f10f12cd76788df89198e1522aaf610cdddbdf6ea605e3b3a4d8e99be5d1",
+    "tests/history.browser.cjs": "bdab41b3219681e6e0a45eb9b16818126fa2625b39e800e482654e1aae8604d2",
+    "tests/navigation.safari.browser.py": "547a1eaebb25c6a9ddcb78746894bacb271f3904def831e6c054afe338167905"
+  }
+}

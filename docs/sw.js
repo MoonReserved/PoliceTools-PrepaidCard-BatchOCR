@@ -1,5 +1,5 @@
 'use strict';
-// v8.7 adds local undo/redo and data-loss reminders.
+// v8.7.1 shows the data-loss notice immediately and confirms browser Back in-page.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.

@@ -41,7 +41,12 @@ function pdfFixture(){
  await context.route('**/ocr-worker.js',route=>route.fulfill({contentType:'text/javascript',body:worker}));
  await fresh();
  fixture={name:'history.png',mimeType:'image/png',buffer:Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=600;c.height=300;const ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,600,300);ctx.fillStyle='black';ctx.font='32px Arial';ctx.fillText('123456',40,80);return c.toDataURL().split(',')[1];}),'base64')};
- await check('Empty page has no history or leave warning',async()=>{assert(await page.locator('#undo').isDisabled());assert(await page.locator('#redo').isDisabled());assert(await page.locator('#leave-warning').isHidden());assert(await page.evaluate(()=>window.dispatchEvent(new Event('beforeunload',{cancelable:true}))));});
+ await check('Empty page shows the notice below offline status without prompting on exit',async()=>{assert(await page.locator('#undo').isDisabled());assert(await page.locator('#redo').isDisabled());assert(await page.locator('#leave-warning').isVisible());assert(await page.evaluate(()=>window.dispatchEvent(new Event('beforeunload',{cancelable:true}))));
+   assert(await page.locator('#leave-warning').evaluate(el=>el.previousElementSibling.id==='cache-status'));
+   for(const width of [1280,390,320]){await page.setViewportSize({width,height:900});const warning=await page.locator('#leave-warning').boundingBox(),offline=await page.locator('#cache-status').boundingBox();assert(warning.y>=offline.y+offline.height&&warning.y+warning.height<=900);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+   await page.setViewportSize({width:1280,height:900});
+   if(process.env.NOTICE_SCREENSHOT_PATH)await page.screenshot({path:process.env.NOTICE_SCREENSHOT_PATH});
+ });
  await check('Import undo/redo restores all pages and completed detection',async()=>{
    const imported=await upload();await undo();assert.equal((await snapshot()).files.length,0);await redo();assert.deepEqual((await snapshot()).files,imported.files);
    await fresh();
@@ -102,7 +107,26 @@ function pdfFixture(){
  await check('Reload and navigation ask before leaving; dismiss preserves data',async()=>{
    await page.setViewportSize({width:1280,height:900});await firstInput().fill('stay here');
    for(const action of [()=>page.reload(),()=>page.goto('about:blank')]){const dialogPromise=page.waitForEvent('dialog');const navigation=action().catch(()=>{});const dialog=await dialogPromise;assert.equal(dialog.type(),'beforeunload');await dialog.dismiss();await navigation;assert.equal(await text(),'stay here');}
-   const dialogPromise=page.waitForEvent('dialog');const reload=page.reload();const dialog=await dialogPromise;await dialog.accept();await reload;assert.equal((await snapshot()).files.length,0);assert(await page.locator('#undo').isDisabled());assert(await page.locator('#leave-warning').isHidden());
+   const dialogPromise=page.waitForEvent('dialog');const reload=page.reload();const dialog=await dialogPromise;await dialog.accept();await reload;assert.equal((await snapshot()).files.length,0);assert(await page.locator('#undo').isDisabled());assert(await page.locator('#leave-warning').isVisible());
  });
- assert.deepEqual(errors,[]);const report={status:'pass',release:'v8.7',checks,passed:checks.length,browser:browser.version(),ocr:'deterministic delayed worker; real image/PDF decoding',uncaught_errors:errors};if(process.env.REPORT_PATH)await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
+ await check('Browser Back confirms in-page, Cancel preserves work, and Leave really exits',async()=>{
+   await page.goto(url+'review-guide.html');await page.goto(url);await selected();await firstInput().fill('keep navigation work');
+   const length=await page.evaluate(()=>history.length);
+   for(let attempt=0;attempt<3;attempt++){
+     await page.goBack({timeout:1000}).catch(error=>{if(error.name!=='TimeoutError')throw error;});await page.locator('#leave-dialog').waitFor({state:'visible'});
+     assert.match(await page.locator('#leave-dialog-description').textContent(),/資料與復原紀錄會消失/);
+     await page.keyboard.press('Control+z');assert.equal(await text(),'keep navigation work','history shortcuts must not edit work behind the modal');
+     await page.locator('#stay-on-page').click();assert.equal(await text(),'keep navigation work');assert.equal(page.url(),url);assert.equal(await page.evaluate(()=>history.length),length);
+   }
+   // Changing the address still uses the browser's native confirmation.
+   const addressDialog=page.waitForEvent('dialog');const addressNavigation=page.goto(url+'review-guide.html').catch(()=>{});await (await addressDialog).dismiss();await addressNavigation;assert.equal(await text(),'keep navigation work');
+   await page.locator('#clear').click();await page.goBack({timeout:1000}).catch(error=>{if(error.name!=='TimeoutError')throw error;});await page.locator('#leave-dialog').waitFor({state:'visible'});await page.keyboard.press('Escape');await undo();assert.equal(await text(),'keep navigation work');
+   await page.goBack({timeout:1000}).catch(error=>{if(error.name!=='TimeoutError')throw error;});await page.locator('#leave-dialog').waitFor({state:'visible'});
+   const unexpected=[];page.on('dialog',async dialog=>{unexpected.push(dialog.type());await dialog.dismiss();});
+   await page.locator('#leave-page').click();await page.waitForURL(url+'review-guide.html');assert.deepEqual(unexpected,[],'confirmed Back should not ask twice');
+   await page.goForward();await page.waitForFunction(()=>typeof offlineOCRTest!=='undefined');
+   // Forward may restore from BFCache. A new import must still protect Back.
+   await upload();await page.goBack({timeout:1000}).catch(error=>{if(error.name!=='TimeoutError')throw error;});await page.locator('#leave-dialog').waitFor({state:'visible'});await page.locator('#stay-on-page').click();assert((await snapshot()).files.length>0);
+ });
+ assert.deepEqual(errors,[]);const report={status:'pass',release:'v8.7.1',checks,passed:checks.length,browser:browser.version(),ocr:'deterministic delayed worker; real image/PDF decoding',uncaught_errors:errors};if(process.env.REPORT_PATH)await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(async()=>{server.closeAllConnections();server.close();server.unref();await context?.close();await browser?.close();});

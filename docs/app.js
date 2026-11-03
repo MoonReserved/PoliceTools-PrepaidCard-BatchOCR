@@ -28,6 +28,54 @@ function status(text,error=false){$('status').textContent=text;$('status').class
 const edits={undo:[],redo:[],group:null,composing:false,limit:50};
 const retiredURLs=new Set();
 let historyNoticeTimer,resourceSweepPending=false,leaveGuardAttached=false;
+// Keep one same-document history step while work is present. Safari can skip
+// beforeunload on Back; this step lets us ask before the document is discarded.
+// Reuse the same step after cancellation/reload instead of growing history.
+const backMarker='offlineOCRBackGuard';
+const backGuard={id:history.state?.[backMarker]?.id||crypto.randomUUID(),armed:!!history.state?.[backMarker],restoring:false,leaveRequested:false,approved:false,timer:null};
+function armBackGuard(protect){
+  if(!protect||backGuard.restoring||FILE_MODE)return;
+  if(backGuard.armed){
+    const marker=history.state?.[backMarker];
+    // Forward may load the base as a fresh, empty document. Re-arm when the
+    // first file is imported, not only when pageshow restores existing work.
+    if(marker?.id===backGuard.id&&marker.position==='base')history.pushState({[backMarker]:{...marker,position:'guard'}},'',location.href);
+    return;
+  }
+  if(history.length<2)return;
+  const previous=history.state;
+  history.replaceState({[backMarker]:{id:backGuard.id,position:'base',previous}},'',location.href);
+  history.pushState({[backMarker]:{id:backGuard.id,position:'guard',previous}},'',location.href);
+  backGuard.armed=true;
+}
+function leaveViaBack(){
+  if(backGuard.restoring){backGuard.leaveRequested=true;return;}
+  backGuard.leaveRequested=false;$('leave-dialog').close();backGuard.approved=true;
+  // Consume approval once in beforeunload, and expire it if navigation aborts.
+  clearTimeout(backGuard.timer);backGuard.timer=setTimeout(()=>{backGuard.approved=false;},3000);
+  history.go(history.state?.[backMarker]?.position==='guard'?-2:-1);
+}
+window.addEventListener('popstate',event=>{
+  const marker=event.state?.[backMarker];if(marker?.id!==backGuard.id)return;
+  if(marker.position==='guard'){
+    backGuard.restoring=false;if(backGuard.leaveRequested)leaveViaBack();return;
+  }
+  if(!hasRecoverableData()){history.back();return;}
+  // Restore the guard before the choice so Cancel and repeated Back clicks
+  // cannot consume it. Leaving is always available through the explicit button.
+  backGuard.restoring=true;history.forward();
+  if(!$('leave-dialog').open)$('leave-dialog').showModal();
+});
+$('stay-on-page').addEventListener('click',()=>{$('leave-dialog').close();backGuard.leaveRequested=false;});
+$('leave-page').addEventListener('click',leaveViaBack);
+$('leave-dialog').addEventListener('cancel',()=>{backGuard.leaveRequested=false;});
+window.addEventListener('pageshow',()=>{
+  backGuard.approved=false;backGuard.leaveRequested=false;backGuard.restoring=false;
+  if($('leave-dialog').open)$('leave-dialog').close();
+  // A forward traversal can restore this document from the back/forward cache
+  // at its base entry. Re-create just the single guard, replacing its old copy.
+  armBackGuard(hasRecoverableData());
+});
 function copyHistoryFiles(files){return files.map(file=>({...file,rotating:false,rotationTask:null,boxes:file.boxes.map(box=>({...box}))}));}
 function captureEdits(){
   const active=document.activeElement,card=active?.closest('.result-card');
@@ -57,15 +105,15 @@ function rememberEdit(label,key=null){
   scheduleResourceSweep();updateHistoryControls();
 }
 function hasRecoverableData(){return !!(state.files.length||state.importPending||[...edits.undo,...edits.redo].some(entry=>entry.snapshot.files.length));}
-function beforeLeaving(event){if(!hasRecoverableData())return;event.preventDefault();event.returnValue='已輸入的資料與復原紀錄會消失，請先匯出結果。';}
+function beforeLeaving(event){if(backGuard.approved){backGuard.approved=false;return;}if(!hasRecoverableData())return;event.preventDefault();event.returnValue='已輸入的資料與復原紀錄會消失，請先匯出結果。';}
 function updateHistoryControls(){
   const busy=!!(state.importPending||state.files.some(file=>file.rotating)||edits.composing);
   $('undo').disabled=busy||!edits.undo.length;$('redo').disabled=busy||!edits.redo.length;
   $('undo').title=busy?'請等候目前操作完成':edits.undo.length?`復原：${edits.undo.at(-1).label}（Ctrl／⌘ + Z）`:'沒有可復原的操作';
   $('redo').title=busy?'請等候目前操作完成':edits.redo.length?`重做：${edits.redo.at(-1).label}（Ctrl／⌘ + Shift + Z）`:'沒有可重做的操作';
   const protect=hasRecoverableData();
+  armBackGuard(protect);
   if(protect!==leaveGuardAttached){window[protect?'addEventListener':'removeEventListener']('beforeunload',beforeLeaving);leaveGuardAttached=protect;}
-  $('leave-warning').hidden=!protect;
 }
 function historyNotice(text){
   clearTimeout(historyNoticeTimer);const notice=$('history-notice');notice.textContent=text;notice.classList.add('visible');
@@ -647,6 +695,7 @@ $('verified-only').addEventListener('change',()=>{
 $('undo').addEventListener('click',()=>travelEdits('undo'));
 $('redo').addEventListener('click',()=>travelEdits('redo'));
 document.addEventListener('keydown',event=>{
+  if($('leave-dialog').open)return;
   if(event.isComposing||edits.composing||event.altKey||!(event.ctrlKey||event.metaKey))return;
   const key=event.key.toLowerCase(),undo=key==='z'&&!event.shiftKey,redo=(key==='z'&&event.shiftKey)||(key==='y'&&event.ctrlKey&&!event.shiftKey);
   if(!undo&&!redo)return;
@@ -669,7 +718,7 @@ source.addEventListener('pointerup',event=>{
   if(Math.hypot(event.clientX-drag.client[0],event.clientY-drag.client[1])>8)return;
   const [x,y]=position(event),file=currentFile(),hits=visibleBoxes(file).filter(b=>pointInPolygon(x,y,b.polygon)).sort((a,b)=>a.box[2]*a.box[3]-b.box[2]*b.box[3]);if(hits.length)selectBox(file.id,hits[0].id);
 });
-document.addEventListener('keydown',event=>{if(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.ctrlKey||event.metaKey||event.altKey)return;if(event.key==='ArrowRight')$('next').click();if(event.key==='ArrowLeft')$('previous').click();});
+document.addEventListener('keydown',event=>{if($('leave-dialog').open)return;if(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.ctrlKey||event.metaKey||event.altKey)return;if(event.key==='ArrowRight')$('next').click();if(event.key==='ArrowLeft')$('previous').click();});
 function exportTXT(){return exportRows().map(({box})=>textValue(box)).join('\n');}
 function csvCell(value){return '"'+String(value??'').replaceAll('"','""')+'"';}
 function exportCSV(){const header=['order','image','box','serial','verified','model_score'];const rows=exportRows().map(({file,box,order})=>[order,file.name,box.number,textValue(box),box.verified?'yes':'no',box.result.results.find(r=>r.model==='small6').best.confidence]);return '\ufeff'+[header,...rows].map(row=>row.map(csvCell).join(',')).join('\r\n');}

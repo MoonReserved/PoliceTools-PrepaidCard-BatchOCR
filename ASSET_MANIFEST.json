@@ -2,7 +2,7 @@
   "project": "PoliceTools-PrepaidCard-BatchOCR",
   "title": "警政小工具-點數卡批次OCR辨識",
   "english_title": "PoliceTools – Prepaid Card Batch OCR",
-  "version": "v8.7",
+  "version": "v8.7.1",
   "date": "2026-11-03",
   "publishing_folder": "docs",
   "native_launcher_platforms": [
@@ -14,13 +14,13 @@
   "note": "This manifest excludes itself. All listed files are public project assets; no user inputs are included.",
   "files": {
     "QUICK_START_zh-TW.txt": {
-      "bytes": 6599,
-      "sha256": "89f84e65e09e39a43d8b9df81f425608a0a09a5c01a57ac9070961b35806a23c",
+      "bytes": 6957,
+      "sha256": "bb9a1649f9ee8c9e1f1c0c2d3a1621e8f47891a67ed7c1df6a0127b26b12960f",
       "mode": "0o644"
     },
     "README.md": {
-      "bytes": 42923,
-      "sha256": "59a4e1edd8f8fdc94a38ed22aaf14373536a08b84a755e7a3155a7aacd3c15bf",
+      "bytes": 44315,
+      "sha256": "1589f5c6e6eafe4db1cb3343633ed385d318f6e4ac2b5a91cb37f01a3e69ae26",
       "mode": "0o644"
     },
     "START_MAC.command": {
@@ -98,6 +98,11 @@
       "sha256": "062571c633d2a6e41794d6edd80b4b5d1ec906b54afcb8d815667da49a9fd50c",
       "mode": "0o644"
     },
+    "V8_7_1_NAVIGATION_TEST_REPORT.json": {
+      "bytes": 5226,
+      "sha256": "61d5074d3f49108d9a64789be53907556abcef29590e914d908bc226c61572c9",
+      "mode": "0o644"
+    },
     "V8_7_HISTORY_TEST_REPORT.json": {
       "bytes": 9828,
       "sha256": "32ca7dbf98706d6789c40f392ff4d99599bd0f49c8e6d574501c25bf448802f9",
@@ -114,8 +119,8 @@
       "mode": "0o644"
     },
     "docs/app.js": {
-      "bytes": 69960,
-      "sha256": "c7ba3b608cd0bfaec288e90004e1a2303231e64edef0bf40f107913ff997eab2",
+      "bytes": 72888,
+      "sha256": "16d2023567f57f10e47e27c8b5eeab8b981655a0d7321710df24cc3cd4d06846",
       "mode": "0o644"
     },
     "docs/attribution.css": {
@@ -149,8 +154,8 @@
       "mode": "0o644"
     },
     "docs/index.html": {
-      "bytes": 15269,
-      "sha256": "79386dcb4d9ec2e767386d2c2147f2978d8e9d89ffe5413193ca8804900205a7",
+      "bytes": 15892,
+      "sha256": "c6aac8e51791d5e2611376c31f4dbb0fbfee7e3a8dabcc13134c707089139998",
       "mode": "0o644"
     },
     "docs/licenses/ASSET_SOURCES.txt": {
@@ -244,8 +249,8 @@
       "mode": "0o644"
     },
     "docs/offline-assets.js": {
-      "bytes": 1363,
-      "sha256": "b025db8c88607b6d2aa563173f217869354f1db906a328dc65ea712aed1081cd",
+      "bytes": 1365,
+      "sha256": "57baaf5669ad9b3f257c8d3db8537883e25a0b7499ba9fe58eb9464d03062da2",
       "mode": "0o644"
     },
     "docs/page-rotation.js": {
@@ -324,13 +329,13 @@
       "mode": "0o644"
     },
     "docs/styles.css": {
-      "bytes": 17638,
-      "sha256": "c985a5fe4cd404baa626de5e75c220ae25faa76493ba5632bfddc0593856d4fa",
+      "bytes": 18221,
+      "sha256": "3030ce3c2d84723e76524c7967133fa92d90a880c7fddbf79dd1264619361898",
       "mode": "0o644"
     },
     "docs/sw.js": {
-      "bytes": 1254,
-      "sha256": "5c5922b9aaa234217b5da4bf69e9b8c6ab47c8318cecc36c17fa5be5db31a2d0",
+      "bytes": 1284,
+      "sha256": "a3d5f10f12cd76788df89198e1522aaf610cdddbdf6ea605e3b3a4d8e99be5d1",
       "mode": "0o644"
     },
     "docs/text-diff.js": {
@@ -519,8 +524,8 @@
       "mode": "0o644"
     },
     "tests/history.browser.cjs": {
-      "bytes": 16153,
-      "sha256": "41c3f635884bc140b94c2b64fdd0f98297881b6709c418eb0481fd645dd41dbb",
+      "bytes": 19272,
+      "sha256": "bdab41b3219681e6e0a45eb9b16818126fa2625b39e800e482654e1aae8604d2",
       "mode": "0o644"
     },
     "tests/image-formats.browser.cjs": {
@@ -538,6 +543,11 @@
       "sha256": "ec131684b1611624792de97cfbcc3ad875e5d26befe0edab1fca545d3f399633",
       "mode": "0o644"
     },
+    "tests/navigation.safari.browser.py": {
+      "bytes": 6064,
+      "sha256": "547a1eaebb25c6a9ddcb78746894bacb271f3904def831e6c054afe338167905",
+      "mode": "0o644"
+    },
     "tests/ocr-review.test.cjs": {
       "bytes": 6036,
       "sha256": "b5348d7545ba276048a8582d6c845e46100d295e7eee0cf25197d7a26f4d7a62",
@@ -549,8 +559,8 @@
       "mode": "0o644"
     },
     "tests/rotation.browser.cjs": {
-      "bytes": 40832,
-      "sha256": "f5640e04935e6c6495a805079f275a6140aac9d262e1d1bcfaf65796c186510f",
+      "bytes": 40838,
+      "sha256": "35209c8a3f94773c626dabd3490e34be2442722549addb5f6f0fc62e89dd755e",
       "mode": "0o644"
     },
     "tests/safari-native.browser.py": {

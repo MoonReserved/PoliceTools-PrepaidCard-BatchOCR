@@ -66,6 +66,9 @@ main{padding-bottom:calc(125px + env(safe-area-inset-bottom,0px))}
 .history-buttons button span{font-size:20px;vertical-align:-1px;margin-right:3px}
 .history-notice{margin:0 0 8px auto;padding:3px 10px;width:max-content;max-width:100%;border-radius:7px;background:#f9fcf9;color:#60716e;font-size:12px;opacity:0;transition:opacity .25s ease}
 .history-notice.visible{opacity:1}
-.leave-warning{margin:12px 2px;color:#796341}
+.leave-warning{margin:10px 0 16px;padding:12px 15px;background:#fff4df;color:#724311;border:1px solid #e5c38e;border-left:4px solid #b27628;font-size:14px}
+.leave-warning>strong{font-size:15px}.leave-warning p{margin:4px 0 0}
+.leave-dialog{width:min(440px,calc(100vw - 32px));padding:24px;border:1px solid var(--line);border-radius:14px;color:var(--ink);background:#fff;box-shadow:0 16px 60px #18322f35}
+.leave-dialog::backdrop{background:#18322f66}.leave-dialog p{margin:12px 0 20px;font-size:14px}.leave-dialog-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px}.leave-dialog-actions button{min-height:44px}
 @media(max-width:520px){.history-dock{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}.history-buttons button{min-width:76px}}
 @media(prefers-reduced-motion:reduce){.history-notice{transition:none}}
