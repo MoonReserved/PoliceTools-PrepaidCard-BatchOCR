@@ -347,7 +347,7 @@ Safari 測試先執行 `safaridriver --port 4445`，再設定本機 `HEIC_FIXTUR
 
 測試涵蓋真正編碼的 8-bit／10-bit HEIC、HEIF 主要照片、HEIC／TIFF 八種方向、彩色／灰階／黑白 TIFF、JPEG／LZW／Deflate／PackBits／Fax 壓縮、多頁 TIFF、缺少或錯誤 MIME、JPG／JFIF、PNG、WebP、AVIF、GIF、BMP、SVG。另驗證實際 OCR、旋轉後重試、透明圖片白底裁切、損毀檔隔離、200 頁上限、轉換中清空與離線新匯入。完整結果見 [v8.6 測試報告](V8_6_IMAGE_FORMAT_TEST_REPORT.json)。
 
-可執行 `node --test tests/*.test.cjs`、`node tests/image-formats.browser.cjs`、`node tests/rotation.browser.cjs`、`node tests/selection-layout.browser.cjs` 與 `node tests/cache-upgrade.browser.cjs`。瀏覽器測試需 Playwright／Chrome，可設定 `PLAYWRIGHT_MODULE`、`CHROME_BIN`；升級與版面測試在提交前使用 `BASELINE_REF=HEAD`，提交後預設 `HEAD^`。合成圖片與產生腳本位於 `tests/`，不含私人照片，不加入網站離線快取。
+可執行 `node --test tests/*.test.cjs`、`node tests/image-formats.browser.cjs`、`node tests/rotation.browser.cjs`、`node tests/selection-layout.browser.cjs` 與 `node tests/cache-upgrade.browser.cjs`。瀏覽器測試需 Playwright／Chrome，可設定 `PLAYWRIGHT_MODULE`、`CHROME_BIN`；版面測試在提交前使用 `BASELINE_REF=HEAD`，提交後預設 `HEAD^`；升級測試會自動尋找前一個應用程式版本，也可指定 `BASELINE_REF`。升級測試以無執行內容的標記模擬舊 HEVC 快取網址，不需取回已撤下的解碼器。合成圖片與產生腳本位於 `tests/`，不含私人照片，不加入網站離線快取。
 
 驗證環境為 macOS Chrome 與 320～1440px 響應式寬度，未在實體手機、Safari 或 Firefox 上驗證。HEIF 的特殊編碼、BigTIFF、浮點／特殊色彩 TIFF、RAW 不保證可讀，匯入失敗時請依提示轉存。工具維持純前端運算與原有 OCR 模型。
 

@@ -1,6 +1,6 @@
 'use strict';
-// Compare the previous release with the working tree. Before committing, run
-// with BASELINE_REF=HEAD; after committing, the default HEAD^ is the old release.
+// Compare the previous app version with the working tree. BASELINE_REF can
+// explicitly select an older release. Retired codec bytes are not needed.
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const http = require('node:http');
@@ -8,13 +8,19 @@ const path = require('node:path');
 const {execFileSync} = require('node:child_process');
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = path.resolve(__dirname, '..'), scope = '/PoliceTools-PrepaidCard-BatchOCR/';
-const baseline = process.env.BASELINE_REF || 'HEAD^', old = new Map();
+const version = bytes => String(bytes).match(/OFFLINE_APP_VERSION='([^']+)'/)[1];
+const currentVersion = version(require('node:fs').readFileSync(path.join(root,'docs/offline-assets.js')));
+let baseline = process.env.BASELINE_REF || 'HEAD';
+while(!process.env.BASELINE_REF && version(execFileSync('git',['show',`${baseline}:docs/offline-assets.js`],{cwd:root}))===currentVersion)baseline+='^';
+const old = new Map();
+const retired=['image-codecs/libheif-bundle.js','sources/image-codecs-source.zip','licenses/LIBHEIF_LICENSE.txt','licenses/LIBDE265_LICENSE.txt'];
 const oldManifest=execFileSync('git',['show',`${baseline}:docs/offline-assets.js`],{cwd:root});
 const oldGlobals={};require('node:vm').runInNewContext(String(oldManifest),oldGlobals);
 for (const name of new Set(oldGlobals.OFFLINE_ASSETS.map(name=>name==='./'?'index.html':name))) {
-  old.set(name,execFileSync('git',['show',`${baseline}:docs/${name}`],{cwd:root,maxBuffer:100*1024*1024}));
+  // A cache-removal test only needs a marker at a retired URL. Never recover,
+  // execute or republish the old HEVC implementation to test this migration.
+  old.set(name,retired.includes(name)?Buffer.from('Retired resource cache test marker'):execFileSync('git',['show',`${baseline}:docs/${name}`],{cwd:root,maxBuffer:100*1024*1024}));
 }
-const version = bytes => String(bytes).match(/OFFLINE_APP_VERSION='([^']+)'/)[1];
 const previousVersion = version(old.get('offline-assets.js'));
 const mime = {'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.txt':'text/plain; charset=utf-8','.wasm':'application/wasm'};
 let latest = false, browser;
@@ -30,7 +36,6 @@ const server = http.createServer(async (req,res) => {
   } catch { res.writeHead(404).end(); }
 });
 (async () => {
-  const currentVersion = version(await fs.readFile(path.join(root,'docs/offline-assets.js')));
   assert.notEqual(previousVersion,currentVersion,'Choose a baseline before the version bump');
   await new Promise((resolve,reject) => { server.once('error',reject); server.listen(0,'127.0.0.1',resolve); });
   browser = await chromium.launch({headless:true,...(process.env.CHROME_BIN ? {executablePath:process.env.CHROME_BIN} : {})});
@@ -39,7 +44,6 @@ const server = http.createServer(async (req,res) => {
   const url = `http://127.0.0.1:${server.address().port}${scope}`;
   await page.goto(url); await page.evaluate(()=>offlineOCRTest.waitForCache());
   assert.equal(await page.evaluate(()=>offlineOCRTest.getState().version),previousVersion);
-  const retired=['image-codecs/libheif-bundle.js','sources/image-codecs-source.zip','licenses/LIBHEIF_LICENSE.txt','licenses/LIBDE265_LICENSE.txt'];
   assert(await page.evaluate(async paths=>{const c=await caches.open(offlineOCRTest.getState().cacheName);return (await Promise.all(paths.map(p=>c.match(new URL(p,location.href))))).every(Boolean);},retired));
   if(previousVersion==='v8.6')assert(await page.evaluate(()=>Array.from('iｉ').every(text=>OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
   await page.evaluate(async()=>{
@@ -81,8 +85,8 @@ const server = http.createServer(async (req,res) => {
   assert.equal(await page.locator('.brand-finding').count(),7);
   assert.match(await page.locator('.guide-rules').textContent(),/小寫 i、o 與大寫 L 不列入此項提醒/);
   assert.deepEqual(errors,[]);
-  const report = {status:'pass',from:previousVersion,to:currentVersion,browser:browser.version(),finished_utc:new Date().toISOString(),
-    checks:['Previous release with HEVC assets loads from its offline cache','New service worker activates and removes the old project cache and HEVC assets','Other project and legacy caches are preserved','Offline reload preserves ambiguity rules','TIFF and notices are cached; unsupported HEIC shows guidance offline','Supplemental copyright notices open offline','Guide HTML and CSS are cached and open offline'],uncaught_errors:errors};
+  const report = {status:'pass',from:previousVersion,to:currentVersion,browser:browser.version(),retired_resource_bytes:'inert test markers',finished_utc:new Date().toISOString(),
+    checks:['Previous release loads with inert markers at retired HEVC asset URLs','New service worker activates and removes the old project cache and HEVC assets','Other project and legacy caches are preserved','Offline reload preserves ambiguity rules','TIFF and notices are cached; unsupported HEIC shows guidance offline','Supplemental copyright notices open offline','Guide HTML and CSS are cached and open offline'],uncaught_errors:errors};
   if (process.env.REPORT_PATH) await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));
 })().catch(error=>{ console.error(error); process.exitCode=1; }).finally(async()=>{ await browser?.close(); server.close(); });

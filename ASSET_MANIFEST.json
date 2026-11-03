@@ -19,8 +19,8 @@
       "mode": "0o644"
     },
     "README.md": {
-      "bytes": 39538,
-      "sha256": "e26b7866ff41596c2763bb11561bea6aec4148fe4899c2e5c58da833b4583073",
+      "bytes": 39721,
+      "sha256": "73a5237ae12ac3f8dee18a7418c73b58837403e94cf933382b3c8dce3d1d71ac",
       "mode": "0o644"
     },
     "START_MAC.command": {
@@ -89,8 +89,8 @@
       "mode": "0o644"
     },
     "V8_6_2_TEST_REPORT.json": {
-      "bytes": 14649,
-      "sha256": "309e734d40645f33070f57bbe4fffe3f597ea6ba2a47efc461c3083a4b58f762",
+      "bytes": 14709,
+      "sha256": "3f5005208a2530f32a6ad1ed9079c526e2cb2a24efda12e943dd563471de7513",
       "mode": "0o644"
     },
     "V8_6_IMAGE_FORMAT_TEST_REPORT.json": {
@@ -404,8 +404,8 @@
       "mode": "0o644"
     },
     "tests/cache-upgrade.browser.cjs": {
-      "bytes": 7026,
-      "sha256": "322b7d1e169256d8198bf277f9eeabeaade6ab1b67e0cfa9733dcfe0a55eb3b5",
+      "bytes": 7462,
+      "sha256": "de985481a4c329248c572f83bd595a53b132b19b34e26a55cfb96ebb2535370b",
       "mode": "0o644"
     },
     "tests/distribution.test.cjs": {
