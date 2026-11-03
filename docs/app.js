@@ -23,6 +23,89 @@ const findBox=(fileId,boxId)=>findFile(fileId)?.boxes.find(b=>b.id===boxId);
 const withDecode=fn=>{const task=decodeChain.then(fn,fn);decodeChain=task.catch(()=>{});return task;};
 const node=(tag,className,text)=>{const e=document.createElement(tag);if(className)e.className=className;if(text!==undefined)e.textContent=text;return e;};
 function status(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
+// History shares immutable File/result/geometry objects. Only mutable metadata
+// is copied; decoded bitmaps, workers and PDF documents never enter a snapshot.
+const edits={undo:[],redo:[],group:null,composing:false,limit:50};
+const retiredURLs=new Set();
+let historyNoticeTimer,resourceSweepPending=false,leaveGuardAttached=false;
+function copyHistoryFiles(files){return files.map(file=>({...file,rotating:false,rotationTask:null,boxes:file.boxes.map(box=>({...box}))}));}
+function captureEdits(){
+  const active=document.activeElement,card=active?.closest('.result-card');
+  return {files:copyHistoryFiles(state.files),selectionOrder:state.selectionOrder.slice(),currentId:state.currentId,paused:state.paused,
+    detectQueue:[...(state.active?.type==='detect'?[state.active]:[]),...state.detectQueue].map(job=>({...job})),
+    warning:$('import-warning').textContent,verifiedOnly:$('verified-only').checked,
+    openDetails:[...resultNodes].filter(([,card])=>card._parts.details.open).map(([id])=>id),
+    focus:active?.matches('.result-value')?{id:card.dataset.resultId,start:active.selectionStart,end:active.selectionEnd}:null};
+}
+function retireURL(url){if(url){retiredURLs.add(url);scheduleResourceSweep();}}
+function scheduleResourceSweep(){
+  if(resourceSweepPending)return;resourceSweepPending=true;
+  queueMicrotask(()=>{
+    resourceSweepPending=false;
+    const live=new Set();
+    for(const files of [state.files,...edits.undo.map(entry=>entry.snapshot.files),...edits.redo.map(entry=>entry.snapshot.files)])
+      for(const file of files){if(file.thumbnailURL)live.add(file.thumbnailURL);for(const box of file.boxes)if(box.previewURL)live.add(box.previewURL);}
+    for(const url of retiredURLs)if(!live.has(url)){URL.revokeObjectURL(url);retiredURLs.delete(url);}
+  });
+}
+function rememberEdit(label,key=null){
+  const now=performance.now();
+  if(key&&edits.group?.key===key&&(edits.composing||now-edits.group.time<900)){edits.group.time=now;return;}
+  edits.undo.push({label,snapshot:captureEdits()});
+  if(edits.undo.length>edits.limit)edits.undo.shift();
+  edits.redo=[];edits.group=key?{key,time:now}:null;
+  scheduleResourceSweep();updateHistoryControls();
+}
+function hasRecoverableData(){return !!(state.files.length||state.importPending||[...edits.undo,...edits.redo].some(entry=>entry.snapshot.files.length));}
+function beforeLeaving(event){if(!hasRecoverableData())return;event.preventDefault();event.returnValue='已輸入的資料與復原紀錄會消失，請先匯出結果。';}
+function updateHistoryControls(){
+  const busy=!!(state.importPending||state.files.some(file=>file.rotating)||edits.composing);
+  $('undo').disabled=busy||!edits.undo.length;$('redo').disabled=busy||!edits.redo.length;
+  $('undo').title=busy?'請等候目前操作完成':edits.undo.length?`復原：${edits.undo.at(-1).label}（Ctrl／⌘ + Z）`:'沒有可復原的操作';
+  $('redo').title=busy?'請等候目前操作完成':edits.redo.length?`重做：${edits.redo.at(-1).label}（Ctrl／⌘ + Shift + Z）`:'沒有可重做的操作';
+  const protect=hasRecoverableData();
+  if(protect!==leaveGuardAttached){window[protect?'addEventListener':'removeEventListener']('beforeunload',beforeLeaving);leaveGuardAttached=protect;}
+  $('leave-warning').hidden=!protect;
+}
+function historyNotice(text){
+  clearTimeout(historyNoticeTimer);const notice=$('history-notice');notice.textContent=text;notice.classList.add('visible');
+  historyNoticeTimer=setTimeout(()=>notice.classList.remove('visible'),2200);
+}
+function restoreEdits(saved){
+  const target=saved.files.find(file=>file.id===saved.currentId);
+  const keepDisplay=state.display&&state.displayId===target?.id&&currentFile()?.rotation===target.rotation&&state.display.width===target.width&&state.display.height===target.height;
+  state.epoch++;state.navigationToken++;stopWorker('正在恢復操作。');OfflineImage.reset();
+  OfflinePDF.reset().catch(error=>status('釋放 PDF 資源時發生問題：'+error.message,true));
+  for(const file of state.files)releaseFile(file);
+  if(!keepDisplay){state.display?.close();state.display=null;state.displayId=null;}
+  state.files=copyHistoryFiles(saved.files);state.selectionOrder=saved.selectionOrder.slice();state.currentId=saved.currentId;
+  state.paused=saved.paused;state.active=null;state.pumping=false;state.manual=false;state.drag=null;state.importPending=0;state.importLabel='';
+  state.detectQueue=saved.detectQueue.map(job=>({...job}));state.ocrQueue=[];
+  for(const file of state.files){
+    if(file.pdfSource)OfflinePDF.retain(file.pdfSource);
+    if(file.status==='detecting'||file.status==='waiting'){
+      file.status='waiting';if(!state.detectQueue.some(job=>job.fileId===file.id))state.detectQueue.push({type:'detect',fileId:file.id,mode:file.mode||'default'});
+    }
+    for(const box of file.boxes)if(box.selected&&(box.status==='queued'||box.status==='recognizing')){
+      box.status='queued';box.token++;state.ocrQueue.push({type:'recognize',fileId:file.id,boxId:box.id,token:box.token,rotate180:box.rotate180});
+    }
+  }
+  // Rebuild cards so their event handlers refer to the restored metadata.
+  for(const card of resultNodes.values())card.remove();resultNodes.clear();fileNodes.clear();$('file-list').replaceChildren();
+  $('verified-only').checked=saved.verifiedOnly;warning(saved.warning);renderFiles();renderResults();renderCurrent();
+  for(const id of saved.openDetails){const card=resultNodes.get(id);if(card)card._parts.details.open=true;}
+  if(saved.focus){const textarea=resultNodes.get(saved.focus.id)?._parts.textarea;if(textarea&&!textarea.disabled){textarea.focus({preventScroll:true});textarea.setSelectionRange(saved.focus.start,saved.focus.end);}}
+  if(state.currentId)navigate(state.currentId).catch(error=>status(error.message,true));else pump();
+  scheduleResourceSweep();
+}
+function travelEdits(direction){
+  if(state.importPending||state.files.some(file=>file.rotating)||edits.composing)return false;
+  const from=edits[direction],to=edits[direction==='undo'?'redo':'undo'],entry=from.pop();if(!entry)return false;
+  const scroll={x:window.scrollX,y:window.scrollY};
+  to.push({label:entry.label,snapshot:captureEdits()});edits.group=null;
+  restoreEdits(entry.snapshot);window.scrollTo(scroll.x,scroll.y);
+  historyNotice(direction==='undo'?'已恢復':'取消恢復');updateHistoryControls();return true;
+}
 // A single ordered selection list drives cards, clipboard, TXT and CSV.
 // Never derive output order from file order, detected box number or OCR completion.
 function selectedRows(){
@@ -36,6 +119,7 @@ function warning(text){$('import-warning').textContent=text;$('import-warning').
 $('batch-hint').textContent=`這台裝置建議先以 ${recommended} 張／頁為一批；手機通常 10–20、桌機 100。每張圖片或每頁 PDF 各算 1 個，單批上限 ${MAX_FILES}。實際負荷也取決於檔案內容，並非保證安全數量。`;
 
 function updateSummary(){
+  updateHistoryControls();
   const selected=selectedRows(),done=selected.filter(x=>x.box.status==='done').length,failed=selected.filter(x=>x.box.status==='error').length;
   const scanned=state.files.filter(f=>f.status==='ready'||f.status==='error').length;
   $('batch-summary').textContent=state.files.length?`${state.files.length} 張／頁 · 已掃描 ${scanned} · 已選 ${selected.length} 框 · 完成 ${done}${failed?' · 失敗 '+failed:''}`:'尚未加入圖片或 PDF';
@@ -102,6 +186,7 @@ function moveFile(fileId,direction){
   if(direction!==-1&&direction!==1)throw Error('頁面排序方向必須是上移或下移。');
   const index=state.files.findIndex(file=>file.id===fileId),next=index+direction;
   if(index<0||next<0||next>=state.files.length)return false;
+  rememberEdit('調整頁面順序');
   [state.files[index],state.files[next]]=[state.files[next],state.files[index]];
   const position=new Map(state.files.map((file,i)=>[file.id,i]));
   // Keep explicit rescans ahead of background work; never interrupt the active job.
@@ -150,14 +235,15 @@ async function rotateTo(fileId,angle){
       prepared=await loadPageView(file,rotation,epoch);
       const bitmap=prepared.bitmap,blob=await canvasBlob(cropCanvas(bitmap,[0,0,bitmap.width,bitmap.height],130,160),'image/jpeg');
       if(epoch!==state.epoch||!findFile(fileId))return false;
+      rememberEdit('旋轉頁面');
       // Remove every old overlay. Selected results keep their own immutable view
       // for exports and retries, but never rejoin the new candidate scan.
       file.boxes=file.boxes.filter(box=>{
         if(box.selected){if(!box.retired)box.pageView={...file.view,matrix:file.view.matrix.slice()};box.retired=true;return true;}
-        if(box.previewURL)URL.revokeObjectURL(box.previewURL);return false;
+        retireURL(box.previewURL);return false;
       });
       applyPageView(file,prepared);
-      if(file.thumbnailURL)URL.revokeObjectURL(file.thumbnailURL);
+      retireURL(file.thumbnailURL);
       file.thumbnailURL=URL.createObjectURL(blob);file.status='waiting';file.error='';file.warningLog=[];file.lastDetection=null;
       if(state.currentId===fileId){state.navigationToken++;state.display?.close();state.display=bitmap;state.displayId=fileId;prepared=null;}
       state.detectQueue=state.detectQueue.filter(job=>job.fileId!==fileId);
@@ -303,6 +389,7 @@ async function detectFile(job,epoch){
 function requestDetection(fileId,mode='detail'){
   const file=findFile(fileId);if(!file)return;
   if(state.detectQueue.some(j=>j.fileId===fileId&&j.mode===mode))return;
+  rememberEdit('尋找更多候選框');
   state.detectQueue.unshift({type:'detect',fileId,mode,explicit:true});if(file.status==='error')file.status='waiting';
   updateSummary();status(mode==='detail'?'已排入更仔細的掃描；保留現有選框與結果。':'已排入掃描。');pump();
 }
@@ -345,7 +432,7 @@ async function recognizeBox(job,epoch){
     if(epoch!==state.epoch||!validOCRJob(job))return;
     const preview=recognitionPreview(crop,job.rotate180),blob=await canvasBlob(preview);
     if(epoch!==state.epoch||!validOCRJob(job))return;
-    if(box.previewURL)URL.revokeObjectURL(box.previewURL);box.previewURL=URL.createObjectURL(blob);renderResults();
+    retireURL(box.previewURL);box.previewURL=URL.createObjectURL(blob);renderResults();
     const bitmap=crop.bitmap,result=await callWorker({type:'run',bitmap,box:[0,0,bitmap.width,bitmap.height],polygon:crop.polygon,rotate180:job.rotate180},[bitmap]);crop=null;
     if(epoch!==state.epoch||!validOCRJob(job))return;
     const best=result.results?.find(r=>r.model==='small6')?.best;
@@ -360,11 +447,12 @@ function enqueueOCR(file,box){
   state.ocrQueue.push({type:'recognize',fileId:file.id,boxId:box.id,token:box.token,rotate180:box.rotate180});
   renderResults();renderFiles();updateSummary();pump();
 }
-function selectBox(fileId,boxId){
+function selectBox(fileId,boxId,record=true){
   const file=findFile(fileId),box=findBox(fileId,boxId);if(!file||!box)throw Error('找不到候選框。');if(file.rotating)return false;
+  if(record)rememberEdit(box.selected?'取消選取候選框':'選取候選框');
   box.selected=!box.selected;
   if(box.selected){state.selectionOrder.push(box.id);if(box.result){box.status='done';renderResults();}else enqueueOCR(file,box);}
-  else{state.selectionOrder=state.selectionOrder.filter(id=>id!==box.id);box.token++;box.status=box.result?'done':'idle';if(box.retired){file.boxes=file.boxes.filter(item=>item!==box);if(box.previewURL)URL.revokeObjectURL(box.previewURL);}}
+  else{state.selectionOrder=state.selectionOrder.filter(id=>id!==box.id);box.token++;box.status=box.result?'done':'idle';if(box.retired){file.boxes=file.boxes.filter(item=>item!==box);retireURL(box.previewURL);}}
   renderFiles();renderResults();if(fileId===state.currentId){draw();renderCandidates();}updateSummary();
   if(box.selected&&$('auto-next').checked&&fileId===state.currentId){const next=state.files[currentIndex()+1];if(next)navigate(next.id).catch(e=>status(e.message,true));}
   return box.selected;
@@ -373,6 +461,7 @@ function moveSelection(boxId,direction){
   if(direction!==-1&&direction!==1)throw Error('排序方向必須是上移或下移。');
   const index=state.selectionOrder.indexOf(boxId),next=index+direction;
   if(index<0||next<0||next>=state.selectionOrder.length)return false;
+  rememberEdit('調整結果順序');
   [state.selectionOrder[index],state.selectionOrder[next]]=[state.selectionOrder[next],state.selectionOrder[index]];
   renderResults();status(`已移至第 ${next+1} 筆，複製與匯出順序已同步。`);return true;
 }
@@ -416,10 +505,17 @@ function createResultCard(file,box){
   const title=node('strong','result-file-title',`${file.name} · 框 ${box.number}`),actions=node('div','result-actions'),locate=node('button','subtle','回到圖片'),remove=node('button','text-button','取消選取');locate.type=remove.type='button';locate.addEventListener('click',()=>navigate(file.id));remove.addEventListener('click',()=>selectBox(file.id,box.id));actions.append(locate,remove);heading.append(ordering,title);top.append(heading,actions);card.append(top);
   const img=node('img','result-preview');img.alt=`${file.name} 框 ${box.number} 原圖裁切`;img.loading='lazy';img.decoding='async';img.hidden=true;card.append(img);
   const reviewNotice=node('div','review-notice'),reviewHeading=node('div','review-heading'),reviewIcon=node('span','review-icon','⚠\uFE0E'),reviewTitle=node('strong'),reviewReason=node('p','review-reason'),reviewButton=node('button','subtle review-open','查看疑點與逐字分數'),reviewActions=node('div','review-actions');reviewNotice.hidden=true;reviewNotice.setAttribute('role','status');reviewIcon.setAttribute('aria-hidden','true');reviewHeading.append(reviewIcon,reviewTitle);reviewButton.type='button';reviewButton.addEventListener('click',()=>{card._parts.details.open=true;card._parts.details.querySelector('summary').focus();});reviewActions.append(reviewButton,createReviewGuideLink());reviewNotice.append(reviewHeading,reviewReason,reviewActions);card.append(reviewNotice);
-  const textarea=node('textarea','result-value');textarea.rows=1;textarea.spellcheck=false;textarea.autocapitalize='off';textarea.autocomplete='off';textarea.setAttribute('aria-label',`${file.name} 框 ${box.number} 辨識結果`);textarea.dataset.testid='result-text';textarea.addEventListener('input',()=>{box.editedText=textarea.value;box.hasEdited=true;box.verified=false;card.querySelector('.verified-input').checked=false;updateReviewNotice(card,box);updateSummary();});card.append(textarea);
+  const textarea=node('textarea','result-value');textarea.rows=1;textarea.spellcheck=false;textarea.autocapitalize='off';textarea.autocomplete='off';textarea.setAttribute('aria-label',`${file.name} 框 ${box.number} 辨識結果`);textarea.dataset.testid='result-text';textarea.addEventListener('input',()=>{rememberEdit('修改文字',box.id);box.editedText=textarea.value;box.hasEdited=true;box.verified=false;card.querySelector('.verified-input').checked=false;updateReviewNotice(card,box);updateSummary();});textarea.addEventListener('beforeinput',event=>{
+    if(event.inputType==='historyUndo'||event.inputType==='historyRedo'){event.preventDefault();travelEdits(event.inputType==='historyUndo'?'undo':'redo');return;}
+    rememberEdit('修改文字',box.id);
+  });
+  textarea.addEventListener('blur',()=>{edits.group=null;});
+  textarea.addEventListener('compositionstart',()=>{rememberEdit('修改文字',box.id);edits.composing=true;updateHistoryControls();});
+  textarea.addEventListener('compositionend',()=>{edits.composing=false;updateHistoryControls();});
+  card.append(textarea);
   card.append(node('p','result-meta'));
-  const bottom=node('div','result-bottom'),verified=node('label','checkbox'),check=node('input','verified-input');check.type='checkbox';check.addEventListener('change',()=>{box.verified=check.checked;updateReviewNotice(card,box);updateSummary();});verified.append(check,document.createTextNode('已核對圖片'));
-  const controls=node('div','result-actions'),retry=node('button','subtle','重試'),rotate=node('button','subtle','轉 180° 重讀'),copy=node('button','','複製');for(const b of [retry,rotate,copy])b.type='button';retry.addEventListener('click',()=>enqueueOCR(file,box));rotate.addEventListener('click',()=>{box.rotate180=!box.rotate180;enqueueOCR(file,box);});copy.addEventListener('click',()=>copyText(textValue(box)));controls.append(retry,rotate,copy);bottom.append(verified,controls);card.append(bottom);
+  const bottom=node('div','result-bottom'),verified=node('label','checkbox'),check=node('input','verified-input');check.type='checkbox';check.addEventListener('change',()=>{rememberEdit('變更核對狀態');box.verified=check.checked;updateReviewNotice(card,box);updateSummary();});verified.append(check,document.createTextNode('已核對圖片'));
+  const controls=node('div','result-actions'),retry=node('button','subtle','重試'),rotate=node('button','subtle','轉 180° 重讀'),copy=node('button','','複製');for(const b of [retry,rotate,copy])b.type='button';retry.addEventListener('click',()=>{rememberEdit('重新辨識');enqueueOCR(file,box);});rotate.addEventListener('click',()=>{rememberEdit('轉 180° 重讀');box.rotate180=!box.rotate180;enqueueOCR(file,box);});copy.addEventListener('click',()=>copyText(textValue(box)));controls.append(retry,rotate,copy);bottom.append(verified,controls);card.append(bottom);
   const details=node('details'),summary=node('summary','','檢視辨識候選'),help=node('p','candidate-diff-help','紅字表示與本次預設辨識不同的字元；〔缺字〕只供核對，不會加入輸出。採用或手動修改後，比較基準仍保留本次預設結果。'),baselineLine=node('p','candidate-diff-help'),baseline=node('code','candidate-baseline');baselineLine.append(document.createTextNode('比較基準：'),baseline);
   const scoreHelp=node('p','candidate-diff-help',`本次預設結果的逐字分數（非正確率）；單字低於 ${OfflineOCRReview.defaultThreshold.toFixed(2)} 時提醒。`),characterScores=node('div','character-scores');
   const scroll=node('div','table-scroll'),table=node('table','recognition-table'),thead=node('thead'),head=node('tr');for(const text of ['處理方式','辨識結果','平均分數',''])head.append(node('th','',text));thead.append(head);const tbody=node('tbody');table.append(thead,tbody);scroll.append(table);details.append(summary,help,baselineLine,scoreHelp,characterScores,scroll);card.append(details);
@@ -445,7 +541,7 @@ function updateResultCard(card,file,box){
       const scoresDetails=node('details','candidate-scores'),scores=node('div','character-scores');
       scoresDetails.append(node('summary','','逐字分數'),scores);renderCharacterScores(scores,OfflineOCRReview.analyze({best:candidate}));candidateText.append(scoresDetails);
       tr.append(node('td','',candidate.variantName),candidateText,node('td','',candidate.confidence.toFixed(4)));
-      const td=node('td'),adopt=node('button','subtle','採用');adopt.type='button';adopt.addEventListener('click',()=>{box.editedText=candidate.text;box.hasEdited=true;box.verified=false;updateResultCard(card,file,box);updateSummary();});td.append(adopt);tr.append(td);p.tbody.append(tr);
+      const td=node('td'),adopt=node('button','subtle','採用');adopt.type='button';adopt.addEventListener('click',()=>{rememberEdit('採用辨識候選');box.editedText=candidate.text;box.hasEdited=true;box.verified=false;updateResultCard(card,file,box);updateSummary();});td.append(adopt);tr.append(td);p.tbody.append(tr);
     }
     p.payload=box.result;
   }
@@ -458,9 +554,9 @@ function renderResults(){
   rows.forEach(({file,box,order},index)=>{let card=resultNodes.get(box.id);if(!card){card=createResultCard(file,box);resultNodes.set(box.id,card);}updateResultCard(card,file,box);card.dataset.order=String(order);card._parts.orderNumber.textContent=String(order);card._parts.orderNumber.setAttribute('aria-label',`輸出順序第 ${order} 筆`);card._parts.moveUp.disabled=index===0;card._parts.moveDown.disabled=index===rows.length-1;const previous=index?resultNodes.get(rows[index-1].box.id):$('empty-results');if(previous.nextElementSibling!==card)previous.after(card);});
   updateSummary();
 }
-function releaseFile(file){if(file.thumbnailURL)URL.revokeObjectURL(file.thumbnailURL);for(const box of file.boxes)if(box.previewURL)URL.revokeObjectURL(box.previewURL);}
+function releaseFile(file){retireURL(file.thumbnailURL);for(const box of file.boxes)retireURL(box.previewURL);}
 async function removeFile(id){
-  const file=findFile(id);if(!file)return;const epoch=state.epoch,index=state.files.indexOf(file),wasCurrent=state.currentId===id,removed=new Set(file.boxes.map(box=>box.id));state.selectionOrder=state.selectionOrder.filter(boxId=>!removed.has(boxId));releaseFile(file);state.files.splice(index,1);state.detectQueue=state.detectQueue.filter(j=>j.fileId!==id);state.ocrQueue=state.ocrQueue.filter(j=>j.fileId!==id);
+  const file=findFile(id);if(!file)return;rememberEdit('移除頁面');const epoch=state.epoch,index=state.files.indexOf(file),wasCurrent=state.currentId===id,removed=new Set(file.boxes.map(box=>box.id));state.selectionOrder=state.selectionOrder.filter(boxId=>!removed.has(boxId));releaseFile(file);state.files.splice(index,1);state.detectQueue=state.detectQueue.filter(j=>j.fileId!==id);state.ocrQueue=state.ocrQueue.filter(j=>j.fileId!==id);
   if(wasCurrent){state.display?.close();state.display=null;state.displayId=null;state.currentId=null;state.navigationToken++;}
   renderFiles();renderResults();renderCurrent();
   try{if(file.pdfSource&&!state.files.some(item=>item.pdfSource===file.pdfSource))await OfflinePDF.release(file.pdfSource);}
@@ -472,6 +568,7 @@ async function removeFile(id){
   }
 }
 function clearAll(){
+  if(state.files.length)rememberEdit('清空這一批');
   OfflineImage.reset();
   state.epoch++;state.navigationToken++;stopWorker('已清空這一批。');for(const file of state.files)releaseFile(file);
   state.display?.close();state.display=null;state.displayId=null;state.files=[];state.selectionOrder=[];state.currentId=null;state.detectQueue=[];state.ocrQueue=[];state.active=null;state.pumping=false;state.paused=false;state.manual=false;state.drag=null;
@@ -522,6 +619,7 @@ async function importFiles(incoming,epoch){
       for(let page=1;page<=count;page++)accepted.push({file:pdf?file:imageSource.pages[page-1],originalFile:file,kind:pdf?'pdf':'image',sourceName:file.name,pdfSource,pdfPage:pdf?page:null,pdfPageCount:pdf?count:null,imagePage:pdf?null:page,imagePageCount:pdf?null:count,name:pdf||count>1?`${file.name} · 第 ${page}／${count} 頁`:file.name});
     }
     if(isCancelled())return;
+    if(accepted.length)rememberEdit('加入圖片或 PDF');
     for(const entry of accepted){const item={...entry,id:`f${++state.nextId}`,status:'waiting',boxes:[],error:'',thumbnailURL:null,width:0,height:0,originalWidth:0,originalHeight:0,rotation:0,rotating:false,rotationTask:null,view:null,nextBoxId:0};state.files.push(item);state.detectQueue.push({type:'detect',fileId:item.id,mode:'default'});}
     committed=true;
     const warnings=[...notices];if(rejected.length)warnings.push(`以下 ${rejected.length} 個檔案未加入：\n${rejected.join('\n')}`);
@@ -541,12 +639,26 @@ $('more-boxes').addEventListener('click',()=>requestDetection(state.currentId));
 for(const [id,direction]of [['rotate-left',-1],['rotate-right',1]])$(id).addEventListener('click',()=>rotateFile(state.currentId,direction).catch(error=>status('無法旋轉此頁：'+error.message,true)));
 $('custom-rotation').addEventListener('submit',event=>{event.preventDefault();if(!$('custom-rotation').reportValidity())return;rotateTo(state.currentId,$('rotation-angle').valueAsNumber).catch(error=>status('無法旋轉此頁：'+error.message,true));});
 $('manual').addEventListener('click',()=>{state.manual=!state.manual;state.drag=null;updateSummary();draw();status(state.manual?'手動補框已開啟：拖出一整行序號。':'已回到點選候選框。');});
-$('verified-only').addEventListener('change',updateSummary);
+$('verified-only').addEventListener('change',()=>{
+  // The checkbox has already toggled when change fires; capture its old value.
+  $('verified-only').checked=!$('verified-only').checked;rememberEdit('變更輸出篩選');
+  $('verified-only').checked=!$('verified-only').checked;updateSummary();
+});
+$('undo').addEventListener('click',()=>travelEdits('undo'));
+$('redo').addEventListener('click',()=>travelEdits('redo'));
+document.addEventListener('keydown',event=>{
+  if(event.isComposing||edits.composing||event.altKey||!(event.ctrlKey||event.metaKey))return;
+  const key=event.key.toLowerCase(),undo=key==='z'&&!event.shiftKey,redo=(key==='z'&&event.shiftKey)||(key==='y'&&event.ctrlKey&&!event.shiftKey);
+  if(!undo&&!redo)return;
+  // Leave unrelated inputs (e.g. the angle field) to native text undo.
+  if((event.target.matches('input,textarea,select')||event.target.isContentEditable)&&!event.target.matches('.result-value'))return;
+  event.preventDefault();travelEdits(undo?'undo':'redo');
+});
 function position(event){const file=currentFile(),rect=source.getBoundingClientRect();return [Math.max(0,Math.min(file.width,(event.clientX-rect.left)*file.width/rect.width)),Math.max(0,Math.min(file.height,(event.clientY-rect.top)*file.height/rect.height))];}
 function addManualBox(box){
   const file=currentFile();if(!file||!file.width||file.rotating)throw Error('請先開啟圖片並等待旋轉完成。');
   const [x0,y0,w0,h0]=box.map(Number);if(![x0,y0,w0,h0].every(Number.isFinite))throw Error('範圍無效。');const x=Math.max(0,Math.min(file.width-1,x0)),y=Math.max(0,Math.min(file.height-1,y0)),w=Math.min(file.width-x,Math.max(1,w0)),h=Math.min(file.height-y,Math.max(1,h0));
-  const candidate=normalizeBox({box:[x,y,w,h],source:'manual'},file,visibleBoxes(file).length+1);if(!candidate)throw Error('框選範圍太小。');file.boxes.push(candidate);renderCurrent();selectBox(file.id,candidate.id);return candidate.id;
+  const candidate=normalizeBox({box:[x,y,w,h],source:'manual'},file,visibleBoxes(file).length+1);if(!candidate)throw Error('框選範圍太小。');rememberEdit('手動補框');file.boxes.push(candidate);renderCurrent();selectBox(file.id,candidate.id,false);return candidate.id;
 }
 source.addEventListener('pointerdown',event=>{if(!currentFile()||currentFile().rotating||!state.display)return;const [x,y]=position(event);state.drag={start:[x,y],client:[event.clientX,event.clientY],box:[x,y,0,0]};if(state.manual){source.setPointerCapture(event.pointerId);event.preventDefault();}});
 source.addEventListener('pointermove',event=>{if(!state.drag||!state.manual)return;const [x,y]=position(event),[sx,sy]=state.drag.start;state.drag.box=[Math.min(x,sx),Math.min(y,sy),Math.abs(x-sx),Math.abs(y-sy)];draw();});
@@ -584,6 +696,6 @@ cachePromise.catch(error=>{$('cache-status').classList.add('error');$('cache-sta
 async function whenIdle(){while(state.importPending||state.pumping||state.active||state.files.some(f=>f.rotating)||state.ocrQueue.some(validOCRJob)||state.detectQueue.some(j=>!state.paused||j.explicit))await delay(40);return snapshot();}
 async function waitForFile(id){for(;;){const file=findFile(id);if(!file)throw Error('找不到圖片。');if(file.status==='ready'||file.status==='error')return snapshot().files.find(f=>f.id===id);await delay(40);}}
 function snapshotBox(b){return {id:b.id,number:b.number,box:b.box.slice(),polygon:b.polygon.map(p=>p.slice()),score:b.score,source:b.source,retired:!!b.retired,selected:b.selected,status:b.status,editedText:b.editedText,verified:b.verified,rotate180:b.rotate180,error:b.error||'',result:b.result};}
-function snapshot(){return {version:APP_VERSION,cacheName:CACHE_NAME,selectionOrder:selectedRows().map(({box})=>box.id),files:state.files.map(f=>({id:f.id,name:f.name,kind:f.kind,sourceName:f.sourceName,pdfPage:f.pdfPage,pdfPageCount:f.pdfPageCount,rotation:f.rotation,rotating:f.rotating,status:f.status,width:f.width,height:f.height,originalWidth:f.originalWidth,originalHeight:f.originalHeight,error:f.error,boxes:visibleBoxes(f).map(snapshotBox),savedResults:f.boxes.filter(b=>b.retired).map(snapshotBox)})),currentId:state.currentId,paused:state.paused,importing:state.importPending>0,pdfStats:OfflinePDF.getStats(),active:state.active?{...state.active}:null,pendingDetection:state.detectQueue.map(j=>({...j})),pendingRecognition:state.ocrQueue.filter(validOCRJob).map(j=>({...j})),busy:state.pumping,cacheReady:state.cacheReady,metrics:{...state.metrics},history:state.history.map(j=>({...j}))};}
-window.offlineOCRTest={waitForCache:()=>cachePromise,getState:snapshot,selectBox,moveSelection,moveFile,navigate,rotateFile,rotateTo,pause:()=>{state.paused=true;updateSummary();renderFiles();},resume:()=>{state.paused=false;updateSummary();pump();},remove:removeFile,clear:clearAll,whenIdle,waitForFile,exportTXT,exportCSV,setROI:addManualBox,requestDetection,addFiles,loadModels:async()=>{await whenIdle();return callWorker({type:'load'});}};
+function snapshot(){return {version:APP_VERSION,cacheName:CACHE_NAME,editHistory:{undo:edits.undo.length,redo:edits.redo.length,limit:edits.limit},selectionOrder:selectedRows().map(({box})=>box.id),files:state.files.map(f=>({id:f.id,name:f.name,kind:f.kind,sourceName:f.sourceName,pdfPage:f.pdfPage,pdfPageCount:f.pdfPageCount,rotation:f.rotation,rotating:f.rotating,status:f.status,width:f.width,height:f.height,originalWidth:f.originalWidth,originalHeight:f.originalHeight,error:f.error,boxes:visibleBoxes(f).map(snapshotBox),savedResults:f.boxes.filter(b=>b.retired).map(snapshotBox)})),currentId:state.currentId,paused:state.paused,importing:state.importPending>0,pdfStats:OfflinePDF.getStats(),active:state.active?{...state.active}:null,pendingDetection:state.detectQueue.map(j=>({...j})),pendingRecognition:state.ocrQueue.filter(validOCRJob).map(j=>({...j})),busy:state.pumping,cacheReady:state.cacheReady,metrics:{...state.metrics},history:state.history.map(j=>({...j}))};}
+window.offlineOCRTest={waitForCache:()=>cachePromise,getState:snapshot,undo:()=>travelEdits('undo'),redo:()=>travelEdits('redo'),selectBox,moveSelection,moveFile,navigate,rotateFile,rotateTo,pause:()=>{state.paused=true;updateSummary();renderFiles();},resume:()=>{state.paused=false;updateSummary();pump();},remove:removeFile,clear:clearAll,whenIdle,waitForFile,exportTXT,exportCSV,setROI:addManualBox,requestDetection,addFiles,loadModels:async()=>{await whenIdle();return callWorker({type:'load'});}};
 updateSummary();

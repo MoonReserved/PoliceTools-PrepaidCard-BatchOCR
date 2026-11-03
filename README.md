@@ -9,9 +9,11 @@
 
 工具以減少逐張框選、反覆切換圖片及手動輸入為目標。圖片、PDF 與序號辨識都在使用者的裝置內處理，不需要雲端 OCR、API Key 或使用者帳號。
 
-**目前版本：v8.6.2 · 原生照片讀取與授權揭示**
+**目前版本：v8.7 · 操作復原與離頁提醒**
 
 更新日期：2026-11-03
+
+v8.7 新增右下角浮動「復原／重做」按鈕，支援最近 50 步操作。清空、移除頁面、文字修改、選取／採用候選、核對狀態、排序、補框、旋轉與重讀均可復原；連續打字會合併成一步。復原顯示淡色「已恢復」，重做顯示「取消恢復」。有資料或可復原紀錄時，重新整理或離開會要求瀏覽器確認。
 
 v8.6.1 將小寫 `i`（含全形 `ｉ`）移出主動警示；仍保留單字分數低於 0.80、四個候選文字分歧，以及 `I／l／1／O／0` 的提醒。
 
@@ -55,6 +57,8 @@ v8.3 新增自訂旋轉角度與歪斜警語。每次旋轉會清除目前頁面
 - **候選差異紅字**：展開辨識候選時，與當次預設結果不同的字元會標紅，方便對照原圖。
 - **人工核對與修正**：支援直接改字、採用候選、標記已核對、重試及轉 180° 重讀。
 - **整批輸出**：支援複製全部序號、下載 TXT、下載 CSV，也可只輸出已核對的結果。
+- **操作復原與重做**：浮動按鈕隨頁面保持可見；支援 Ctrl／⌘ + Z、Ctrl／⌘ + Shift + Z，以及 Windows 的 Ctrl + Y。
+- **離頁提醒**：有資料、正在匯入或仍有可還原資料時，F5、重新整理、關閉分頁或離開網站會觸發瀏覽器確認。
 - **完整離線資源**：模型、執行環境、PDF 支援檔、字型及授權文件均隨網站提供。
 
 序號辨識統一使用 PP-OCRv6 small，保留同一模型的四種影像處理候選。已移除 English PP-OCRv5 mobile 第二意見及其選項，使用者不必選擇辨識模型。
@@ -68,6 +72,18 @@ v8.3 新增自訂旋轉角度與歪斜警語。每次旋轉會清除目前頁面
 5. **調整順序並輸出**：確認結果清單的編號，再複製全部或下載 TXT／CSV。
 
 漏框時可先按「找更多候選框」；仍找不到才使用「手動補上一框」。模糊、反光、刮除不完整或嚴重變形的圖片，可能仍需要重拍或人工修正。
+
+### 復原、重做與離頁提醒
+
+右下角「↶ 復原」取消上一動；「↷ 重做」恢復剛才取消的操作。電腦可按 Ctrl + Z（Mac：⌘ + Z）復原；Ctrl + Shift + Z（Mac：⌘ + Shift + Z）重做，亦支援 Ctrl + Y。連續輸入約 0.9 秒內會合併成一步；離開欄位後另起一步。中文組字時不攔截輸入法快捷鍵。角度輸入欄保留瀏覽器原有的文字復原。
+
+- 清空這批或移除單頁後，可找回原圖片／PDF、候選框、修改文字、核對狀態與輸出順序。
+- 支援最近 **50 步**。復原後若做了新修改，舊的重做分支會被取代；超過步數的舊紀錄會釋放。
+- 圖片／PDF 匯入或頁面旋轉期間，復原按鈕暫停使用；背景 OCR 期間仍可復原，未完成工作會依還原狀態重新排隊。
+- 紀錄只存在目前分頁記憶體中，不寫入離線快取、不上傳。清空後會暫留可復原資料，重新整理或關閉則全部消失；尚未匯入完成的檔案不在復原範圍。
+- 有資料（包含清空後的復原紀錄）時，F5、重新整理及離開會跳出瀏覽器確認；取消離開就能繼續操作。複製或匯出後仍保留提醒，因為圖片、候選與復原紀錄尚在分頁內。
+
+確認視窗使用瀏覽器內建文字，網站不能自訂；手機強制關閉瀏覽器等情況也可能不顯示。因此仍須先匯出，復原功能不是自動存檔。[瀏覽器 beforeunload 說明](https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event)
 
 ### 旋轉圖片或 PDF 頁面
 
@@ -166,7 +182,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 
 離線快取只包含程式、模型、PDF 支援資源、字型與授權文件，不包含使用者加入的圖片、PDF 或辨識結果。清除網站資料、使用無痕模式或系統回收儲存空間，都可能使離線資源需要重新準備。
 
-**本工具不會自動保存工作進度。重新整理、關閉分頁或清空前，請先複製或匯出結果。**
+**本工具不會自動保存工作進度。清空可在本分頁內復原；重新整理或關閉分頁後無法找回，請先複製或匯出結果。**
 
 ## 部署到 GitHub Pages
 
@@ -186,6 +202,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 | `local-server/` | 隨附本機伺服器、原始碼、建置與授權說明 |
 | `serve.py` | 已安裝 Python 3 時可使用的後備啟動方式 |
 | `TEST_REPORT.json` | v8.1 整合版驗證摘要 |
+| `V8_7_HISTORY_TEST_REPORT.json` | v8.7 復原、重做、離頁提醒與既有功能回歸驗證 |
 | `V8_2_ROTATION_TEST_REPORT.json` | v8.2 旋轉功能與 EXIF 方向驗證摘要 |
 | `V8_3_ROTATION_TEST_REPORT.json` | v8.3 清框重掃與自訂角度驗證摘要 |
 | `V8_6_1_REVIEW_TEST_REPORT.json` | v8.6.1 小寫 i 警示調整、功能回歸與離線升級驗證 |
@@ -210,7 +227,7 @@ GitHub Pages 或其他靜態託管服務只提供網站程式與公開模型；�
 3. 開啟解壓後的專案資料夾，將裡面的全部檔案與子資料夾拖進上傳區，包含 `docs`、`local-server`、兩個啟動器及 README。
 4. 檢查清單中有 `docs/index.html`，等全部檔案上傳完成，再提交變更。已有預設 README 時，以本包的 README 取代。
 5. 進入 **Settings → Pages**，選 **Source：Deploy from a branch**、**Branch：main**、**Folder：/docs**，按 **Save**。
-6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.6.2 · 原生照片讀取與授權揭示**」。
+6. 等待 Pages 部署成功，開啟設定頁提供的 **Visit site** 網址。確認頁面名稱正確，頁尾顯示「**v8.7 · 操作復原與離頁提醒**」。
 7. 等待「完整離線就緒」，加入一張圖片，確認能自動出框；點框後再確認能產生序號。
 
 若帳號仍為 `MoonReserved`，且 Repo 使用上述名稱，**預期**網址為 [https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/](https://moonreserved.github.io/PoliceTools-PrepaidCard-BatchOCR/)。這只是依命名推算的網址，不代表網站已替你部署；請以 GitHub Pages 設定頁顯示的網址為準。
@@ -329,6 +346,12 @@ Liberation 字型原始碼直接隨附於 `docs/sources/liberation-fonts-1.07.4-
 
 ## 驗證範圍與已知限制
 
+### v8.7 操作復原與離頁提醒
+
+驗證見 [v8.7 測試報告](V8_7_HISTORY_TEST_REPORT.json)。新增功能 17 項瀏覽器檢查，涵蓋清空與移除頁面復原、圖片／PDF 重開、連續改字、採用候選、輸出與核對狀態、排序、背景掃描與 OCR 競態、中文組字、Ctrl／⌘ 快捷鍵、50 步上限及預覽資源釋放、320～1280px 浮動按鈕與離頁確認。另通過 23 項單元測試、26 項真實模型 OCR／旋轉／離線回歸及 v8.6.2 → v8.7 快取升級檢查。
+
+本次瀏覽器驗證使用 macOS Chrome；Mac 快捷鍵以自動化鍵盤事件驗證，未在 Safari、Windows 或實體手機重測。離頁確認使用瀏覽器標準機制，不能保證手機強制結束程式時顯示。
+
 ### v8.6.2 原生照片讀取與授權揭示
 
 移除內附 HEVC 解碼器、其原始碼 ZIP 與 HEVC 編碼測試圖片；保留 TIFF、PDF、OCR 與啟動器。補上 UTIF 內附 PDF.js JPEG 解碼的 Apache 授權揭示、Photopea 壓縮程式署名、模型權利來源及 Noto 字型著作權。授權核對是公開來源、授權條文與檔案雜湊的核對，不是逐項專利侵權鑑定，也不保證所有第三方權利毫無爭議；上游未標示 UTIF 內附 JPEG 程式的確切 PDF.js 修訂版，已在揭示中註明。
@@ -347,7 +370,7 @@ Safari 測試先執行 `safaridriver --port 4445`，再設定本機 `HEIC_FIXTUR
 
 測試涵蓋真正編碼的 8-bit／10-bit HEIC、HEIF 主要照片、HEIC／TIFF 八種方向、彩色／灰階／黑白 TIFF、JPEG／LZW／Deflate／PackBits／Fax 壓縮、多頁 TIFF、缺少或錯誤 MIME、JPG／JFIF、PNG、WebP、AVIF、GIF、BMP、SVG。另驗證實際 OCR、旋轉後重試、透明圖片白底裁切、損毀檔隔離、200 頁上限、轉換中清空與離線新匯入。完整結果見 [v8.6 測試報告](V8_6_IMAGE_FORMAT_TEST_REPORT.json)。
 
-可執行 `node --test tests/*.test.cjs`、`node tests/image-formats.browser.cjs`、`node tests/rotation.browser.cjs`、`node tests/selection-layout.browser.cjs` 與 `node tests/cache-upgrade.browser.cjs`。瀏覽器測試需 Playwright／Chrome，可設定 `PLAYWRIGHT_MODULE`、`CHROME_BIN`；版面測試在提交前使用 `BASELINE_REF=HEAD`，提交後預設 `HEAD^`；升級測試會自動尋找前一個應用程式版本，也可指定 `BASELINE_REF`。升級測試以無執行內容的標記模擬舊 HEVC 快取網址，不需取回已撤下的解碼器。合成圖片與產生腳本位於 `tests/`，不含私人照片，不加入網站離線快取。
+可執行 `node tests/history.browser.cjs`（復原／重做、非同步競態與離頁提醒）、`node --test tests/*.test.cjs`、`node tests/image-formats.browser.cjs`、`node tests/rotation.browser.cjs`、`node tests/selection-layout.browser.cjs` 與 `node tests/cache-upgrade.browser.cjs`。瀏覽器測試需 Playwright／Chrome，可設定 `PLAYWRIGHT_MODULE`、`CHROME_BIN`；版面測試在提交前使用 `BASELINE_REF=HEAD`，提交後預設 `HEAD^`；升級測試會自動尋找前一個應用程式版本，也可指定 `BASELINE_REF`。升級測試以無執行內容的標記模擬舊 HEVC 快取網址，不需取回已撤下的解碼器。合成圖片與產生腳本位於 `tests/`，不含私人照片，不加入網站離線快取。
 
 驗證環境為 macOS Chrome 與 320～1440px 響應式寬度，未在實體手機、Safari 或 Firefox 上驗證。HEIF 的特殊編碼、BigTIFF、浮點／特殊色彩 TIFF、RAW 不保證可讀，匯入失敗時請依提示轉存。工具維持純前端運算與原有 OCR 模型。
 

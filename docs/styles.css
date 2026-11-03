@@ -57,3 +57,15 @@ main,.workspace,.workspace>.panel,.file-list,.candidate-list,.selection-panel,.r
 .character-score{display:flex;flex-direction:column;align-items:center;min-width:57px;padding:4px 6px;border:1px solid #dde5df;border-radius:5px;background:#fff;font-size:11px;line-height:1.6;color:var(--ink)}
 .character-score b{font-size:17px}.character-position{font-family:Arial,sans-serif;color:var(--muted);font-size:10px}.character-score.low-score{background:#fff4c9;border-color:#d1a128;color:#654d13}.character-low-label{font-family:Arial,sans-serif;font-size:10px}.candidate-scores summary{font-family:Arial,sans-serif;font-size:11px}.candidate-scores .character-scores{margin-bottom:4px}
 .recognition-table{table-layout:fixed;min-width:280px}.recognition-table th:first-child{width:22%}.recognition-table th:nth-child(3){width:58px}.recognition-table th:last-child{width:46px}.recognition-table td:nth-child(2){min-width:0}
+
+/* Keep recovery within reach without moving the image or result cards. */
+main{padding-bottom:calc(125px + env(safe-area-inset-bottom,0px))}
+.history-dock{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:20;max-width:calc(100vw - 24px);pointer-events:none}
+.history-buttons{display:flex;gap:6px;padding:6px;background:rgba(255,255,255,.96);border:1px solid #cfddd4;border-radius:14px;box-shadow:0 5px 22px #18322f20;pointer-events:auto}
+.history-buttons button{min-width:82px;min-height:44px;border-radius:9px;background:#edf4ef;font-size:13px}
+.history-buttons button span{font-size:20px;vertical-align:-1px;margin-right:3px}
+.history-notice{margin:0 0 8px auto;padding:3px 10px;width:max-content;max-width:100%;border-radius:7px;background:#f9fcf9;color:#60716e;font-size:12px;opacity:0;transition:opacity .25s ease}
+.history-notice.visible{opacity:1}
+.leave-warning{margin:12px 2px;color:#796341}
+@media(max-width:520px){.history-dock{right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px))}.history-buttons button{min-width:76px}}
+@media(prefers-reduced-motion:reduce){.history-notice{transition:none}}

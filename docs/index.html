@@ -36,6 +36,7 @@
     <progress id="batch-progress" value="0" max="1" aria-label="文字區域掃描進度"></progress>
     <p id="status" data-testid="status" role="status" aria-live="polite">加入檔案後，會自動逐頁尋找候選文字行。</p>
   </section>
+  <p id="leave-warning" class="hint leave-warning" hidden>重新整理（F5）或離開此頁，已輸入的資料與復原紀錄會消失。請先複製或匯出結果。</p>
   <div class="workspace">
     <aside class="panel file-panel" aria-labelledby="files-title"><div class="section-title"><h2 id="files-title">頁面佇列</h2><span id="file-count" class="muted">0 張／頁</span></div><p class="queue-order-help">↑ 往前、↓ 往後。調整瀏覽與待掃描順序；序號輸出仍依點框順序。</p><div id="file-list" class="file-list" data-testid="file-list"><p class="empty-note">圖片與 PDF 的每一頁會列在這裡。</p></div></aside>
     <section class="panel selection-panel" aria-labelledby="selection-title">
@@ -67,8 +68,8 @@
     <p class="hint">輸出採用上方清單的順序。複製與 TXT 只含序號；CSV 的 order 欄保留介面序位，篩選後可能跳號。CSV 請用「匯入資料」並將文字欄指定為文字，避免前導零消失或以公式解讀。</p>
   </section>
   <footer>
-    <p id="app-version">v8.6.2 · 原生照片讀取與授權揭示</p>
-    <p>圖片、PDF 與辨識結果只留在此分頁的記憶體，關閉或清空即移除。請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
+    <p id="app-version">v8.7 · 操作復原與離頁提醒</p>
+    <p>圖片、PDF、辨識結果與最近 50 步復原紀錄只留在此分頁的記憶體；清空後仍可復原。重新整理或關閉即消失，請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
     <p>PDF 只轉成頁面畫面，不執行文件內的指令或開啟連結。顯示「完整離線就緒」後，可在同一瀏覽器、同一網址離線開啟。請保留網站資料；無痕模式、系統清理或清除快取可能移除離線資源。</p>
     <section class="attribution" aria-labelledby="attribution-title">
       <h2 id="attribution-title">使用模型與相關授權</h2>
@@ -101,5 +102,12 @@
     </section>
   </footer>
 </main>
+<div class="history-dock" role="group" aria-label="操作復原與重做">
+  <p id="history-notice" class="history-notice" role="status" aria-live="polite" aria-atomic="true"></p>
+  <div class="history-buttons">
+    <button id="undo" class="subtle" type="button" aria-label="復原上一動" aria-keyshortcuts="Control+z Meta+z" disabled><span aria-hidden="true">↶</span> 復原</button>
+    <button id="redo" class="subtle" type="button" aria-label="重做上一動" aria-keyshortcuts="Control+Shift+z Meta+Shift+z Control+y" disabled><span aria-hidden="true">↷</span> 重做</button>
+  </div>
+</div>
 </body>
 </html>

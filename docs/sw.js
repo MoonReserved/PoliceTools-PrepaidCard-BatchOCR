@@ -1,5 +1,5 @@
 'use strict';
-// v8.6.2 uses native HEIC decoding and retires bundled HEVC assets.
+// v8.7 adds local undo/redo and data-loss reminders.
 importScripts('./offline-assets.js');
 // Project sites share an origin. Include scope so one site's update cannot
 // remove another project's offline models. Legacy shared caches stay intact.

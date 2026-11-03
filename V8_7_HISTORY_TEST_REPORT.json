@@ -1,0 +1,234 @@
+{
+  "release": "v8.7",
+  "status": "pass",
+  "finished_utc": "2026-11-03T12:06:59.769924+00:00",
+  "unit_tests": {
+    "command": "node --test tests/*.test.cjs",
+    "passed": 23,
+    "failed": 0
+  },
+  "history_browser": {
+    "status": "pass",
+    "release": "v8.7",
+    "checks": [
+      "Empty page has no history or leave warning",
+      "Import undo/redo restores all pages and completed detection",
+      "Typing is grouped; Ctrl/Cmd undo and redo preserve verified state and focus",
+      "Candidate adoption and native beforeinput undo/redo restore exact text",
+      "Clear undo/redo restores selections, previews, manual edits and exports",
+      "New edit after undo discards redo and keeps later text",
+      "Selection, manual box and output ordering restore together",
+      "Remove page and page ordering can be recovered",
+      "Rotation and retry preserve completed edits across undo",
+      "In-flight OCR cannot overwrite undone/cleared state",
+      "Clear during background detection resumes exactly one scan after recovery",
+      "Output filter, edits and paused queues are restored",
+      "PDF clear and remove recovery reopens the source for navigation and OCR",
+      "IME composition is one action and history keys do not interfere with angle input",
+      "History cap releases discarded preview URLs without breaking live previews",
+      "Floating controls stay within desktop/mobile viewport and notice fades",
+      "Reload and navigation ask before leaving; dismiss preserves data"
+    ],
+    "passed": 17,
+    "browser": "156.0.8078.80",
+    "ocr": "deterministic delayed worker; real image/PDF decoding",
+    "uncaught_errors": []
+  },
+  "real_ocr_regression": {
+    "offline_run_metrics": {
+      "activeWorkerRequests": 0,
+      "maxActiveWorkerRequests": 1,
+      "detectStarted": 6,
+      "recognizeStarted": 2,
+      "completedJobs": 8
+    },
+    "offline_pdf_metrics": {
+      "openedDocuments": 1,
+      "activeDocuments": 1,
+      "maxActiveDocuments": 1,
+      "pageRenders": 5,
+      "cropRenders": 1,
+      "activeRenders": 0,
+      "maxActiveRenders": 1,
+      "maxCanvasPixels": 3276800,
+      "pendingJobs": 0,
+      "pdfjsVersion": "6.4.299",
+      "retainedSources": 1,
+      "closingDocuments": 0,
+      "activeSourceId": "pdf1",
+      "generation": 0
+    },
+    "user_screen_regression_tested": false,
+    "private_input_published": false,
+    "source_sha256": {
+      "ocr-review.js": "d8c6f8c4ca3fdc636df559bb778f114f3632e8668d2e44c479b50d98da8d1a5b",
+      "page-rotation.js": "26ce4bedb4f37a60fa06a97ece40528ec32d978edc01a01dd20dff65880cd228",
+      "app.js": "c7ba3b608cd0bfaec288e90004e1a2303231e64edef0bf40f107913ff997eab2",
+      "pdf-source.js": "25a92c0087f28aba0386c06c2c079d609c4281295f98a52bf7c26b6ee8a3fac5",
+      "index.html": "79386dcb4d9ec2e767386d2c2147f2978d8e9d89ffe5413193ca8804900205a7",
+      "styles.css": "c985a5fe4cd404baa626de5e75c220ae25faa76493ba5632bfddc0593856d4fa",
+      "offline-assets.js": "b025db8c88607b6d2aa563173f217869354f1db906a328dc65ea712aed1081cd",
+      "review-guide.html": "06b070cb5c2e3ec965a2cbb9fb7003b37441a77c1508a4aec988c464bea61f0b",
+      "review-guide.css": "92c1acbaa4db4c484ad3455b5d312e90920ed81defc28ec2891cc46c03dd894d"
+    },
+    "release": "v8.7",
+    "status": "pass",
+    "finished_utc": "2026-11-03T12:06:29.686Z",
+    "browser": {
+      "name": "Chrome",
+      "version": "156.0.8078.80",
+      "host": "darwin"
+    },
+    "passed": 26,
+    "failed": 0,
+    "checks": [
+      {
+        "name": "Empty controls and complete v8.7 project-scoped offline cache",
+        "status": "pass"
+      },
+      {
+        "name": "Mixed image and two-page PDF import with real detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "Single-character warning, per-candidate scores and mobile layout",
+        "status": "pass"
+      },
+      {
+        "name": "Editing, verification and adoption preserve original warning positions and clean exports",
+        "status": "pass"
+      },
+      {
+        "name": "Candidate-only disagreement, missing characters and empty candidates trigger warning",
+        "status": "pass"
+      },
+      {
+        "name": "Case-sensitive ambiguity, live edits and adoption keep warnings accurate without changing output",
+        "status": "pass"
+      },
+      {
+        "name": "Retry replaces low-score and disagreement data while preserving the 0/1 reminder",
+        "status": "pass"
+      },
+      {
+        "name": "Four clockwise turns preserve image pixels, selected results, edits, verification and export order",
+        "status": "pass"
+      },
+      {
+        "name": "PDF native /Rotate plus manual counterclockwise correction, fresh detection and OCR",
+        "status": "pass"
+      },
+      {
+        "name": "PDF high-resolution crops and retries work at all four angles; page 2 remains independent",
+        "status": "pass"
+      },
+      {
+        "name": "Manual selection, candidate click and TXT/CSV downloads after rotation",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation waits safely for navigation away and back; paused scans still rescan explicit turns",
+        "status": "pass"
+      },
+      {
+        "name": "Rotation failure leaves image geometry and completed output intact, then can retry",
+        "status": "pass"
+      },
+      {
+        "name": "390px controls fit the page and remain usable",
+        "status": "pass"
+      },
+      {
+        "name": "Removal and clearing during a pending rotation do not restore deleted pages",
+        "status": "pass"
+      },
+      {
+        "name": "Sideways photo can be corrected and freshly recognized before selecting any text",
+        "status": "pass"
+      },
+      {
+        "name": "Downsized image retains full-resolution OCR crops after rotation and navigation",
+        "status": "pass"
+      },
+      {
+        "name": "JPEG EXIF orientation is composed with manual turns and full-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "All eight JPEG EXIF orientations keep preview, crop and rotated retry aligned",
+        "status": "pass"
+      },
+      {
+        "name": "Old image and PDF overlays disappear before replacement scans finish, including selected frames",
+        "status": "pass"
+      },
+      {
+        "name": "Custom decimal angles, keyboard submit, warnings and fresh scans without accumulated overlays",
+        "status": "pass"
+      },
+      {
+        "name": "Tilted image and native-rotated PDF accept custom correction and real OCR with source-resolution crops",
+        "status": "pass"
+      },
+      {
+        "name": "Offline reload supports new image/PDF rotation and actual OCR without the server",
+        "status": "pass"
+      },
+      {
+        "name": "Complete PDF licenses and corresponding font sources remain downloadable offline",
+        "status": "pass"
+      },
+      {
+        "name": "Fact-check guide opens offline in a separate tab without losing work and fits mobile",
+        "status": "pass"
+      },
+      {
+        "name": "No uncaught errors, external requests or write requests",
+        "status": "pass"
+      }
+    ],
+    "fixtures": "Synthetic upright and tilted PNGs, JPEG with EXIF orientations 1-8, large PNG and upright/tilted two-page PDFs with native /Rotate 90. Optional user screen photograph tested locally without publishing the input.",
+    "limits": [
+      "Automated desktop Chrome and 390px viewport; no physical phone or Safari test.",
+      "Synthetic serials validate behavior, not accuracy across all card photos."
+    ],
+    "uncaught_errors": [],
+    "external_requests": [],
+    "http_write_requests": []
+  },
+  "offline_cache_upgrade": {
+    "status": "pass",
+    "from": "v8.6.2",
+    "to": "v8.7",
+    "browser": "156.0.8078.80",
+    "retired_resource_bytes": "inert test markers",
+    "finished_utc": "2026-11-03T11:59:31.080Z",
+    "checks": [
+      "Previous release loads with inert markers at retired HEVC asset URLs",
+      "New service worker activates and removes the old project cache and HEVC assets",
+      "Other project and legacy caches are preserved",
+      "Offline reload preserves ambiguity rules",
+      "TIFF and notices are cached; unsupported HEIC shows guidance offline",
+      "Supplemental copyright notices open offline",
+      "Guide HTML and CSS are cached and open offline"
+    ],
+    "uncaught_errors": []
+  },
+  "limitations": [
+    "Desktop macOS Chrome automation; no Safari, Windows or physical mobile-device test for this release.",
+    "New history/race tests use a delayed deterministic OCR worker with real image and PDF decoding; the separate regression uses actual OCR models.",
+    "Browser confirmation text is controlled by the browser. Mobile app termination may skip beforeunload.",
+    "Undo/redo retains the last 50 edits only in this tab memory; reload or closing the tab discards data and history."
+  ],
+  "source_sha256": {
+    "docs/app.js": "c7ba3b608cd0bfaec288e90004e1a2303231e64edef0bf40f107913ff997eab2",
+    "docs/index.html": "79386dcb4d9ec2e767386d2c2147f2978d8e9d89ffe5413193ca8804900205a7",
+    "docs/styles.css": "c985a5fe4cd404baa626de5e75c220ae25faa76493ba5632bfddc0593856d4fa",
+    "docs/pdf-source.js": "25a92c0087f28aba0386c06c2c079d609c4281295f98a52bf7c26b6ee8a3fac5",
+    "docs/offline-assets.js": "b025db8c88607b6d2aa563173f217869354f1db906a328dc65ea712aed1081cd",
+    "docs/sw.js": "5c5922b9aaa234217b5da4bf69e9b8c6ab47c8318cecc36c17fa5be5db31a2d0",
+    "tests/history.browser.cjs": "41c3f635884bc140b94c2b64fdd0f98297881b6709c418eb0481fd645dd41dbb",
+    "tests/rotation.browser.cjs": "f5640e04935e6c6495a805079f275a6140aac9d262e1d1bcfaf65796c186510f",
+    "tests/cache-upgrade.browser.cjs": "a21b71345207e25d4f05167ba6e14aad80d06ba86288deb24a163e8f746fa992"
+  }
+}

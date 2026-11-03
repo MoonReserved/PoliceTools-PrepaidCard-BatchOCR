@@ -44,6 +44,7 @@ const server = http.createServer(async (req,res) => {
   const url = `http://127.0.0.1:${server.address().port}${scope}`;
   await page.goto(url); await page.evaluate(()=>offlineOCRTest.waitForCache());
   assert.equal(await page.evaluate(()=>offlineOCRTest.getState().version),previousVersion);
+  await page.evaluate(async paths=>{const c=await caches.open(offlineOCRTest.getState().cacheName);for(const p of paths)if(!await c.match(new URL(p,location.href)))await c.put(new URL(p,location.href),new Response('Retired resource cache test marker'));},retired);
   assert(await page.evaluate(async paths=>{const c=await caches.open(offlineOCRTest.getState().cacheName);return (await Promise.all(paths.map(p=>c.match(new URL(p,location.href))))).every(Boolean);},retired));
   if(previousVersion==='v8.6')assert(await page.evaluate(()=>Array.from('iｉ').every(text=>OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
   await page.evaluate(async()=>{

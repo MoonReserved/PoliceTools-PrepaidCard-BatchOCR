@@ -287,6 +287,9 @@
     sources.delete(source);
     return active?.source === source ? closeRecord(active) : Promise.resolve();
   }
+  // History keeps only the local source descriptor/File, never a live parser.
+  // Re-register it after reset/release; documentFor will reopen it on demand.
+  function retain(source) { sources.add(source); }
   function reset() {
     generation++; sources.clear();
     const stopped = closeRecord(active), pending = queue;
@@ -300,5 +303,5 @@
     return {...metrics, pdfjsVersion: VERSION, retainedSources: sources.size, closingDocuments: closingDocuments.size,
       activeSourceId: active?.source.id || null, generation};
   }
-  window.OfflinePDF = Object.freeze({inspect, renderPage, renderCrop, release, reset, getStats});
+  window.OfflinePDF = Object.freeze({inspect, renderPage, renderCrop, release, retain, reset, getStats});
 })();
