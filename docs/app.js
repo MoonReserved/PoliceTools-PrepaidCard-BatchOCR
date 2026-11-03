@@ -80,7 +80,7 @@ function renderFiles(){
       const open=node('button','file-item');open.type='button';open.dataset.fileId=file.id;
       open.append(node('span','file-thumb file-placeholder',String(index+1)));
       const info=node('span','file-information'),heading=node('span','file-heading');heading.append(node('span','file-order'),node('span','file-name',file.sourceName||file.name));
-      const page=node('span','file-page',file.kind==='pdf'?`PDF 第 ${file.pdfPage}／${file.pdfPageCount} 頁`:'圖片');
+      const page=node('span','file-page',file.kind==='pdf'?`PDF 第 ${file.pdfPage}／${file.pdfPageCount} 頁`:file.imagePageCount>1?`TIFF 第 ${file.imagePage}／${file.imagePageCount} 頁`:'圖片');
       info.append(heading,page,node('span','file-state'));open.append(info);open.title=file.name;
       open.addEventListener('click',()=>navigate(file.id).catch(e=>status(e.message,true)));
       const controls=node('div','page-order-controls'),up=node('button','subtle page-move-up','↑'),down=node('button','subtle page-move-down','↓');
@@ -197,7 +197,7 @@ async function loadPageView(file,rotation,epoch=state.epoch){
     if(cancelled())throw Error('此頁已移除。');
     let bitmap;
     try{
-      bitmap=file.kind==='pdf'?(await OfflinePDF.renderPage(file.pdfSource,file.pdfPage,{maxSide:WORKING_SIDE,isCancelled:cancelled})).bitmap:await createImageBitmap(file.file);
+      bitmap=file.kind==='pdf'?(await OfflinePDF.renderPage(file.pdfSource,file.pdfPage,{maxSide:WORKING_SIDE,isCancelled:cancelled})).bitmap:await OfflineImage.decode(file.file);
       const originalWidth=bitmap.width,originalHeight=bitmap.height;
       if(originalWidth*originalHeight>80000000)throw Error('圖片超過 8,000 萬像素，請先另存較小版本。');
       const scale=Math.min(1,WORKING_SIDE/Math.max(bitmap.width,bitmap.height));
@@ -318,9 +318,9 @@ async function originalCrop(file,box){
     const left=Math.max(0,Math.floor(Math.min(...xs))),top=Math.max(0,Math.floor(Math.min(...ys))),right=Math.min(file.originalWidth,Math.ceil(Math.max(...xs))),bottom=Math.min(file.originalHeight,Math.ceil(Math.max(...ys)));
     if(right<=left||bottom<=top)throw Error('選框位於旋轉後的空白邊緣，請重新選取文字區域。');
     // A small canvas strips EXIF crop metadata while keeping source coordinates.
-    const decoded=await createImageBitmap(file.file),canvas=document.createElement('canvas');let bitmap;
+    const decoded=await OfflineImage.decode(file.file),canvas=document.createElement('canvas');let bitmap;
     canvas.width=right-left;canvas.height=bottom-top;
-    try{canvas.getContext('2d').drawImage(decoded,-left,-top);bitmap=await createImageBitmap(canvas);}
+    try{const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(decoded,-left,-top);bitmap=await createImageBitmap(canvas);}
     finally{decoded.close();canvas.width=canvas.height=0;}
     return {bitmap,polygon:polygon.map(([x,y])=>[x-left,y-top])};
   });
@@ -472,6 +472,7 @@ async function removeFile(id){
   }
 }
 function clearAll(){
+  OfflineImage.reset();
   state.epoch++;state.navigationToken++;stopWorker('已清空這一批。');for(const file of state.files)releaseFile(file);
   state.display?.close();state.display=null;state.displayId=null;state.files=[];state.selectionOrder=[];state.currentId=null;state.detectQueue=[];state.ocrQueue=[];state.active=null;state.pumping=false;state.paused=false;state.manual=false;state.drag=null;
   state.importPending=0;state.importLabel='';
@@ -487,34 +488,45 @@ function addFiles(files){
   return task.finally(()=>{if(epoch===state.epoch){state.importPending=Math.max(0,state.importPending-1);if(!state.importPending)state.importLabel='';updateSummary();}});
 }
 async function importFiles(incoming,epoch){
-  const isCancelled=()=>epoch!==state.epoch,accepted=[],rejected=[],opened=[];
+  const isCancelled=()=>epoch!==state.epoch,accepted=[],rejected=[],opened=[],notices=[];
   let committed=false;
   try{
     for(const file of incoming){
       if(isCancelled())return;
-      const pdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name);
-      if(!pdf&&!(file.type.startsWith('image/')||/\.(png|jpe?g|webp|bmp|gif|avif|heic|heif)$/i.test(file.name))){rejected.push(`${file.name}（請選擇圖片或 PDF）`);continue;}
       if(file.size>50*1024*1024){rejected.push(`${file.name}（超過單檔 50 MiB，請先縮小或分割）`);continue;}
-      let pdfSource=null;
+      let format;
+      try{format=await OfflineImage.identify(file);}catch{rejected.push(`${file.name}（無法讀取檔案，請重新選取）`);continue;}
+      if(isCancelled())return;
+      const pdf=format==='pdf';let pdfSource=null,imageSource=null;
       if(pdf){
         state.importLabel=`正在讀取 PDF 頁數：${file.name}`;updateSummary();
         try{pdfSource=await withDecode(()=>OfflinePDF.inspect(file,{isCancelled}));opened.push(pdfSource);}
         catch(error){if(isCancelled())return;rejected.push(`${file.name}（${error.message||'無法讀取 PDF'}）`);continue;}
         if(isCancelled())return;
+      }else{
+        state.importLabel=`正在讀取${format==='heif'?' HEIC／HEIF':format==='tiff'?' TIFF':'圖片'}：${file.name}`;updateSummary();
+        try{imageSource=await withDecode(()=>OfflineImage.prepare(file,format,{maxPages:MAX_FILES-state.files.length-accepted.length,isCancelled}));}
+        catch(error){
+          if(isCancelled())return;
+          if(error.code==='PAGE_LIMIT'){warning(`這次沒有加入任何新檔案：${file.name} 拆頁後會超過 ${MAX_FILES} 張／頁上限；請選擇較少頁的檔案。`);return;}
+          rejected.push(`${file.name}（${error.message||'無法讀取圖片'}）`);continue;
+        }
+        if(isCancelled())return;
+        if(imageSource.notice)notices.push(`${file.name}：${imageSource.notice}`);
       }
-      const count=pdfSource?pdfSource.pageCount:1;
+      const count=pdfSource?pdfSource.pageCount:imageSource.pages.length;
       if(state.files.length+accepted.length+count>MAX_FILES){
         warning(`這次沒有加入任何新檔案：${file.name}${pdfSource?' 拆成 '+count+' 頁後':''}會讓總數超過 ${MAX_FILES} 張／頁上限。目前有 ${state.files.length} 張／頁；請先匯出並清空這批，或選擇較少頁的 PDF。`);
         return;
       }
-      for(let page=1;page<=count;page++)accepted.push({file,kind:pdf?'pdf':'image',sourceName:file.name,pdfSource,pdfPage:pdf?page:null,pdfPageCount:pdf?count:null,name:pdf?`${file.name} · 第 ${page}／${count} 頁`:file.name});
+      for(let page=1;page<=count;page++)accepted.push({file:pdf?file:imageSource.pages[page-1],originalFile:file,kind:pdf?'pdf':'image',sourceName:file.name,pdfSource,pdfPage:pdf?page:null,pdfPageCount:pdf?count:null,imagePage:pdf?null:page,imagePageCount:pdf?null:count,name:pdf||count>1?`${file.name} · 第 ${page}／${count} 頁`:file.name});
     }
     if(isCancelled())return;
     for(const entry of accepted){const item={...entry,id:`f${++state.nextId}`,status:'waiting',boxes:[],error:'',thumbnailURL:null,width:0,height:0,originalWidth:0,originalHeight:0,rotation:0,rotating:false,rotationTask:null,view:null,nextBoxId:0};state.files.push(item);state.detectQueue.push({type:'detect',fileId:item.id,mode:'default'});}
     committed=true;
-    const warnings=[];if(rejected.length)warnings.push(`以下 ${rejected.length} 個檔案未加入：\n${rejected.join('\n')}`);
+    const warnings=[...notices];if(rejected.length)warnings.push(`以下 ${rejected.length} 個檔案未加入：\n${rejected.join('\n')}`);
     if(state.files.length>recommended)warnings.push(`目前 ${state.files.length} 張／頁，超過這台裝置的保守建議 ${recommended}。系統會逐頁處理；若手機發熱或瀏覽器不穩，請分批並先匯出完成結果。`);
-    const bytes=[...new Set(state.files.map(item=>item.file))].reduce((sum,file)=>sum+file.size,0);if(bytes>300*1024*1024)warnings.push('原始檔案合計超過 300 MiB，建議縮小檔案或分批。PDF 每頁共用原檔，不重複計算檔案大小。');
+    const bytes=[...new Set(state.files.map(item=>item.originalFile||item.file))].reduce((sum,file)=>sum+file.size,0);if(bytes>300*1024*1024)warnings.push('原始檔案合計超過 300 MiB，建議縮小檔案或分批。PDF／TIFF 每頁共用原檔，不重複計算原始檔案大小。');
     warning(warnings.join('\n\n'));renderFiles();renderResults();updateSummary();
     if(!state.currentId&&state.files.length){state.currentId=state.files[0].id;renderFiles();renderCurrent();}
     if(accepted.length)pump();else status('沒有可加入的圖片或 PDF，請查看上方提示。',true);

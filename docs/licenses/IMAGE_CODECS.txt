@@ -1,0 +1,33 @@
+Local image codecs (v8.6)
+
+All browser decoding is local. No CDN or image upload is used.
+Distributed runtime files are unchanged upstream files.
+
+HEIC: libheif-js 1.23.5, libheif 1.23.5, libde265 1.0.15 (LGPL-3.0).
+https://github.com/catdad-experiments/libheif-js/tree/d8ec4bc3bc5bf8055975577bccbbc7e1d7313c2d
+https://github.com/catdad-experiments/libheif-emscripten/tree/v1.23.5
+https://github.com/strukturag/libheif/tree/v1.23.5
+https://github.com/strukturag/libde265/tree/v1.0.15
+The wasm bundle is from https://registry.npmjs.org/libheif-js/-/libheif-js-1.23.5.tgz
+Licenses: LIBHEIF_LICENSE.txt, LIBDE265_LICENSE.txt (include GNU GPL and LGPL).
+
+TIFF: UTIF (MIT, Copyright 2017 Photopea), pinned upstream commit
+588351078202eebccdb3ba996f5b98c640e4265a (includes RGB JPEG-in-TIFF correction).
+https://github.com/photopea/UTIF.js/tree/588351078202eebccdb3ba996f5b98c640e4265a
+https://codeload.github.com/photopea/UTIF.js/tar.gz/588351078202eebccdb3ba996f5b98c640e4265a
+License: UTIF_LICENSE.txt. No pako runtime dependency in this version.
+
+Corresponding source and build scripts: ../sources/image-codecs-source.zip
+Includes libheif, libde265, libheif-js and libheif-emscripten source, plus the complete pinned UTIF source.
+The upstream workflow uses Emscripten 3.1.61, USE_WASM=1, USE_UNSAFE_EVAL=0,
+USE_TYPESCRIPT=1 and libheif's build-emscripten.sh (libde265 enabled, AOM disabled).
+Follow libheif-emscripten/.github/workflows/emscripten.yml and dist-prep.sh; place
+libheif source in its libheif subdirectory, then build. Pass the resulting tarball
+to libheif-js/scripts/install.js to reproduce the browser bundle with esbuild.
+To use a modified decoder, replace image-codecs/libheif-bundle.js, bump
+OFFLINE_APP_VERSION in offline-assets.js and reload the local site/cache.
+Reverse engineering for debugging modifications to these LGPL libraries is permitted.
+
+SHA-256 of distributed decoder files:
+e6239b23207e012bcf6c41664bba30ea9746fea32dbbee774f783d1ed60221f2  UTIF.js
+074b2b55ef3de477ba9f794ca381f3f0324c1cba8c91b4af07395f39c22d54cc  libheif-bundle.js

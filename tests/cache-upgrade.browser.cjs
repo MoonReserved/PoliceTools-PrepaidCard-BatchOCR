@@ -58,18 +58,25 @@ const server = http.createServer(async (req,res) => {
   assert(await page.evaluate(()=>Array.from('oLｏＬ').every(text=>!OfflineOCRReview.analyze({best:{text,charConfidence:[1]}}).needsReview)));
   const result = await page.evaluate(async()=>{
     const cache = await caches.open(offlineOCRTest.getState().cacheName);
-    const files = await Promise.all(['ocr-review.js','review-guide.html','review-guide.css'].map(async name=>Boolean(await cache.match(new URL(name,location.href).href))));
+    const files = await Promise.all(['ocr-review.js','review-guide.html','review-guide.css','image-source.js','image-decoder-worker.js','image-codecs/libheif-bundle.js','image-codecs/UTIF.js','licenses/IMAGE_CODECS.txt','sources/image-codecs-source.zip'].map(async name=>Boolean(await cache.match(new URL(name,location.href).href))));
     return {files,keys:await caches.keys()};
   });
   assert(result.files.every(Boolean));
   assert(result.keys.includes('offline-serial-ocr:%2Fother-project%2F:v8.4'));
   assert(result.keys.includes('offline-serial-ocr-v7-legacy'));
+  const heic=await fs.readFile(path.join(root,'tests/fixtures/images/serial.heic'));
+  const size=await page.evaluate(async bytes=>{
+    const file=new File([new Uint8Array(bytes)],'upgraded.heic');
+    const converted=await OfflineImage.prepare(file,await OfflineImage.identify(file));
+    const bitmap=await OfflineImage.decode(converted.pages[0]),size=[bitmap.width,bitmap.height];bitmap.close();return size;
+  },[...heic]);
+  assert.deepEqual(size,[900,500]);
   await page.goto(url+'review-guide.html');
   assert.equal(await page.locator('.brand-finding').count(),7);
   assert.match(await page.locator('.guide-rules').textContent(),/小寫 o 與大寫 L 不列入此項提醒/);
   assert.deepEqual(errors,[]);
   const report = {status:'pass',from:previousVersion,to:currentVersion,browser:browser.version(),finished_utc:new Date().toISOString(),
-    checks:['Previous release loads from its offline cache','New service worker activates and removes only the old project cache','Other project and legacy caches are preserved','Offline reload uses the new ambiguity rules','Guide HTML and CSS are cached and open offline'],uncaught_errors:errors};
+    checks:['Previous release loads from its offline cache','New service worker activates and removes only the old project cache','Other project and legacy caches are preserved','Offline reload preserves ambiguity rules','Image codecs and sources are cached; HEIC decodes offline after upgrade','Guide HTML and CSS are cached and open offline'],uncaught_errors:errors};
   if (process.env.REPORT_PATH) await fs.writeFile(process.env.REPORT_PATH,JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));
 })().catch(error=>{ console.error(error); process.exitCode=1; }).finally(async()=>{ await browser?.close(); server.close(); });

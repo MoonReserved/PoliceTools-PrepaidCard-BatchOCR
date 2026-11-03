@@ -1,8 +1,10 @@
 'use strict';
 // Shared by the page and Service Worker so a ready indicator covers every dependency.
-globalThis.OFFLINE_APP_VERSION='v8.5.3';
+globalThis.OFFLINE_APP_VERSION='v8.6';
 globalThis.OFFLINE_ASSETS=[
   './','index.html','styles.css','attribution.css','review-guide.html','review-guide.css','fonts/ui-tc.woff',
+  'image-source.js','image-decoder-worker.js','image-codecs/libheif-bundle.js','image-codecs/UTIF.js',
+  'licenses/IMAGE_CODECS.txt','licenses/LIBHEIF_LICENSE.txt','licenses/LIBDE265_LICENSE.txt','licenses/UTIF_LICENSE.txt','sources/image-codecs-source.zip',
   'offline-assets.js','text-diff.js','ocr-review.js','page-rotation.js','app.js','ocr-worker.js','detection.js','pdf-source.js','sw.js','service-worker.js',
   'runtime/ort.wasm.min.js','runtime/ort-wasm-simd-threaded.mjs','runtime/ort-wasm-simd-threaded.wasm',
   'models/det5.onnx','models/small6.onnx','models/small6.dict.json',

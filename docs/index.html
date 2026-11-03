@@ -14,6 +14,7 @@
   <script src="ocr-review.js" defer></script>
   <script src="page-rotation.js" defer></script>
   <script src="pdf-source.js" defer></script>
+  <script src="image-source.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -28,7 +29,7 @@
   <div id="cache-status" data-testid="cache-status" class="notice" role="status">正在準備完整離線資源…</div>
   <section class="panel import-panel" aria-labelledby="import-title">
     <div class="section-title"><h2 id="import-title"><span class="step">1</span>加入圖片或 PDF</h2><button id="clear" class="subtle" type="button" disabled>清空這一批</button></div>
-    <div class="import-row"><label class="file-button">選擇圖片或 PDF<input id="image" data-testid="image-input" type="file" accept="image/*,application/pdf,.pdf" multiple disabled></label><div><p id="batch-hint" class="hint"></p><p class="hint">PDF 會按第 1、2、3…頁自動拆開，也可與圖片混合加入。每次只繪製需要的頁面。</p><p class="hint">單檔上限 50 MiB。需要密碼的 PDF，請先在本機另存為不需密碼的副本。</p></div></div>
+    <div class="import-row"><label class="file-button">選擇圖片或 PDF<input id="image" data-testid="image-input" type="file" accept="image/*,application/pdf,.pdf,.heic,.heif,.hif,.heics,.heifs,.tif,.tiff,.jpg,.jpeg,.jfif,.png,.webp,.avif,.gif,.bmp,.svg" multiple disabled></label><div><p id="batch-hint" class="hint"></p><p class="hint">PDF 會按第 1、2、3…頁自動拆開，也可與圖片混合加入。每次只繪製需要的頁面。</p><p class="hint">支援 HEIC／HEIF、TIFF、JPG、PNG、WebP、AVIF、GIF、BMP；TIFF 會逐頁加入，動態圖片讀取首張。RAW 請先匯出 JPG／PNG。</p><p class="hint">單檔上限 50 MiB。需要密碼的 PDF，請先在本機另存為不需密碼的副本。</p></div></div>
     <p id="import-status" class="hint" role="status" aria-live="polite" hidden></p>
     <p id="import-warning" class="warning" role="alert" hidden></p>
     <div class="batch-controls"><div id="batch-summary" class="summary" data-testid="batch-summary">尚未加入圖片或 PDF</div><button id="pause" class="subtle" type="button" disabled>暫停背景掃描</button></div>
@@ -66,7 +67,7 @@
     <p class="hint">輸出採用上方清單的順序。複製與 TXT 只含序號；CSV 的 order 欄保留介面序位，篩選後可能跳號。CSV 請用「匯入資料」並將文字欄指定為文字，避免前導零消失或以公式解讀。</p>
   </section>
   <footer>
-    <p id="app-version">v8.5.3 · 點框畫面穩定</p>
+    <p id="app-version">v8.6 · HEIC／TIFF 圖片支援</p>
     <p>圖片、PDF 與辨識結果只留在此分頁的記憶體，關閉或清空即移除。請在離開前匯出結果。離線快取只儲存程式、字型、公開模型與授權文件。</p>
     <p>PDF 只轉成頁面畫面，不執行文件內的指令或開啟連結。顯示「完整離線就緒」後，可在同一瀏覽器、同一網址離線開啟。請保留網站資料；無痕模式、系統清理或清除快取可能移除離線資源。</p>
     <section class="attribution" aria-labelledby="attribution-title">
@@ -86,6 +87,8 @@
             <tr><th scope="row">PDF.js 6.4.299</th><td>PDF 解析與逐頁繪製</td><td><a href="licenses/PDFJS_LICENSE.txt" target="_blank" rel="noopener noreferrer">Apache License 2.0</a></td></tr>
             <tr><th scope="row">PDF.js 附帶元件與資源</th><td>core-js、Brotli、PDF 字型、CMap 與影像解碼</td><td><a href="licenses/PDFJS_THIRD_PARTY_LICENSES.txt" target="_blank" rel="noopener noreferrer">各元件的完整第三方授權</a></td></tr>
             <tr><th scope="row">Liberation Sans 1.07.4</th><td>PDF 支援字型</td><td><a href="licenses/PDFJS_THIRD_PARTY_LICENSES.txt" target="_blank" rel="noopener noreferrer">GPLv2 與字型例外</a>；<a href="sources/liberation-fonts-1.07.4-11-source.zip">完整對應原始碼（ZIP）</a>；<a href="licenses/LIBERATION_FONT_SOURCE.txt" target="_blank" rel="noopener noreferrer">核對與建置說明</a></td></tr>
+            <tr><th scope="row">libheif-js／libheif 1.23.5、libde265 1.0.15</th><td>本機 HEIC／HEIF 解碼</td><td><a href="licenses/LIBHEIF_LICENSE.txt" target="_blank" rel="noopener noreferrer">libheif LGPLv3</a>；<a href="licenses/LIBDE265_LICENSE.txt" target="_blank" rel="noopener noreferrer">libde265 LGPLv3</a>；<a href="sources/image-codecs-source.zip">完整對應原始碼（ZIP）</a></td></tr>
+            <tr><th scope="row">UTIF（5883510）</th><td>本機 TIFF 解碼</td><td><a href="licenses/UTIF_LICENSE.txt" target="_blank" rel="noopener noreferrer">UTIF MIT</a>；<a href="licenses/IMAGE_CODECS.txt" target="_blank" rel="noopener noreferrer">解碼器來源與建置說明</a></td></tr>
             <tr><th scope="row">Noto Sans CJK TC</th><td>離線介面字型子集</td><td><a href="licenses/NOTO_FONT_OFL.txt" target="_blank" rel="noopener noreferrer">SIL Open Font License 1.1</a></td></tr>
           </tbody>
         </table>

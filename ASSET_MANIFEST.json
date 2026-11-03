@@ -2,8 +2,8 @@
   "project": "PoliceTools-PrepaidCard-BatchOCR",
   "title": "警政小工具-點數卡批次OCR辨識",
   "english_title": "PoliceTools – Prepaid Card Batch OCR",
-  "version": "v8.5.3",
-  "date": "2026-10-31",
+  "version": "v8.6",
+  "date": "2026-11-03",
   "publishing_folder": "docs",
   "native_launcher_platforms": [
     "macOS arm64",
@@ -14,13 +14,13 @@
   "note": "This manifest excludes itself. All listed files are public project assets; no user inputs are included.",
   "files": {
     "QUICK_START_zh-TW.txt": {
-      "bytes": 5536,
-      "sha256": "a549733b7003cc9636412d2fa811d2b6f64d42924b3d17b46533e1f360d5386b",
+      "bytes": 5741,
+      "sha256": "9e15b26aab9176b1efeb460a14c22709b5bac4d66baa891c7d65303b0e53da96",
       "mode": "0o644"
     },
     "README.md": {
-      "bytes": 33158,
-      "sha256": "5e1656790e58ddd7c37a472251d4c25f1fd353ac91bf2b672bf22b4ff52973b0",
+      "bytes": 36199,
+      "sha256": "4d3d9efa11dd40a2b862d3bbf75dab8b25d3d744a82ae8fd672cf83f563aba3e",
       "mode": "0o644"
     },
     "START_MAC.command": {
@@ -78,6 +78,11 @@
       "sha256": "d3afa6a2c8dd94cbdee031bd6260d02e149f14b4b799de01bdb473d744df69d2",
       "mode": "0o644"
     },
+    "V8_6_IMAGE_FORMAT_TEST_REPORT.json": {
+      "bytes": 15324,
+      "sha256": "062571c633d2a6e41794d6edd80b4b5d1ec906b54afcb8d815667da49a9fd50c",
+      "mode": "0o644"
+    },
     "V8_BASELINE_TEST_REPORT.json": {
       "bytes": 4753,
       "sha256": "c76b517f45387794984ec1721af5051b8157d2841d1c6e5c136cc41741be6a68",
@@ -89,8 +94,8 @@
       "mode": "0o644"
     },
     "docs/app.js": {
-      "bytes": 60379,
-      "sha256": "91c1c98af793b34790eba43086581c9ab8d10b289436788c8313307260cd1a88",
+      "bytes": 61505,
+      "sha256": "d0bfa7c276c843071deb7456a15195511dc947878c8418395332d7d3182ae30a",
       "mode": "0o644"
     },
     "docs/attribution.css": {
@@ -108,9 +113,29 @@
       "sha256": "5358eef4e7048a71b9a75615aada03c622e7274e817cf3950f39a2f3dfcea964",
       "mode": "0o644"
     },
+    "docs/image-codecs/UTIF.js": {
+      "bytes": 107308,
+      "sha256": "e6239b23207e012bcf6c41664bba30ea9746fea32dbbee774f783d1ed60221f2",
+      "mode": "0o644"
+    },
+    "docs/image-codecs/libheif-bundle.js": {
+      "bytes": 2044206,
+      "sha256": "074b2b55ef3de477ba9f794ca381f3f0324c1cba8c91b4af07395f39c22d54cc",
+      "mode": "0o644"
+    },
+    "docs/image-decoder-worker.js": {
+      "bytes": 4654,
+      "sha256": "27bf7e9d988b60a3604c3a9faf2efdb30416298a6a58b79039e39831d9e7c801",
+      "mode": "0o644"
+    },
+    "docs/image-source.js": {
+      "bytes": 4798,
+      "sha256": "d7ad0c4c4b89774f04de4a58e7d7ade3974b9f7272bf0dcc2129ff7dceb6f29b",
+      "mode": "0o644"
+    },
     "docs/index.html": {
-      "bytes": 13353,
-      "sha256": "d19c4d1257501186b4c07adb41377ab9571489d11ad9e9b2efef5c00ae989e8a",
+      "bytes": 14375,
+      "sha256": "a705aa09d1370326777819871a4bcef58de8c1ac0c8a58f9685dc548020c15bd",
       "mode": "0o644"
     },
     "docs/licenses/ASSET_SOURCES.txt": {
@@ -118,9 +143,24 @@
       "sha256": "a097b8fc9f4ef9a53876275b93665d062d1631d6e434c5648a0c08ead434bab8",
       "mode": "0o644"
     },
+    "docs/licenses/IMAGE_CODECS.txt": {
+      "bytes": 2064,
+      "sha256": "68b48cfac0a780d076dd2cd2e584ab74c47d99f705aacb5d0e32473dcbfe89c3",
+      "mode": "0o644"
+    },
+    "docs/licenses/LIBDE265_LICENSE.txt": {
+      "bytes": 44339,
+      "sha256": "02cc1585a20677992e0ba578fa692635dc193735f2691dc81de924b51c4e8020",
+      "mode": "0o644"
+    },
     "docs/licenses/LIBERATION_FONT_SOURCE.txt": {
       "bytes": 4820,
       "sha256": "9c53e61d3f30ae0af09d05e3600e05c7d8447e089ef9bca50d56de19e995f7b6",
+      "mode": "0o644"
+    },
+    "docs/licenses/LIBHEIF_LICENSE.txt": {
+      "bytes": 44366,
+      "sha256": "fa81ce652315b013359d6e8e4744335f31a50c7c192907176d3632f78a3b4596",
       "mode": "0o644"
     },
     "docs/licenses/NOTO_FONT_OFL.txt": {
@@ -163,6 +203,11 @@
       "sha256": "3e0af25fdd06aa9586ae97adb00ea927ebe5a3805ac77d2d3a81ce5f55693333",
       "mode": "0o644"
     },
+    "docs/licenses/UTIF_LICENSE.txt": {
+      "bytes": 1065,
+      "sha256": "c1fb8861eca211bf5aea574358aba7039396c0c1824c2a1477cc126d398efd89",
+      "mode": "0o644"
+    },
     "docs/models/det5.onnx": {
       "bytes": 4819576,
       "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
@@ -189,8 +234,8 @@
       "mode": "0o644"
     },
     "docs/offline-assets.js": {
-      "bytes": 1201,
-      "sha256": "e1054c864a51cced560106468df4c26c3599897ca37b652706aac21555020be2",
+      "bytes": 1458,
+      "sha256": "9553b3b25fd3b0786ef5826fe1585a64f70726a4091f389a41df322c8eaa971d",
       "mode": "0o644"
     },
     "docs/page-rotation.js": {
@@ -263,6 +308,11 @@
       "sha256": "76feab34fd412f55fdaf5b1685a23e960918389824a2b859ee1bcfebceaa9b20",
       "mode": "0o644"
     },
+    "docs/sources/image-codecs-source.zip": {
+      "bytes": 3453528,
+      "sha256": "3741ad6430838063216db65ca5b7b249d7f97c2c777f19e28dca10c31cdb97eb",
+      "mode": "0o644"
+    },
     "docs/sources/liberation-fonts-1.07.4-11-source.zip": {
       "bytes": 2959917,
       "sha256": "599163233a71e95298a3e0d31a3a48a967989e7eeb10839c476ca665b0e4ac73",
@@ -274,8 +324,8 @@
       "mode": "0o644"
     },
     "docs/sw.js": {
-      "bytes": 1277,
-      "sha256": "e9da17641e14dea3920a13dc61ed2f9e5a35630695c01169b54fb58e961ab402",
+      "bytes": 1279,
+      "sha256": "72ac93ac7cbcec9f8f4660195300dfbb86360ec535f8913abb1698f7f8e5869c",
       "mode": "0o644"
     },
     "docs/text-diff.js": {
@@ -354,8 +404,173 @@
       "mode": "0o644"
     },
     "tests/cache-upgrade.browser.cjs": {
-      "bytes": 5443,
-      "sha256": "4dc5e73e9ca8039f4efc9a8e5b56c657a7025fb078ecd43cddf9994629970273",
+      "bytes": 6140,
+      "sha256": "a7caeeb40e6669d6c70adff36680f72d0efe1404723a112fd12e33717ae20a8b",
+      "mode": "0o644"
+    },
+    "tests/fixtures/README.txt": {
+      "bytes": 616,
+      "sha256": "45e2308f201b22f26e35b885445300984d2283c864bcbdbdab183c08893f941e",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/cmyk.tif": {
+      "bytes": 20510,
+      "sha256": "32d9229025d89dd125addf29a7a689fcf7ccc4f12058c94bc830f0e0cf298342",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/fax4.tif": {
+      "bytes": 2144,
+      "sha256": "0be57ea1ce868492f77f430f88342743437d5d9fbb47995024a967fc7fe2fdc0",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/gray.tif": {
+      "bytes": 7220,
+      "sha256": "3e45a2db160112e13771d46f6743f7dc64c390d710b87cd5797548a422bd062a",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/jpeg.tif": {
+      "bytes": 37117,
+      "sha256": "ed872261788b1ec474b435a06409120e57598d73efa7eb932a2c9e17ef82c687",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-2.heic": {
+      "bytes": 11468,
+      "sha256": "dcd48e5cd43c49284f211a2b7039d0f4fbc277b5225401e406e71e0644e7d911",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-2.tif": {
+      "bytes": 15914,
+      "sha256": "bd06b68efb79f3e24682c658b8d81d04055d2c9841b43d0d37f61a12c6266102",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-3.heic": {
+      "bytes": 9967,
+      "sha256": "ab3609fe6b306bcbe7a6edde7edc0bc90c884ba74dc80216a507a304a1faa1be",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-3.tif": {
+      "bytes": 16022,
+      "sha256": "fbe844f89204384f08d3030d1f1bec4d7782ab554f49df422925a38452f800d1",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-4.heic": {
+      "bytes": 9725,
+      "sha256": "692305c97a540db77286279a8d9028572d8c666c9504152506ef4ffc136b6973",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-4.tif": {
+      "bytes": 16014,
+      "sha256": "f3229c0a9c54e23bb303756fcd5ddc8b58ced4e8d38fb32894614af6677592ce",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-5.heic": {
+      "bytes": 10613,
+      "sha256": "3ed510579b47c58331da5af85c4ce2d348f59fc1a049247cde0f75f6130d86e1",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-5.tif": {
+      "bytes": 17000,
+      "sha256": "56f4e4575006a8a0752d98a4562c3b9728f9c7380c682a653946114a6b47d4f1",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-6.heic": {
+      "bytes": 11260,
+      "sha256": "a40c8d55acdbfe2f8890af0d831c057a9b1e182664e4f06db52f3f88b34f79df",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-6.tif": {
+      "bytes": 16288,
+      "sha256": "d44c1e06d6fb025d5482316cf503264ea32a297694e4b79c490b6313d44ea1dd",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-7.heic": {
+      "bytes": 9796,
+      "sha256": "6b0d20d7956f015c6a77cc169eddccb4643fb550730edd484dac35055363e041",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-7.tif": {
+      "bytes": 16264,
+      "sha256": "2059104dfd7a549072819f9b43a08e85b58a69a85b4e3c30bd83cd6ba8fd1c7f",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-8.heic": {
+      "bytes": 9498,
+      "sha256": "3e51ed731dda95ecbc6ebef0e0efbdd7e2bd90ab33ba3d609c3a01a02ead5b4f",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/orientation-8.tif": {
+      "bytes": 16990,
+      "sha256": "ad526262b5176641a933bac22561ad74b061aa837843b1a7068ac1c8f5fab3d1",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/packbits.tif": {
+      "bytes": 39700,
+      "sha256": "9879ddc3127da11134530e08b038950b4b83813643b7b2a9b04cfba1ff6eba21",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/pages.tiff": {
+      "bytes": 16512,
+      "sha256": "736aa5d64c8792c185c020c24d6f7a4a89f136fe84555ec57222f3d8b73f7a7d",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/primary.heic": {
+      "bytes": 11132,
+      "sha256": "21b3ffb3e9b5d519b48dd30bc386fa00f48450dc59f67fb01af39a2603535b98",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/rgb.tif": {
+      "bytes": 15914,
+      "sha256": "e54617c91229c03851f5f74f53393b7ebf6040cfd5f79fad5403783c40bc5145",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/serial-10bit.heic": {
+      "bytes": 8891,
+      "sha256": "63077e89b3f8c54c6a8ed06876c0829a29cb9358dc7c6d195cced9bde4fc1a54",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/serial.avif": {
+      "bytes": 5651,
+      "sha256": "63e25257d2eb1cb09349167cd5129cf28adce1c9bf2a02ce7f8072a3ec85648e",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/serial.bmp": {
+      "bytes": 1350054,
+      "sha256": "39feb47ad1b91a1afa32e86de00fda216ef51973eca0fe094d5c59b49c6ddf09",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/serial.gif": {
+      "bytes": 8942,
+      "sha256": "b9f461df5a320075a69a3770da32ca9fca85a509a39d342a709364b5b2cc0c19",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/serial.heic": {
+      "bytes": 10593,
+      "sha256": "c5fe4890584cc1f303180136ea9348ed76e25ce040db31d80315ae25ac9a7740",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/serial.png": {
+      "bytes": 9288,
+      "sha256": "ff41750cd6ff1d62355feab253bfac55201238e6e23cf5c667722bd438e1afa3",
+      "mode": "0o644"
+    },
+    "tests/fixtures/images/tiff_adobe_deflate.tif": {
+      "bytes": 8240,
+      "sha256": "a169b7b4eef7f8591ff3b84add348cab2ff8612c70d51a1c1532f92ee9ff34bf",
+      "mode": "0o644"
+    },
+    "tests/image-formats.browser.cjs": {
+      "bytes": 11819,
+      "sha256": "ef71f051e2b9868abb7cdb68fb3924b914eaca2bf851c0d37069cf1ca1932838",
+      "mode": "0o644"
+    },
+    "tests/image-source.test.cjs": {
+      "bytes": 2283,
+      "sha256": "9813ddbb7989bd752dafe9865bfd95e56f9fddb662be1f253b92f43396c3d83e",
+      "mode": "0o644"
+    },
+    "tests/make-image-fixtures.py": {
+      "bytes": 2467,
+      "sha256": "f43cce406e303dfd250962d908097f0ec9b9f97240488b4c07cd1e9eb370f3c8",
       "mode": "0o644"
     },
     "tests/ocr-review.test.cjs": {
@@ -369,8 +584,8 @@
       "mode": "0o644"
     },
     "tests/rotation.browser.cjs": {
-      "bytes": 39558,
-      "sha256": "c2c74131cd70dbce63905360cd0a5e06ecba4fe02ed2e2027f470c9f029337bc",
+      "bytes": 39552,
+      "sha256": "b5f0a4f9c1e05cbd853b2cd791c3a6ed5d0c4adfcd8363305b5cc8a5fc25511b",
       "mode": "0o644"
     },
     "tests/selection-layout.browser.cjs": {
